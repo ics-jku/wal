@@ -1,0 +1,51 @@
+BEGIN: {
+  import(extern);
+  print("<html><head><title>VexRiscv Pipeline</title></head><body><h2>VexRiscv Pipeline Visualization</h2><table style='width:100%'><tr><th>Time</th><th>Decode</th><th>Execute</th><th>Memory</th><th>WriteBack</th></tr>");
+}
+
+function show_warning(error_id, msg) {
+  printf("<tr><td colspan='5' style='border:1px solid; padding:10px;'><h3 id='%d'>Warning %d: %s, current instruction %s <a href='#%d'>Previous</a> <a href='#%d'>Next</a></h3></td></tr>",
+          error_id, error_id, msg, call(extern.decode, TOP.VexRiscv.lastStageInstruction),
+	  error_id - 1, error_id + 1);
+}
+
+function render_cell(msg, color) {
+  printf("<td style='background-color:%s'>%s</td>", color, msg);
+}
+
+// detection of halting
+TOP.clk: {
+  if (TOP.VexRiscv.decode_arbitration_isMoving) {
+    if (decode_halt > 4) {
+      show_warning(error_id, "Pipeline halted for " + decode_halt + " cycles");
+      error_id += 1;
+    };
+    decode_halt = 0;
+  } else {
+    decode_halt += 1;
+  };
+}
+
+// main generation of HTML table
+TOP.clk: {
+  printf("<tr><td>%s</td>", TS);
+  for (stage in ["decode", "execute", "memory", "writeBack"]) {
+    group(["TOP.VexRiscv." + stage]) {
+      instr = call(extern.decode, #_INSTRUCTION);
+      if (#_arbitration_isFlushed) render_cell("flush", "#ff6040")
+      else if (#_arbitration_isFiring) render_cell(instr, "#2ade2a")
+      else if (#_arbitration_isMoving) render_cell(instr, "#90ee90")
+      else if (!#_arbitration_isMoving) render_cell(instr, "#ffbf40");
+    };
+  };
+  print("</tr>");
+}
+
+TOP.clk,
+TOP.VexRiscv.decode_arbitration_isFlushed, TOP.VexRiscv.execute_arbitration_isFlushed,
+TOP.VexRiscv.memory_arbitration_isFlushed, TOP.VexRiscv.writeBack_arbitration_isFlushed: {
+  show_warning(error_id, "Pipeline flushed");
+  error_id += 1;
+}
+
+END: { print("</table></body></html>"); }
