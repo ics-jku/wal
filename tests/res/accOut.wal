@@ -1,0 +1,3 @@
+counter_tb.clock, (!= counter_tb.out "x"): (set acc (+ acc counter_tb.out))
+
+counter_tb.clock, (!= counter_tb.out "x"): (print acc "\t" counter_tb.out)

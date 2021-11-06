@@ -1,0 +1,18 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+parsy = "*"
+pylint = "*"
+coverage = "*"
+coverage-badge = "*"
+sphinx-rtd-theme = "*"
+sphinxcontrib-wavedrom = "*"
+vcdvcd = "==2.1"
+
+[requires]
+python_version = "3.7"

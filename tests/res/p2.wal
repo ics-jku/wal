@@ -1,0 +1,4 @@
+; Test program 2
+; Find all bus transactions and print the payload
+
+i_valid, i_ready: (print i_data)

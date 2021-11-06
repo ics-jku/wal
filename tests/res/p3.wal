@@ -1,0 +1,6 @@
+; Test program 3
+; Print number of cycles the bus waited for ready signal
+
+(&& i_valid (! i_ready)): (let wait (+ wait 1))
+
+END: (print "Waited " wait " cycles")
