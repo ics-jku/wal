@@ -1,0 +1,57 @@
+; McCarthy LISP implemented in WAL
+; Based on http://www.paulgraham.com/rootsoflisp.html by Paul Graham 
+
+(defun assoc (x y)
+  (cond ((= y '()) #f)
+        (#t (cond ((= x (first (first y))) (second (first y)))
+                  (#t (assoc x (rest y)))))))
+
+(defun append (xs x)
+  (if (= xs '())
+      x
+      (list (first xs) (append (rest xs) x))))
+
+(defun leval (e a)
+  (cond ((atom e) (assoc e a))
+  	((atom (first e))
+	  (cond
+	    ((= (first e) 'quote) (second e))
+	    ((= (first e) 'atom)  (atom (leval (second e) a)))
+	    ((= (first e) 'eq) 	  (= (leval (second e) a) (leval (second (rest e)) a)))
+	    ((= (first e) 'car)   (first (leval (second e) a)))
+	    ((= (first e) 'cdr)   (rest (leval (second e) a)))
+	    ((= (first e) 'cons)  (list (leval (second e) a) (leval (second (rest e)) a)))
+	    ((= (first e) 'cond) (evcon (rest e) a))
+	    ('t (leval (list (assoc (first e) a)
+	                    (rest e))
+		      a))))
+	((= (first (first a)) 'lambda)
+	    (leval (second (rest (first a))) (append a '(second (first e)))))
+	(#t "noimpl")))
+
+(defun evcon (c a)
+  (cond ((leval (first (first c)) a) (leval (second (first c)) a))
+  	(#t (evcon (rest c) a))))
+
+; Tests
+
+(print "McCarthy LISP implemented in WAL")
+(print "Based on http://www.paulgraham.com/rootsoflisp.html by Paul Graham")
+
+(defun test (name eut goal)
+  (do
+    (set (res (leval eut '())))
+    (printf "\t%-10s: %s\n" name (if (= res goal) "PASS" (+ "FAIL/ " res " is not " goal)))))
+
+
+(test "Quote"  '(quote v) 'v)
+(test "Atom1"  '(atom 1) #t)
+(test "Eq1"    '(eq 'a 'a) #t)
+(test "Eq2"    '(eq 'a 'b) #f)
+(test "Car"    '(car '(a b c)) 'a)
+(test "Cdr"    '(cdr '(a b c)) '(b c))
+(test "Cons"   '(cons 'a 'b) '(a b))
+(test "Cond1"  '(cond ((eq 'a 'a) '1)
+      	       	      ((eq 'a 'a) '2)) '1)
+(test "Cond2"  '(cond ((eq 'a 'b) '1)
+  		      ((eq 'a 'a) '2)) '2)

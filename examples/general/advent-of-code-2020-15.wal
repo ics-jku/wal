@@ -1,0 +1,16 @@
+(defun day15 (until)
+       (set (spoken (array ("16" 1) ("11" 2) ("15" 3) ("0" 4) ("1" 5)))
+       	    (now 7)
+     	    (prev 7)
+     	    (turn 6))
+     
+       (while (<= turn until)
+       	     (set (prev now))
+	     (set (now (if (in prev spoken)
+	     	      	   (- turn (geta spoken prev))
+			   0)))
+	     (seta spoken prev turn)
+	     (set (turn (+ turn 1))))
+      prev)
+
+(print "Advent of Code day 15: " (day15 2020))

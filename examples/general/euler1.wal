@@ -1,0 +1,22 @@
+; Project Euler Problem 1
+; https://projecteuler.net/problem=1
+; If we list all the natural numbers below 10 that are multiples of 3 or 5, we get 3, 5, 6 and 9. The sum of these multiples is 23.
+; Find the sum of all the multiples of 3 or 5 below 1000.
+
+(defun div-by (x y) (= x (* y (/ x y))))
+(defun div-by-3-or-5 (x) (if (|| (div-by x 3) (div-by x 5)) x 0))
+
+(defun range (low high)
+  (while (<= low high)
+	 (set (low (+ low 1))
+	      (tmp (+ '() tmp (- low 1))))))
+
+
+(defun foldl (f acc xs)
+  (if (!= xs '())
+      (foldl f (f acc (first xs)) (rest xs))
+      acc))
+
+(defun sum2 (xs) (foldl (lambda (a x) (+ a x)) 0 xs))
+
+(print (sum2 (map div-by-3-or-5 (range 1 999))))

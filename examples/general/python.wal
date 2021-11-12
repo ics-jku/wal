@@ -1,0 +1,8 @@
+(import extern)
+
+(let (data (call extern.date))
+     (day (first data))
+     (date (second data))
+     (print "Today is " day " the " date))
+
+(print "Random list: " (call extern.random_list 5))
