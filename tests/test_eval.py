@@ -5,8 +5,8 @@ from unittest.mock import patch
 from io import StringIO
 
 from wal.core import Wal
-from wal.ast import Symbol as S
-from wal.ast import Operator
+from wal.ast_defs import Symbol as S
+from wal.ast_defs import Operator
 
 # pylint: disable=C0103
 # pylint: disable=W0201

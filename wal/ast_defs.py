@@ -43,6 +43,7 @@ class Operator(Enum):
     EVAL = 'eval'
     DEFUN = 'defun'
     LAMBDA = 'lambda'
+    FN = 'fn'
     GET = 'get'
     CALL = 'call'
     IMPORT = 'import'
@@ -60,7 +61,6 @@ class Operator(Enum):
     AVERAGE = 'average'
     ZIP = 'zip'
     TYPE = 'type'
-    GET_AT_TIME = '@'
     REL_EVAL = 'reval'
     ARRAY = 'array'
     SETA = 'seta'
@@ -78,9 +78,11 @@ class Operator(Enum):
     SLICE = 'slice'
     # special
     FIND = 'find'
+    FIND_G = 'find/g'
     WHENEVER = 'whenever'
     # system
     EXIT = 'exit'
+
 
 @dataclass
 class Symbol:

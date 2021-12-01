@@ -171,3 +171,6 @@ tramp
 flycheck_*.el
 # projectiles files
 .projectile
+
+# WAL
+*.wo

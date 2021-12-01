@@ -1,4 +1,4 @@
-from wal.ast import Operator, Symbol
+from wal.ast_defs import Operator, Symbol
 
 def op_list(seval, args):
     return seval.eval_args(args)
@@ -107,7 +107,7 @@ def op_average(seval, args):
 def op_length(seval, args):
     assert len(args) == 1, 'length: expects one argument (length list)'
     evaluated = seval.eval(args[0])
-    assert isinstance(evaluated, list), 'length: argument must be a list'
+    assert isinstance(evaluated, (list, str)), 'length: argument must be a list'
     return len(evaluated)
 
 

@@ -1,3 +1,4 @@
+#!/usr/bin/wal
 (defun is-bin [signal] (= '() (find (! (in (get signal) '(0 1 "x"))))))
 
 (defun print-header ()
@@ -59,3 +60,5 @@
 	    (set (max-signal (max (map (fn [x] (length x)) SIGNALS))))
 	    (render SIGNALS)
 	    (step 10)))
+
+(set "x" 42)

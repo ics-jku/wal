@@ -1,5 +1,5 @@
 '''S-Exprssion eval functions'''
-from wal.ast import Operator, Symbol, ExpandGroup
+from wal.ast_defs import Operator, Symbol, ExpandGroup
 from wal.implementation.list import list_operators
 from wal.implementation.array import array_operators
 from wal.implementation.wal import wal_operators

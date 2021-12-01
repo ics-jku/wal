@@ -3,7 +3,7 @@ import argparse
 import pickle
 import wal
 
-from wal.parsers import sexpr
+from wal.reader import read_wal_sexprs
 
 class Arguments:  # pylint: disable=too-few-public-methods
     '''Wrapper class for argument parser'''
@@ -35,7 +35,7 @@ def run():  # pylint: disable=R1710
 
     with open(args.input_name, 'r', encoding='utf8') as fin:
         code = fin.read()
-        compiled = sexpr.many().parse(code)
+        compiled = read_wal_sexprs(code)
 
         if args.output_name:
             name = args.output_name

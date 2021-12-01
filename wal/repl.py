@@ -1,8 +1,8 @@
 '''Implementation of basic read-eval-print-loop'''
 import cmd
 from wal.core import Wal, wal_str
-from wal.parsers import sexpr
-from wal.ast import Operator
+from wal.reader import read_wal_sexpr, ParseError
+from wal.ast_defs import Operator
 from . import __version__
 
 
@@ -28,19 +28,22 @@ class WalRepl(cmd.Cmd):
             evaluated = self.wal.eval(line)
             if evaluated is not None:
                 print(wal_str(evaluated))
-        except Exception as e:  # pylint: disable=W0703,C0103
-            print('ERROR|', e)
-            print(line)
+        except Exception as e:
+            print(e)
+            print(wal_str(line))
+            
 
     def precmd(self, line):
         try:
-            expr = sexpr.parse(line)
+            sexpr = read_wal_sexpr(line)
             # intercept defuns to include them in completion
-            if isinstance(expr, list):
-                if expr[0] == Operator.DEFUN:
-                    self.complete_list.append(expr[1].name)
+            if isinstance(sexpr, list):
+                if sexpr[0] == Operator.DEFUN:
+                    self.complete_list.append(sexpr[1].name)
 
-            return expr
+            return sexpr
+        except ParseError as e:
+            e.show()
         except Exception as e:  # pylint: disable=W0703,C0103
             print(e)
         return None

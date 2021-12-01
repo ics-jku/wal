@@ -6,7 +6,7 @@ import operator
 import importlib
 
 from functools import reduce, lru_cache
-from wal.ast import Operator, Symbol
+from wal.ast_defs import Operator, Symbol
 
 
 def op_atom(seval, args):
@@ -212,9 +212,10 @@ def op_print(seval, args):
 
 def op_printf(seval, args):
     assert args, 'printf: expects at least a format string'
-    if isinstance(args[0], str):
+    format_evaluated = seval.eval(args[0])
+    if isinstance(format_evaluated, str):
         evaluated = seval.eval_args(args[1:])
-        print(args[0] % tuple(evaluated), sep='', end='')
+        print(format_evaluated % tuple(evaluated), sep='', end='')
     else:
         raise ValueError('printf\'s first argument must be a format string')
     return None
@@ -308,7 +309,7 @@ def op_eval(seval, args):
 
 def op_defun(seval, args):
     assert len(args) >= 3, 'defun: '
-    assert isinstance(args[0], Symbol), 'defun: first argument must be a symbol'
+    assert isinstance(args[0], Symbol), f'defun: first argument must be a symbol not {args[0]}'
     assert isinstance(args[1], list), 'defun: second argument must be a list of symbols'
     assert all(isinstance(s, Symbol) for s in args[1]), 'defun: second argument must be a list of symbols'
     assert isinstance(args[2], (Symbol, int, str, list)), 'defun: third argument must be a valid expression'
@@ -613,6 +614,7 @@ core_operators = {
     Operator.EVAL.value: op_eval,
     Operator.DEFUN.value: op_defun,
     Operator.LAMBDA.value: op_lambda,
+    Operator.FN.value: op_lambda,
     Operator.GET.value: op_get,
     Operator.IMPORT.value: op_import,
     Operator.CALL.value: op_call,

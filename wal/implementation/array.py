@@ -1,4 +1,4 @@
-from wal.ast import Symbol, Operator
+from wal.ast_defs import Symbol, Operator
 
 
 def op_array(seval, args):
@@ -24,6 +24,8 @@ def op_seta(seval, args):
     if isinstance(args[0], Symbol):
         if args[0].name in seval.context:
             array = seval.context[args[0].name]
+        elif seval.stack and args[0].name in seval.stack[-1]:
+            array = seval.stack[-1][args[0].name]
         else:
             array = {}
             seval.context[args[0].name] = array
@@ -40,8 +42,12 @@ def op_geta(seval, args):
     assert len(args) >= 2, 'geta: requires at least two arguments. (geta array:(array, symbol) [key:(int, str, symbol])'
 
     if isinstance(args[0], Symbol):
-        assert(args[0].name in seval.context), f'geta: array {args[0].name} not found'
-        array = seval.context[args[0].name]
+        if args[0].name in seval.context:
+            array = seval.context[args[0].name]
+        elif seval.stack and args[0].name in seval.stack[-1]:
+            array = seval.stack[-1][args[0].name]
+        else:
+            raise ValueError(f'geta: array {args[0].name} not found')
     else:
         array = seval.eval(args[0])
         

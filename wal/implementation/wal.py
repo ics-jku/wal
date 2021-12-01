@@ -1,4 +1,4 @@
-from wal.ast import Operator, Symbol
+from wal.ast_defs import Operator, Symbol
 
 def op_load(seval, args):
     assert len(args) == 2, 'load: expects two arguments (load filename:str tid:str|symbol)'
@@ -28,8 +28,9 @@ def op_step(seval, args):
         else:
             res = do_step(args[0])
     else:
-        assert isinstance(args[-1], int), 'step: last argument must be int'
-        steps = args[-1]
+        evaluated = seval.eval(args[-1])
+        assert isinstance(evaluated, int), 'step: last argument must be int'
+        steps = evaluated
         res = []
         for tid in args[:-1]:
             step = do_step(tid, steps)

@@ -4,8 +4,8 @@ import pickle
 
 from wal.trace import TraceContainer
 from wal.eval import SEval
-from wal.parsers import parse_sexpr
-from wal.ast import Symbol, Operator
+from wal.reader import read_wal_sexpr, ParseError
+from wal.ast_defs import Symbol, Operator
 
 class Wal:
     '''Main Wal class to be imported into other applications'''
@@ -28,7 +28,11 @@ class Wal:
     def eval(self, sexpr, **args):
         '''Evaluate the WAL expression sexpr'''
         if isinstance(sexpr, str):
-            sexpr = parse_sexpr(sexpr)
+            try:
+                sexpr = read_wal_sexpr(sexpr)
+            except ParseError as e:
+                e.show()
+                return
 
         # put passed arguments into context
         for name, val in args.items():
@@ -77,6 +81,8 @@ def wal_str(sexpr):
             txt = '(' + ' '.join(map(wal_str, sexpr)) + ')'
     elif isinstance(sexpr, Symbol):
         txt = sexpr.name
+    elif isinstance(sexpr, Operator):
+        txt = sexpr.value
     elif isinstance(sexpr, str):
         txt = f'"{sexpr}"'
     elif isinstance(sexpr, bool):
