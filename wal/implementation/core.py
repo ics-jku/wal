@@ -551,22 +551,32 @@ def op_resolve_group(seval, args):
 
 def op_slice(seval, args):
     assert len(args) > 1 and len(args) < 4, 'slice: two or three arguments required (slice high:int [low:int])'
-    evaluated = seval.eval(args[0])
-    assert isinstance(evaluated, (int, list)), 'slice: first argument must evaluate to int'
+    evaluated = seval.eval_args(args)
+    assert isinstance(evaluated[0], (int, list, str)), 'slice: first argument must evaluate to a number or a list'
 
-    if isinstance(evaluated, int):
+    if isinstance(evaluated[0], int):
         if len(args) == 2:
-            return (evaluated & (1 << args[1])) >> args[1]
+            index = evaluated[1]
+            assert isinstance(index, int), 'slice: index must evaluate to int'
+            return (evaluated[0] & (1 << index)) >> index
         elif len(args) == 3:
-            return (evaluated & (((1 << (args[1] - args[2] + 1)) - 1) << args[2])) >> args[2]
-    elif isinstance(evaluated, list):
+            upper = evaluated[1]
+            assert isinstance(upper, int), 'slice: upper index must evaluate to int'
+            lower = evaluated[2]
+            assert isinstance(lower, int), 'slice: lower index must evaluate to int'           
+            return (evaluated[0] & (((1 << (upper - lower + 1)) - 1) << lower)) >> lower
+    elif isinstance(evaluated[0], (list, str)):
         if len(args) == 2:
-            return evaluated[args[1]]
+            index = evaluated[1]
+            assert isinstance(index, int), 'slice: index must evaluate to int'            
+            return evaluated[0][index]
         elif len(args) == 3:
-            return evaluated[args[1]:args[2]]
-    else:
-        raise ValueError('slice: first argument must evaluate to int or list')
-
+            upper = evaluated[1]
+            assert isinstance(upper, int), 'slice: upper index must evaluate to int'
+            lower = evaluated[2]
+            assert isinstance(lower, int), 'slice: lower index must evaluate to int'
+            return evaluated[0][upper:lower]
+        
 
 def op_exit(seval, args):
     assert len(args) < 2, 'exit: expects none or one argument (exit return_code:int)'

@@ -38,10 +38,10 @@ wal_grammar = r"""
     scoped_symbol : "~" base_symbol
     grouped_symbol : "#" base_symbol
     timed_symbol : sexpr_strict "@" SIGNED_INT
-    timed_list : sexpr_strict "@" "(" [INT (_WS INT)*] ")"
+    timed_list : sexpr_strict "@" "(" [dec_int (_WS dec_int)*] ")"
     !base_symbol : (LETTER | "_")(LETTER | /[0-9]/ | "_" | "-" | "$" | "." | "/")*
-    bit_symbol : simple_symbol "[" INT "]"
-    sliced_symbol : simple_symbol "[" INT ":" INT "]"
+    bit_symbol : sexpr "[" sexpr "]"
+    sliced_symbol : sexpr "[" sexpr ":" sexpr "]"
  
     string : ESCAPED_STRING
 
@@ -77,7 +77,8 @@ class TreeToWal(Transformer):
     scoped_symbol = lambda self, s: [Operator.SCOPED, s[0]]
     grouped_symbol = lambda self, s: [Operator.RESOLVE_GROUP, s[0]]
     timed_symbol = lambda self, s: [Operator.REL_EVAL, s[0], s[1]]
-    timed_list = lambda self, s: ExpandGroup([[Operator.REL_EVAL, s[0], time] for time in s[1]])
+    timed_list = lambda self, s: ExpandGroup([[Operator.REL_EVAL, s[0], time] for time in s[1:]])
+    
     bit_symbol = lambda self, s: [Operator.SLICE, s[0], s[1]]
     sliced_symbol = lambda self, s: [Operator.SLICE, s[0], s[1], s[2]]
 
