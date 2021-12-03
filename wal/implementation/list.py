@@ -64,7 +64,6 @@ def op_map(seval, args):
     else:
         func = seval.eval(args[0])    
         assert func[0] == Operator.LAMBDA, 'map: first argument must be a function'
-        assert len(func[1]) == 1, 'map: passed functions may only accept one argument'
         for element in arg:
             res.append(seval.eval_lambda(func, [[Operator.QUOTE, element]]))
     return res

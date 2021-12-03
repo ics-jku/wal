@@ -317,9 +317,9 @@ def op_defun(seval, args):
 
 
 def op_lambda(seval, args):
-    assert len(args) == 2, 'lambda: expects exactly two arguments (lambda (symbol*) sexpr)'
-    assert isinstance(args[0], list), 'lambda: first argument must be a list of symbols'
-    assert all(isinstance(arg, Symbol) for arg in args[0])
+    assert len(args) == 2, 'lambda: expects exactly two arguments (lambda (symbol* | (symbol expr)) sexpr)'
+    assert isinstance(args[0], list), 'lambda: first argument must be a list of symbols or symbol expression pairs'
+    assert all(isinstance(arg, (list, Symbol)) for arg in args[0])
     return [Operator.LAMBDA, args[0], args[1]]
 
 

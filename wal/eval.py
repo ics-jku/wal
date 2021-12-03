@@ -45,11 +45,22 @@ class SEval:
 
     def eval_lambda(self, lambda_expr, vals):
         '''Evaluate lambda expressions'''
-        assert len(lambda_expr[1]) == len(
-            vals), f'lambda: number of passed arguments must match signature {lambda_expr[1]}'
         sub_context = {}
+        bindings = 0
+        for i in range(len(lambda_expr[1])):
+            arg = lambda_expr[1][i]
+            if isinstance(arg, list):
+                assert len(arg) == 2, 'lambda: only one value can be bound to a symbol (sym expr)'
+                assert isinstance(arg[0], Symbol), 'lambda: first argument of binding must be a symbol'
+                sub_context[arg[0].name] = self.eval(arg[1])
+                bindings += 1
+
+        assert len(lambda_expr[1]) - bindings == len(
+            vals), f'lambda: number of passed arguments must match signature {lambda_expr[1]}'
+        
         for arg, val in zip(lambda_expr[1], vals):
-            sub_context[arg.name] = self.eval(val)
+            if isinstance(arg, Symbol):
+                sub_context[arg.name] = self.eval(val)
         self.stack.append(sub_context)
         res = self.eval(lambda_expr[2])
         self.stack.pop()
