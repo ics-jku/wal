@@ -5,9 +5,10 @@
        (set (start INDEX))
        (printf (+ "%" max-signal "s: ") "Index")
        (when (>= INDEX 4) (step -4))
-       (while (< INDEX (+ start 20))
+       (set [run #t])
+       (while (&& (< INDEX (+ start 20)) run)
        	      (printf "%-4d" INDEX)
-	      (step))
+	      (set [run (step)]))
        (print)
        (step -20))
 
@@ -15,13 +16,14 @@
        (set (start INDEX))
        (printf (+ "%" max-signal "s: ") signal)
        (when (>= INDEX 4) (step -4))
-       (while (< INDEX (+ start 20))
+       (set [run #t])
+       (while (&& (< INDEX (+ start 20)) run)
        	      (when (= INDEX start) (printf "|"))
 	      (set (sym (case (get signal) (0 "⎽") (1 "⎻") ("x" "X"))))
        	      (if (!= (get signal) (get signal)@-1)
        	      	  (if (get signal) (printf "/%s%s%s" sym sym sym) (printf "\%s%s%s" sym sym sym))
 		  (printf "%s%s%s%s" sym sym sym sym))
-	      (step))
+	      (set [run (step)]))
        (print)
        (step -20))
 
@@ -29,7 +31,8 @@
        (printf (+ "%" max-signal "s: ") signal)
        (set (start INDEX))
        (when (>= INDEX 4) (step -4))
-       (while (< INDEX (+ start 20))
+       (set [run #t])
+       (while (&& (< INDEX (+ start 20)) run)       
        	      (when (= INDEX start) (printf "|"))
 	      (set (v (get signal))
 		   (p (get signal)@-1)
@@ -40,7 +43,7 @@
 		    [(&& (!= p v) (!= v n)) (printf "┤%2x├" v)]
 		    [(!= v n) (printf "   ├")]
 	      	    [#t (printf "    ")])
-	      (step))
+	      (set [run (step)]))
        (print)
        (step -20))
 
@@ -53,12 +56,17 @@
 		    	(print-bin signal 10)
 			(print-signal signal 10))) signals))
 
-(load "/home/klemmer/trace.vcd" t)
-(step 2)
-(in-scope 'InputBufferTb
-	  (do
-	    (set (max-signal (max (map (fn [x] (length x)) SIGNALS))))
-	    (render SIGNALS)
-	    (step 10)))
+(when (< (length args) 3)
+      (print "No vcd file specified")
+      (print "usage: print-vcd filename")
+      (exit 1))
+      
+;(load "/home/klemmer/trace.vcd" t)
 
-(set "x" 42)
+(load args[2] t)
+
+(step 2)
+(set (max-signal (max (map (fn [x] (length x)) SIGNALS))))
+(print max-signal)
+(render SIGNALS)
+(step 10)
