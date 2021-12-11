@@ -1,5 +1,8 @@
 #!/usr/bin/wal
-(defun is-bin [signal] (= '() (find (! (in (get signal) '(0 1 "x"))))))
+(defun is-bin [signal start i]
+  (cond [(! (in (get signal)@i '(0 1 "x"))) (seta types signal #f)]
+        [(> i (+ start 20)) (seta types signal #t)]
+	[#t (is-bin signal start (+ i 1))]))	
 
 (defun print-header ()
        (set (start INDEX))
@@ -52,7 +55,7 @@
        (printf (+ "%" max-signal "s: %s\n") "Scope" CS)
        (print-header)
        (map (fn (signal)
-       	    	    (if (is-bin signal)
+       	    	    (if (geta types signal) ;(is-bin signal)
 		    	(print-bin signal 10)
 			(print-signal signal 10))) signals))
 
@@ -61,12 +64,14 @@
       (print "usage: print-vcd filename")
       (exit 1))
       
-;(load "/home/klemmer/trace.vcd" t)
-
+;--------------------------------------------------------------------------------
+; Main Program
+;--------------------------------------------------------------------------------
 (load args[2] t)
 
-(step 2)
+; get type of each signal in next 20 cycles
+(map (fn [x] (is-bin x INDEX 0)) SIGNALS)
+
+(step 2) ; (step args[3])
 (set (max-signal (max (map (fn [x] (length x)) SIGNALS))))
-(print max-signal)
 (render SIGNALS)
-(step 10)

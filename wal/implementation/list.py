@@ -110,6 +110,55 @@ def op_length(seval, args):
     return len(evaluated)
 
 
+def op_fold(seval, args):
+    assert len(args) == 3, 'fold: expects 3 arguments (fold f acc data:list)'
+    evaluated = seval.eval_args(args[1:])
+    assert isinstance(evaluated[-1], list), f'fold: last argument must be a list not {type(evaluated[-1])}'
+
+    acc = evaluated[0]
+    if isinstance(args[0], Operator):
+        for element in evaluated[1]:
+            acc = seval.eval([args[0], [Operator.QUOTE, acc], [Operator.QUOTE, element]])
+    else:
+        func = seval.eval(args[0])
+        assert func[0] == Operator.LAMBDA, 'fold: first argument must be a function'
+        for element in evaluated[1]:
+            acc = seval.eval_lambda(func, [[Operator.QUOTE, acc], [Operator.QUOTE, element]])
+            
+    return acc
+
+
+def op_range(seval, args):
+    assert len(args) >= 1 and len(args) <= 3, 'range: expects one or two arguments (range start:int end:int step:int)'
+    evaluated = seval.eval_args(args)
+    assert all(isinstance(e, int) for e in evaluated), 'range: all arguments must be ints'
+    
+    return list(range(*evaluated))
+
+
+def op_is_list(seval, args):
+    assert len(args) == 1, 'list?: expects exactly one argument (list? list)'
+    return isinstance(seval.eval(args[0]), list)
+
+
+def op_for(seval, args):
+    assert len(args) > 1, 'for: expects at least two arguments (for [id:symbol seq:list] body+)'
+    assert isinstance(args[0], list), 'for: first argument must be a tuple like [id:symbol seq:list]'
+    assert len(args[0]) == 2,  'for: first argument must be a tuple like [id:symbol seq:list]'
+    sym = args[0][0]
+    sequence = seval.eval(args[0][1])
+    assert isinstance(sequence, list), 'for: seq in [id:symbol seq:list] must be a list'
+    for v in sequence:
+        if seval.stack: # if in a function
+            seval.stack[-1][sym.name] = v
+            seval.eval_args(args[1:])
+            del seval.stack[-1][sym.name]
+        else:
+            seval.context[sym.name] = v
+            seval.eval_args(args[1:])
+            del seval.context[sym.name]            
+
+
 list_operators = {
     Operator.LIST.value: op_list,
     Operator.FIRST.value: op_first,
@@ -123,5 +172,9 @@ list_operators = {
     Operator.SUM.value: op_sum,
     Operator.AVERAGE.value: op_average,
     Operator.ZIP.value: op_zip,
-    Operator.LENGTH.value: op_length
+    Operator.LENGTH.value: op_length,
+    Operator.FOLD.value: op_fold,
+    Operator.RANGE.value: op_range,
+    Operator.IS_LIST.value: op_is_list,
+    Operator.FOR.value: op_for
 }

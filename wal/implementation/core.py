@@ -114,13 +114,19 @@ def op_smaller_equal(seval, args):
 
 
 def op_and(seval, args):
-    assert len(args) > 1
-    return 1 if all(seval.eval_args(args)) > 0 else 0
+    for arg in args:
+        if not seval.eval(arg):
+            return False
+    return True
+    #return 1 if all(seval.eval_args(args)) > 0 else 0
 
 
 def op_or(seval, args):
-    assert len(args) > 1
-    return 1 if any(seval.eval_args(args)) > 0 else 0
+    for arg in args:
+        if seval.eval(arg):
+            return True
+    return False
+    
 
 
 def op_let(seval, args):
@@ -231,12 +237,13 @@ def op_if(seval, args):
 
 
 def op_cond(seval, args):
-    assert args, 'cond: expects a list of clauses (cond (cond1 clause)+)'
+    assert args, 'cond: expects a list of clauses (cond (cond1 clause+)+)'
     for clause in args:
         assert isinstance(clause, list), 'cond: clauses must be tuples (cond clause)'
-        assert len(clause) == 2, 'cond: clauses must be tuples (cond clause)'
+        assert len(clause) >= 2, 'cond: clauses must be tuples (cond clause)'
         if seval.eval(clause[0]):
-            return seval.eval(clause[1])
+            return seval.eval_args(clause[1:])[-1]
+#            return seval.eval(clause[1])
 
 
 def op_when(seval, args):
@@ -311,7 +318,7 @@ def op_defun(seval, args):
     assert len(args) >= 3, 'defun: '
     assert isinstance(args[0], Symbol), f'defun: first argument must be a symbol not {args[0]}'
     assert isinstance(args[1], list), 'defun: second argument must be a list of symbols'
-    assert all(isinstance(s, Symbol) for s in args[1]), 'defun: second argument must be a list of symbols'
+    #assert all(isinstance(s, Symbol) for s in args[1]), 'defun: second argument must be a list of symbols'
     assert isinstance(args[2], (Symbol, int, str, list)), 'defun: third argument must be a valid expression'
     seval.context[args[0].name] = [Operator.LAMBDA, args[1], [Operator.DO, *args[2:]]]
 

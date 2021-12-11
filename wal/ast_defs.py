@@ -9,6 +9,7 @@ class Operator(Enum):
     LOAD = 'load'
     STEP = 'step'
     # basic
+    REQUIRE = 'require'
     ATOM = 'atom'
     ADD = '+'
     SUB = '-'
@@ -48,6 +49,8 @@ class Operator(Enum):
     CALL = 'call'
     IMPORT = 'import'
     LIST = 'list'
+    IS_LIST = 'list?'
+    FOR = 'for'
     FIRST = 'first'
     SECOND = 'second'
     LAST = 'last'
@@ -57,9 +60,11 @@ class Operator(Enum):
     MAX = 'max'
     MIN = 'min'
     SUM = 'sum'
+    FOLD = 'fold'
     LENGTH = 'length'
     AVERAGE = 'average'
     ZIP = 'zip'
+    RANGE = 'range'
     TYPE = 'type'
     REL_EVAL = 'reval'
     ARRAY = 'array'
@@ -80,6 +85,7 @@ class Operator(Enum):
     FIND = 'find'
     FIND_G = 'find/g'
     WHENEVER = 'whenever'
+    FOLD_SIGNAL = 'fold/signal'
     # system
     EXIT = 'exit'
 

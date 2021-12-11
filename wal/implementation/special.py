@@ -53,7 +53,7 @@ def op_whenever(seval, args):
     
     prev_indices = seval.traces.indices()
     res = None
-    ended = seval.traces.step()
+    ended = []
     while ended == []:
         if seval.eval(args[0]):
             res = seval.eval(args[1])
@@ -66,8 +66,39 @@ def op_whenever(seval, args):
     return res
 
 
+def op_fold_signal(seval, args):
+    assert len(args) == 4, 'fold/signal: expects 3 arguments (fold f acc stop signal)'
+    assert seval.traces.contains(args[-1].name), f'fold/signal: last argument must be a valid signal name'
+    func = seval.eval(args[0])
+    acc = seval.eval(args[1])
+    stop = args[2]
+    signal = args[3]
+
+    # store indices at start
+    prev_indices = seval.traces.indices()
+    
+    stopped = False
+    while not seval.eval(stop) and not stopped:
+        if isinstance(func, Operator):
+            acc = seval.eval([func, [Operator.QUOTE, acc], [Operator.QUOTE, seval.eval(signal)]])
+        else:
+            assert func[0] == Operator.LAMBDA or func[0] == Operator.FN, 'fold/signal: first argument must be a function'
+            acc = seval.eval_lambda(func, [[Operator.QUOTE, acc], [Operator.QUOTE, seval.eval(signal)]])
+            
+        stopped = seval.traces.step() != []
+
+    # restore indices to start values
+    for trace in seval.traces.traces.values():
+        trace.index = prev_indices[trace.tid]
+
+        
+    return acc
+
+
+
 special_operators = {
     Operator.FIND.value: op_find,
     Operator.FIND_G.value: op_find_g,
-    Operator.WHENEVER.value: op_whenever
+    Operator.WHENEVER.value: op_whenever,
+    Operator.FOLD_SIGNAL.value: op_fold_signal
 }

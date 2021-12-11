@@ -2,7 +2,7 @@
 import unittest
 
 from wal.reader import read, ParseError, read_wal_sexpr, read_wal_sexprs
-from wal.ast_defs import S
+from wal.ast_defs import S, ExpandGroup
 from wal.ast_defs import Operator as Op
 
 from lark import Lark, Transformer
@@ -113,6 +113,11 @@ class BasicParserTest(unittest.TestCase):
 
         self.assertEqual(reader('(+ x y)@-1'), [Op.REL_EVAL, [Op.ADD, S('x'), S('y')], -1])
 
+    def test_multi_timed_symbol(self):
+        '''Test relative expression evaluation'''
+        reader = lambda c: read(c, 'timed_list')
+        self.assertEqual(reader('valid@(1 2)').elements, [[Op.REL_EVAL, S('valid'), 1], [Op.REL_EVAL, S('valid'), 2]])
+        
     def test_operators(self):
         '''Test built-in operators'''
         reader = lambda c: read(c, 'atom')
@@ -187,6 +192,19 @@ class SimpleProgramTest(unittest.TestCase):
         (print (+ 1 (- x 5)))'''
         golden = [[Op.SET, [S('x'), 5]], [Op.PRINT, [Op.ADD, 1, [Op.SUB, S('x'), 5]]]]
         self.assertEqual(read_wal_sexprs(p), golden)
+        
+        p = '''
+        (set [x 5]) ;comment
+        ; comment
+           ;comment
+        (print (+ 1 (- x 5)))'''
+        self.assertEqual(read_wal_sexprs(p), golden)
+
+        p = '#;(+ 1 2)'
+        golden = []
+        self.assertEqual(read_wal_sexprs(p), golden)
+        
+        
         
         
         

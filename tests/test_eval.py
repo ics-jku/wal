@@ -343,7 +343,7 @@ class EvalPrintTest(OpTest):
             self.assertEqual(fake_out.getvalue(), 'f')
 
         with patch('sys.stdout', new=StringIO()) as fake_out:
-            self.w.eval('(printf "%x\n" 15)')
+            self.w.eval('(printf "%x\\n" 15)')
             self.assertEqual(fake_out.getvalue(), 'f\n')
 
         with patch('sys.stdout', new=StringIO()) as fake_out:

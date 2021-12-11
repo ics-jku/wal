@@ -46,16 +46,16 @@ class SEval:
     def eval_lambda(self, lambda_expr, vals):
         '''Evaluate lambda expressions'''
         sub_context = {}
-        bindings = 0
+        bindings = []
         for i in range(len(lambda_expr[1])):
             arg = lambda_expr[1][i]
             if isinstance(arg, list):
                 assert len(arg) == 2, 'lambda: only one value can be bound to a symbol (sym expr)'
                 assert isinstance(arg[0], Symbol), 'lambda: first argument of binding must be a symbol'
                 sub_context[arg[0].name] = self.eval(arg[1])
-                bindings += 1
+                bindings.append(arg[0])
 
-        assert len(lambda_expr[1]) - bindings == len(
+        assert len(lambda_expr[1]) - len(bindings) == len(
             vals), f'lambda: number of passed arguments must match signature {lambda_expr[1]}'
         
         for arg, val in zip(lambda_expr[1], vals):
@@ -64,6 +64,14 @@ class SEval:
         self.stack.append(sub_context)
         res = self.eval(lambda_expr[2])
         self.stack.pop()
+        
+        # get value of bounded variables
+        for binding in bindings:
+            if self.stack:
+                self.stack[-1][binding.name] = sub_context[binding.name]
+            else:
+                self.context[binding.name] = sub_context[binding.name]
+        
         return res
 
     def eval(self, expr):
@@ -88,7 +96,7 @@ class SEval:
                 else:
                     val = self.context[head.name]
                 if isinstance(val, list):
-                    if val[0] == Operator.LAMBDA:
+                    if val[0] == Operator.LAMBDA or val[0] == Operator.FN:
                         res = self.eval_lambda(val, tail)
             elif isinstance(head, list):
                 if isinstance(head[0], Operator):

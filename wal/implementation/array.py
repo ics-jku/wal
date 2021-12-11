@@ -20,17 +20,7 @@ def op_seta(seval, args):
                    evaluated_args)), 'seta: keys must be either int, string or a symbol'
     res = None
     key = '-'.join(map(str, evaluated_args))
-
-    if isinstance(args[0], Symbol):
-        if args[0].name in seval.context:
-            array = seval.context[args[0].name]
-        elif seval.stack and args[0].name in seval.stack[-1]:
-            array = seval.stack[-1][args[0].name]
-        else:
-            array = {}
-            seval.context[args[0].name] = array
-    else:
-        array = seval.eval(args[0])
+    array = seval.eval(args[0])
         
     assert isinstance(array, dict), 'seta: must be applied on array'
     array[key] = evaluated_val
@@ -68,7 +58,6 @@ def op_mapa(seval, args):
     assert len(args) == 2, 'mapa: requires two arguments. (mapa function array)'
     func = seval.eval(args[0])
     assert isinstance(func, list) and func[0] == Operator.LAMBDA, 'mapa: first argument must be a function'
-    assert len(func[1]) == 2, 'mapa: passed functions may only accept two arguments (key and value)'
     arg = seval.eval(args[1])
     assert isinstance(arg, dict), 'mapa: second argument must be an array'
     res = []

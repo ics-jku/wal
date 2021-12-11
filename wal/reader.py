@@ -12,7 +12,8 @@ wal_grammar = r"""
     _NL: /(\r?\n)+\s*/
 
     sexpr_strict: (atom | list | quoted)
-    ?sexpr : _WS? sexpr_strict _WS?
+    commented_sexpr: "#;" sexpr_strict
+    ?sexpr : _WS? sexpr_strict _WS? _COMMENT? | _COMMENT
     quoted : "'" sexpr
 
     line : sexpr | _COMMENT | _WS
@@ -37,11 +38,11 @@ wal_grammar = r"""
     simple_symbol : base_symbol | scoped_symbol | grouped_symbol | timed_symbol | bit_symbol | sliced_symbol | timed_list
     scoped_symbol : "~" base_symbol
     grouped_symbol : "#" base_symbol
-    timed_symbol : sexpr_strict "@" SIGNED_INT
-    timed_list : sexpr_strict "@" "(" [dec_int (_WS dec_int)*] ")"
-    !base_symbol : (LETTER | "_")(LETTER | /[0-9]/ | "_" | "-" | "$" | "." | "/")*
-    bit_symbol : sexpr "[" sexpr "]"
-    sliced_symbol : sexpr "[" sexpr ":" sexpr "]"
+    timed_symbol : sexpr_strict "@" sexpr_strict
+    timed_list : sexpr_strict "@" "<" [dec_int (_WS dec_int)*] ">"
+    !base_symbol : (LETTER | "_" | ".")(LETTER | /[0-9]/ | "_" | "-" | "$" | "." | "/" | "*" | "?")*
+    bit_symbol : sexpr_strict "[" sexpr "]"
+    sliced_symbol : sexpr_strict "[" sexpr ":" sexpr "]"
  
     string : ESCAPED_STRING
 
@@ -49,7 +50,7 @@ wal_grammar = r"""
            | "[" [sexpr (_WS sexpr)*] "]"
            | "{" [sexpr (_WS sexpr)*] "}"
 
-    _COMMENT: _WS? /;[^\n]*\n/
+    _COMMENT: _WS? ";" /.*/
     _WS: WS
 
     %import common.ESCAPED_STRING
@@ -94,8 +95,10 @@ class TreeToWal(Transformer):
     bool = lambda self, b: b[0]
     true = lambda self, _: True
     false = lambda self, _: False
+    sexpr = lambda self, s: s[0] if s else None
     sexpr_list = list
-    sexpr_strict = lambda self, s: s[0]
+    sexpr_strict = lambda self, s: s[0] if s else None
+    _commented_sexpr = lambda self, s: None
     line = lambda self, l: l[0] if l else None
 
 
