@@ -55,7 +55,7 @@ def op_div(seval, args):
     if evaluated[1] == 0:
         print('WARNING: division by zero. Is this intended?')
         return None
-    
+
     return int(evaluated[0] / evaluated[1])
 
 
@@ -126,7 +126,7 @@ def op_or(seval, args):
         if seval.eval(arg):
             return True
     return False
-    
+
 
 
 def op_let(seval, args):
@@ -139,7 +139,7 @@ def op_let(seval, args):
     def unbind():
         for name in bound:
             del context[name]
-            
+
     try:
         for pair in args[:-1]:
             assert len(pair) == 2, 'let: expects a list of pairs'
@@ -173,7 +173,7 @@ def op_letret(seval, args):
     res = context[pair[0].name]
     del context[pair[0].name]
     return res
-    
+
 
 
 def op_set(seval, args):
@@ -201,12 +201,12 @@ def op_inc(seval, args):
             arg = seval.eval(arg)
             assert isinstance(arg, Symbol), 'arguments to inc must be symbols'
             name = arg.name
-            
+
         if arg.name not in seval.context:
             seval.context[arg.name] = 0
-            
+
         assert isinstance(seval.context[arg.name], int), 'arguments to inc must be integers'
-        res = seval.context[arg.name] = seval.context[arg.name] + 1 
+        res = seval.context[arg.name] = seval.context[arg.name] + 1
 
     return res
 
@@ -250,7 +250,7 @@ def op_when(seval, args):
     assert len(args) >= 2, 'when: expects a condition and a clause'
     if seval.eval(args[0]):
         return seval.eval_args(args[1:])[-1]
-        
+
 
 def op_unless(seval, args):
     assert len(args) >= 2, 'unless: expects a condition and a clause'
@@ -339,7 +339,7 @@ def op_get(seval, args):
     elif isinstance(evaluated[0], Symbol):
         return seval.eval(evaluated[0])
 
-    
+
 def op_import(seval, args):
     '''Evaluate import operations'''
     assert len(args) >= 1, 'Import expects at least one argument'
@@ -361,7 +361,7 @@ def op_import(seval, args):
             evaluated = seval.eval({}, arg)
             do_import(evaluated)
 
-            
+
 def op_call(seval, args):
     '''Evaluate calls to external python modules'''
     extern_name = args[0]
@@ -508,7 +508,7 @@ def op_in_group(seval, args):
     assert len(args) == 2, 'in-group: exactly two arguments required (in-group group:symbol expression)'
     prev_group = seval.group
     prev_scope = seval.scope
-    
+
     evaluated = seval.eval(args[0])
     assert isinstance(evaluated, (str, Symbol)), 'in-group: argument must be Symbol, string or must evaluate to one of them'
 
@@ -519,11 +519,11 @@ def op_in_group(seval, args):
 
     seval.group = name
     seval.context['CG'] = seval.group
-    
+
     scope_index = seval.group.rfind('.')
     seval.scope = seval.group[:scope_index + 1] if scope_index != -1 else prev_scope
     seval.context['CS'] = seval.scope
-    
+
     res = seval.eval(args[1])
     seval.group = prev_group
     seval.scope = prev_scope
@@ -570,12 +570,12 @@ def op_slice(seval, args):
             upper = evaluated[1]
             assert isinstance(upper, int), 'slice: upper index must evaluate to int'
             lower = evaluated[2]
-            assert isinstance(lower, int), 'slice: lower index must evaluate to int'           
+            assert isinstance(lower, int), 'slice: lower index must evaluate to int'
             return (evaluated[0] & (((1 << (upper - lower + 1)) - 1) << lower)) >> lower
     elif isinstance(evaluated[0], (list, str)):
         if len(args) == 2:
             index = evaluated[1]
-            assert isinstance(index, int), 'slice: index must evaluate to int'            
+            assert isinstance(index, int), 'slice: index must evaluate to int'
             return evaluated[0][index]
         elif len(args) == 3:
             upper = evaluated[1]
@@ -583,7 +583,7 @@ def op_slice(seval, args):
             lower = evaluated[2]
             assert isinstance(lower, int), 'slice: lower index must evaluate to int'
             return evaluated[0][upper:lower]
-        
+
 
 def op_exit(seval, args):
     assert len(args) < 2, 'exit: expects none or one argument (exit return_code:int)'

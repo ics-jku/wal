@@ -1,4 +1,6 @@
 '''Main wal command line tool entry point'''
+# pylint: disable=C0103
+
 import os
 import sys
 
@@ -8,14 +10,15 @@ from wal.reader import read_wal_sexprs, ParseError
 
 
 def run():
+    '''Entry point for the application script'''
     try:
         main()
     except KeyboardInterrupt:
-        exit()
+        sys.exit()
 
-    
+
 def main():  # pylint: disable=R1710
-    '''Entry point for the application script'''
+    '''WAL main function'''
     sys.setrecursionlimit(10000)
 
     if len(sys.argv) == 1:
@@ -27,8 +30,8 @@ def main():  # pylint: disable=R1710
         wal = Wal()
 
         wal.eval_context.context['args'] = sys.argv
-        
-        if filename[-3:] == '.wo':               
+
+        if filename[-3:] == '.wo':
             sexprs = wal.decode(filename)
         else:
             with open(filename, 'r', encoding='utf8') as file:
@@ -36,12 +39,12 @@ def main():  # pylint: disable=R1710
                     sexprs = read_wal_sexprs(file.read())
                 except ParseError as e:
                     e.show()
-                    exit(os.EX_DATAERR)
+                    sys.exit(os.EX_DATAERR)
 
         try:
             for sexpr in sexprs:
                 wal.eval(sexpr)
-        except Exception as e:
+        except Exception as e: # pylint: disable=W0703
             print()
             print('>>>>> Runtime error! <<<<<')
             print(e)

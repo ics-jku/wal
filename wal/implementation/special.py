@@ -31,7 +31,7 @@ def op_find_g(seval, args):
        over all traces.
     '''
     assert len(args) == 1, 'find: expects exactly one argument (find condition)'
-    
+
     prev_indices = seval.traces.indices()
     found = []
     ended = []
@@ -41,7 +41,7 @@ def op_find_g(seval, args):
             found.append(indices if len(indices) > 1 else list(indices.values())[0])
 
         ended = seval.traces.step()
-        
+
     for trace in seval.traces.traces.values():
         trace.index = prev_indices[trace.tid]
 
@@ -50,7 +50,7 @@ def op_find_g(seval, args):
 
 def op_whenever(seval, args):
     assert len(args) == 2, 'whenever: expects exactly two arguments (whenever condition body)'
-    
+
     prev_indices = seval.traces.indices()
     res = None
     ended = []
@@ -59,7 +59,7 @@ def op_whenever(seval, args):
             res = seval.eval(args[1])
 
         ended = seval.traces.step()
-        
+
     for trace in seval.traces.traces.values():
         trace.index = prev_indices[trace.tid]
 
@@ -76,7 +76,7 @@ def op_fold_signal(seval, args):
 
     # store indices at start
     prev_indices = seval.traces.indices()
-    
+
     stopped = False
     while not seval.eval(stop) and not stopped:
         if isinstance(func, Operator):
@@ -84,14 +84,14 @@ def op_fold_signal(seval, args):
         else:
             assert func[0] == Operator.LAMBDA or func[0] == Operator.FN, 'fold/signal: first argument must be a function'
             acc = seval.eval_lambda(func, [[Operator.QUOTE, acc], [Operator.QUOTE, seval.eval(signal)]])
-            
+
         stopped = seval.traces.step() != []
 
     # restore indices to start values
     for trace in seval.traces.traces.values():
         trace.index = prev_indices[trace.tid]
 
-        
+
     return acc
 
 

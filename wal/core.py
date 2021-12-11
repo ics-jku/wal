@@ -1,4 +1,5 @@
 '''The WAL core module'''
+# pylint: disable=C0103
 
 import pickle
 
@@ -32,25 +33,25 @@ class Wal:
                 sexpr = read_wal_sexpr(sexpr)
             except ParseError as e:
                 e.show()
-                return
+                return None
 
         # put passed arguments into context
         for name, val in args.items():
-            self.eval_context.context[name] = val        
-            
+            self.eval_context.context[name] = val
+
         if sexpr:
             return self.eval_context.eval(sexpr)
 
         # remove passed arguments from context
         for name, val in args.items():
             del self.eval_context.context[name]
-            
+
         return None
 
     def run(self, sexpr, **args):
         '''Evaluate the WAL expression sexpr from Index 0'''
         if isinstance(sexpr, str):
-            sexpr = [parse_sexpr(sexpr)]
+            sexpr = [read_wal_sexpr(sexpr)]
 
         res = None
         if sexpr:

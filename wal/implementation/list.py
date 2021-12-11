@@ -57,12 +57,12 @@ def op_map(seval, args):
     arg = seval.eval(args[1])
     assert isinstance(arg, list), 'map: second argument must be a list'
     res = []
-    
+
     if isinstance(args[0], Operator):
         for element in arg:
             res.append(seval.eval([args[0], [Operator.QUOTE, element]]))
     else:
-        func = seval.eval(args[0])    
+        func = seval.eval(args[0])
         assert func[0] == Operator.LAMBDA, 'map: first argument must be a function'
         for element in arg:
             res.append(seval.eval_lambda(func, [[Operator.QUOTE, element]]))
@@ -124,7 +124,7 @@ def op_fold(seval, args):
         assert func[0] == Operator.LAMBDA, 'fold: first argument must be a function'
         for element in evaluated[1]:
             acc = seval.eval_lambda(func, [[Operator.QUOTE, acc], [Operator.QUOTE, element]])
-            
+
     return acc
 
 
@@ -132,7 +132,7 @@ def op_range(seval, args):
     assert len(args) >= 1 and len(args) <= 3, 'range: expects one or two arguments (range start:int end:int step:int)'
     evaluated = seval.eval_args(args)
     assert all(isinstance(e, int) for e in evaluated), 'range: all arguments must be ints'
-    
+
     return list(range(*evaluated))
 
 
@@ -156,7 +156,7 @@ def op_for(seval, args):
         else:
             seval.context[sym.name] = v
             seval.eval_args(args[1:])
-            del seval.context[sym.name]            
+            del seval.context[sym.name]
 
 
 list_operators = {

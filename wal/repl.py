@@ -1,4 +1,5 @@
 '''Implementation of basic read-eval-print-loop'''
+# pylint: disable=W0703,C0103
 import cmd
 from wal.core import Wal, wal_str
 from wal.reader import read_wal_sexpr, ParseError
@@ -31,7 +32,7 @@ class WalRepl(cmd.Cmd):
         except Exception as e:
             print(e)
             print(wal_str(line))
-            
+
 
     def precmd(self, line):
         try:
@@ -54,7 +55,7 @@ class WalRepl(cmd.Cmd):
     def completenames(self, text, *ignored):
         tmp = self.complete_list + self.wal.traces.signals
         candidates = [c for c in tmp if c.startswith(text)]
-        
+
 #        if text[0] != '(' and len(candidates) == 1 and candidates[0] in self.complete_list:
 #            candidates[0] = '(' + candidates[0] + ' '
 

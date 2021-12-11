@@ -21,7 +21,7 @@ def op_seta(seval, args):
     res = None
     key = '-'.join(map(str, evaluated_args))
     array = seval.eval(args[0])
-        
+
     assert isinstance(array, dict), 'seta: must be applied on array'
     array[key] = evaluated_val
     res = array
@@ -40,7 +40,7 @@ def op_geta(seval, args):
             raise ValueError(f'geta: array {args[0].name} not found')
     else:
         array = seval.eval(args[0])
-        
+
     assert(isinstance(array, dict)), 'geta: first argument must be either array or symbol'
     evaluated = seval.eval_args(args[1:])
     assert all(map(lambda x: isinstance(x, (int, str, Symbol)),

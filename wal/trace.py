@@ -1,4 +1,5 @@
 '''Wrapper class for trace data'''
+# pylint: disable=R0902
 import re
 from functools import lru_cache
 from vcdvcd import VCDVCD, StreamParserCallbacks
@@ -69,7 +70,7 @@ class TraceContainer:
         If more than one scope trace is loaded, scopes are prepended by the tid of their trace.
         '''
         if len(self.traces) > 1:
-            scopes = [(trace.id + SCOPE_SEPERATOR + scope) for trace in self.traces.values() for scope in trace.scopes]
+            scopes = [(trace.id + trace.SCOPE_SEPERATOR + scope) for trace in self.traces.values() for scope in trace.scopes]
         else:
             scopes = [scope for trace in self.traces.values() for scope in trace.scopes]
 
@@ -156,33 +157,37 @@ class Trace:
         '''Get the value of signal name at current time + offset.'''
         rel_index = self.index + offset
 
+        res = None
         # handle special variables
         if rel_index in self.timestamps:
             if name == 'SIGNALS':
                 if scope == '':
-                    return self.rawsignals 
+                    res = self.rawsignals
                 else:
                     def in_scope(signal):
                         prefix_ok = signal.startswith(scope + '.')
                         not_in_sub_scope = '.' not in signal[len(scope) + 1:]
                         return prefix_ok and not_in_sub_scope
-                    
-                    return list(filter(in_scope, self.rawsignals))
+
+                    res = list(filter(in_scope, self.rawsignals))
             elif name == 'INDEX':
-                return self.index
+                res = self.index
             elif name == 'TS':
-                return self.ts
+                res = self.ts
             elif name == 'TRACE-NAME':
-                return self.tid
+                res = self.tid
             elif name == 'TRACE-FILE':
-                return self.filename            
+                res = self.filename
             elif name == 'SCOPES':
-                return list(self.data.scopes.keys())
+                res = list(self.data.scopes.keys())
+            else:
+                bits = self.data[name][self.timestamps[rel_index]]
+                res = int(bits, 2) if bits != 'x' else bits
+        else:
+            raise ValueError(f'can not access {name} at negative timestamp')
 
-            bits = self.data[name][self.timestamps[rel_index]]
-            return int(bits, 2) if bits != 'x' else bits
+        return res
 
-        raise ValueError(f'can not access {name} at negative timestamp')
 
     @property
     def ts(self):  # pylint: disable=C0103

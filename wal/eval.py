@@ -57,21 +57,21 @@ class SEval:
 
         assert len(lambda_expr[1]) - len(bindings) == len(
             vals), f'lambda: number of passed arguments must match signature {lambda_expr[1]}'
-        
+
         for arg, val in zip(lambda_expr[1], vals):
             if isinstance(arg, Symbol):
                 sub_context[arg.name] = self.eval(val)
         self.stack.append(sub_context)
         res = self.eval(lambda_expr[2])
         self.stack.pop()
-        
+
         # get value of bounded variables
         for binding in bindings:
             if self.stack:
                 self.stack[-1][binding.name] = sub_context[binding.name]
             else:
                 self.context[binding.name] = sub_context[binding.name]
-        
+
         return res
 
     def eval(self, expr):

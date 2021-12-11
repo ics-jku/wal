@@ -1,14 +1,13 @@
 '''Test wal parsers'''
+# pylint: disable=C0103, W0611, C0116, W0201
 import unittest
+
+from lark import Lark, Transformer
+from lark import UnexpectedInput, UnexpectedToken, UnexpectedEOF, UnexpectedCharacters
 
 from wal.reader import read, ParseError, read_wal_sexpr, read_wal_sexprs
 from wal.ast_defs import S, ExpandGroup
 from wal.ast_defs import Operator as Op
-
-from lark import Lark, Transformer
-from lark import UnexpectedInput, UnexpectedToken, UnexpectedEOF, UnexpectedCharacters
-# pylint: disable=C0103
-# pylint: disable=W0201
 
 
 class BasicParserTest(unittest.TestCase):
@@ -17,12 +16,12 @@ class BasicParserTest(unittest.TestCase):
     def test_boolean(self):
         '''Test boolean parser'''
         reader = lambda c: read(c, 'bool')
-        # 
+        #
         self.assertEqual(reader('#t'), 1)
         self.assertEqual(reader('#f'), 0)
         self.assertEqual(read_wal_sexpr('#t'), 1)
         self.assertEqual(read_wal_sexpr('#f'), 0)
-        
+
         self.assertRaises(ParseError, reader, '523')
         self.assertRaises(ParseError, reader, '"#t"')
 
@@ -51,7 +50,7 @@ class BasicParserTest(unittest.TestCase):
 
     def test_hexadecimal_int(self):
         '''Test hex int parser'''
-        reader = lambda c: read(c, 'hex_int')        
+        reader = lambda c: read(c, 'hex_int')
         self.assertEqual(reader('0x4'), 4)
         self.assertEqual(reader('0x46'), 70)
         self.assertEqual(reader('0x4ffaf6'), 0x4ffaf6)
@@ -102,7 +101,7 @@ class BasicParserTest(unittest.TestCase):
                       'valid%', '  ', '\t', '1list', '-d21']
         for case in fail_cases:
             self.assertRaises(ParseError, reader, case)
-                        
+
     def test_timed_symbol(self):
         '''Test relative expression evaluation'''
         reader = lambda c: read(c, 'timed_symbol')
@@ -117,7 +116,7 @@ class BasicParserTest(unittest.TestCase):
         '''Test relative expression evaluation'''
         reader = lambda c: read(c, 'timed_list')
         self.assertEqual(reader('valid@(1 2)').elements, [[Op.REL_EVAL, S('valid'), 1], [Op.REL_EVAL, S('valid'), 2]])
-        
+
     def test_operators(self):
         '''Test built-in operators'''
         reader = lambda c: read(c, 'atom')
@@ -142,14 +141,14 @@ class SexprParserTest(unittest.TestCase):
 
     def test_quoting(self):
         '''Test qouted sexprs'''
-        reader = lambda c: read(c, 'sexpr')        
+        reader = lambda c: read(c, 'sexpr')
         self.assertEqual(reader('\'5'), [Op.QUOTE, 5])
         self.assertEqual(reader('\'valid'),
                          [Op.QUOTE, S('valid')])
 
     def test_sexpr_whtitespace(self):
         '''Test parsing of simple statements'''
-        reader = lambda c: read(c, 'sexpr')        
+        reader = lambda c: read(c, 'sexpr')
         golden = [Op.ADD, 1, 2]
         self.assertEqual(reader('(+ 1 2)'), golden)
         self.assertEqual(reader(' (+ 1 2)'), golden)
@@ -157,15 +156,15 @@ class SexprParserTest(unittest.TestCase):
         self.assertEqual(reader('\n (+ 1 2) \n '), golden)
 
     def test_sexpr_simple_nested(self):
-        reader = lambda c: read(c, 'sexpr')                
+        reader = lambda c: read(c, 'sexpr')
         golden = [Op.SUB, [Op.ADD, 1, 2]]
         self.assertEqual(reader('(- (+ 1 2))'), golden)
 
     def test_sexpr_quoted(self):
-        reader = lambda c: read(c, 'sexpr')                
+        reader = lambda c: read(c, 'sexpr')
         golden = [Op.QUOTE, [Op.ADD, 1, 2]]
         self.assertEqual(reader("'(+ 1 2)"), golden)
-        
+
 
 class SimpleProgramTest(unittest.TestCase):
     '''Test parse simple programs'''
@@ -192,7 +191,7 @@ class SimpleProgramTest(unittest.TestCase):
         (print (+ 1 (- x 5)))'''
         golden = [[Op.SET, [S('x'), 5]], [Op.PRINT, [Op.ADD, 1, [Op.SUB, S('x'), 5]]]]
         self.assertEqual(read_wal_sexprs(p), golden)
-        
+
         p = '''
         (set [x 5]) ;comment
         ; comment
@@ -203,8 +202,3 @@ class SimpleProgramTest(unittest.TestCase):
         p = '#;(+ 1 2)'
         golden = []
         self.assertEqual(read_wal_sexprs(p), golden)
-        
-        
-        
-        
-        
