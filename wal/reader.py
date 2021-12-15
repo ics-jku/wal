@@ -76,7 +76,7 @@ class TreeToWal(Transformer):
     operator = lambda self, o: S(o[0].value)
     simple_symbol = lambda self, s: s[0]
     base_symbol = lambda self, s: S(''.join(list(map(lambda x: x.value, s))))
-    scoped_symbol = lambda self, s: [Operator.SCOPED, s[0]]
+    scoped_symbol = lambda self, s: [Operator.RESOLVE_SCOPE, s[0]]
     grouped_symbol = lambda self, s: [Operator.RESOLVE_GROUP, s[0]]
     timed_symbol = lambda self, s: [Operator.REL_EVAL, s[0], s[1]]
     timed_list = lambda self, s: ExpandGroup([[Operator.REL_EVAL, s[0], time] for time in s[1:]])
