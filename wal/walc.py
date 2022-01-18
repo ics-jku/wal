@@ -2,6 +2,7 @@
 import argparse
 import pickle
 import wal
+from wal.version import version
 
 from wal.reader import read_wal_sexprs
 
@@ -16,7 +17,7 @@ class Arguments:  # pylint: disable=too-few-public-methods
         parser.add_argument('-o', action='store', dest='output_name',
                             help='output filename', default=None)
         parser.add_argument('-v', '--version', action='version',
-                            version=f'%(prog)s {wal.__version__}')
+                            version=f'%(prog)s {__version__}')
 
     def parse(self):
         '''Parse program arguments and check minimal requirements'''

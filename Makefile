@@ -1,6 +1,3 @@
-init:
-	pip install -r requirements.txt --user
-
 test:
 	py.test -v tests
 
@@ -15,11 +12,11 @@ lint:
 
 package:
 	rm -f dist/*
-	python3 setup.py sdist bdist_wheel
+	python3 -m build
 
 install: clean package
-	pip3 uninstall wal -y
-	pip3 install dist/wal-*-py3-none-any.whl --user
+	pip3 uninstall wal-lang -y
+	pip3 install dist/wal_lang-*-py3-none-any.whl --user
 
 clean:
 	rm -rf build dist

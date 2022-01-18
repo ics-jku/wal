@@ -83,7 +83,7 @@ class BasicParserTest(unittest.TestCase):
         reader = lambda c: read(c, 'scoped_symbol')
         pass_cases = ['~valid', '~_valid', '~Valid', '~v123li/d', '~va$lid']
         for case in pass_cases:
-            self.assertEqual(reader(case), [Op.SCOPED, S(case[1:])])
+            self.assertEqual(reader(case), [Op.RESOLVE_SCOPE, S(case[1:])])
 
         fail_cases = ['1valid', ' valid',
                       'valid%', '  ', '\t', '1list', '-d21']
@@ -115,7 +115,7 @@ class BasicParserTest(unittest.TestCase):
     def test_multi_timed_symbol(self):
         '''Test relative expression evaluation'''
         reader = lambda c: read(c, 'timed_list')
-        self.assertEqual(reader('valid@(1 2)').elements, [[Op.REL_EVAL, S('valid'), 1], [Op.REL_EVAL, S('valid'), 2]])
+        self.assertEqual(reader('valid@<1 2>').elements, [[Op.REL_EVAL, S('valid'), 1], [Op.REL_EVAL, S('valid'), 2]])
 
     def test_operators(self):
         '''Test built-in operators'''
@@ -175,7 +175,7 @@ class SimpleProgramTest(unittest.TestCase):
         golden = [[Op.ADD, 1, 2]]
         self.assertEqual(read_wal_sexprs(p), golden)
 
-        p = '''(+   1 ( - x 5))'''
+        p = '''( +   1 (- x 5))'''
         golden = [[Op.ADD, 1, [Op.SUB, S('x'), 5]]]
         self.assertEqual(read_wal_sexprs(p), golden)
 
