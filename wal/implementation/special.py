@@ -49,14 +49,14 @@ def op_find_g(seval, args):
 
 
 def op_whenever(seval, args):
-    assert len(args) == 2, 'whenever: expects exactly two arguments (whenever condition body)'
+    assert len(args) >= 2, 'whenever: expects exactly two arguments (whenever condition body)'
 
     prev_indices = seval.traces.indices()
     res = None
     ended = []
     while ended == []:
         if seval.eval(args[0]):
-            res = seval.eval(args[1])
+            res = seval.eval_args(args[1:])[-1]
 
         ended = seval.traces.step()
 

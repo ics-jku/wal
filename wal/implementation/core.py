@@ -585,6 +585,16 @@ def op_slice(seval, args):
             return evaluated[0][upper:lower]
 
 
+def op_convert_binary(seval, args):
+    assert len(args) == 1 or len(args) == 2, 'convert/bin: expects at least one argument (convert/bin expr:int width:int)'
+    evaluated = seval.eval_args(args)
+    value = evaluated[0]
+    width = evaluated[1] if len(args) == 2 else 0
+    assert isinstance(value, int), 'convert/bin: first argument must evaluate to int'
+    assert isinstance(width, int), 'convert/bin: second argument must evaluate to int'
+    return '{value:0{width}b}'.format(value=value, width=width)
+
+        
 def op_exit(seval, args):
     assert len(args) < 2, 'exit: expects none or one argument (exit return_code:int)'
     import sys
@@ -647,5 +657,6 @@ core_operators = {
     Operator.IN_GROUPS.value: op_in_groups,
     Operator.RESOLVE_GROUP.value: op_resolve_group,
     Operator.SLICE.value: op_slice,
-    Operator.EXIT.value: op_exit
+    Operator.EXIT.value: op_exit,
+    Operator.CONVERT_BINARY.value: op_convert_binary
 }

@@ -81,6 +81,7 @@ class Operator(Enum):
     IN_GROUPS = 'in-groups'
     RESOLVE_GROUP = 'resolve-group'
     SLICE = 'slice'
+    CONVERT_BINARY = 'convert/bin'
     # special
     FIND = 'find'
     FIND_G = 'find/g'
