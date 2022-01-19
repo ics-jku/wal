@@ -114,19 +114,19 @@ def op_smaller_equal(seval, args):
 
 
 def op_and(seval, args):
+    assert len(args) > 0, '&&: expects at least one argument'    
     for arg in args:
         if not seval.eval(arg):
             return False
     return True
-    #return 1 if all(seval.eval_args(args)) > 0 else 0
 
 
 def op_or(seval, args):
+    assert len(args) > 0, '||: expects at least one argument'
     for arg in args:
         if seval.eval(arg):
             return True
     return False
-
 
 
 def op_let(seval, args):

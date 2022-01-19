@@ -1,6 +1,3 @@
-init:
-	pip install -r requirements.txt --user
-
 test:
 	py.test -v tests
 

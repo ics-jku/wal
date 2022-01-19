@@ -249,9 +249,6 @@ class BasicOpTest(OpTest):
         with self.assertRaises(AssertionError):
             self.w.eval("(&&)")
 
-        with self.assertRaises(AssertionError):
-            self.w.eval("(&& 1)")
-
     def test_or(self):
         '''Test logical and operator'''
         self.checkEqual('(|| 1 1)', True)
@@ -263,9 +260,6 @@ class BasicOpTest(OpTest):
 
         with self.assertRaises(AssertionError):
             self.w.eval("(||)")
-
-        with self.assertRaises(AssertionError):
-            self.w.eval("(|| 1)")
 
     def test_not(self):
         '''Test not operator'''
@@ -389,7 +383,7 @@ class EvalControlFlowTest(OpTest):
             self.w.eval('(cond 1)')
 
         with self.assertRaises(AssertionError):
-            self.w.eval('(cond (1 2 3))')
+            self.w.eval('(cond (1))')
 
     def test_when(self):
         '''Test when construct'''
