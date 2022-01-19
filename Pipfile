@@ -6,12 +6,9 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-parsy = "*"
 pylint = "*"
 coverage = "*"
 coverage-badge = "*"
-sphinx-rtd-theme = "*"
-sphinxcontrib-wavedrom = "*"
 vcdvcd = "==2.1"
 
 [requires]

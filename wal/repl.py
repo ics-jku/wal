@@ -4,7 +4,7 @@ import cmd
 from wal.core import Wal, wal_str
 from wal.reader import read_wal_sexpr, ParseError
 from wal.ast_defs import Operator
-from . import __version__
+from wal.version import __version__
 
 
 class WalRepl(cmd.Cmd):
