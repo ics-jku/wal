@@ -8,24 +8,26 @@ from wal.ast_defs import Symbol, ExpandGroup, S, Operator
 operators = [op.value for op in Operator]
 
 WAL_GRAMMAR = r"""
-    _NL: /(\r?\n)+\s*/
+    //_NL: /(\r?\n)+\s*/
+    _NL: /(\r?\n)+/
+    _COMMENT: _WS? ";" /.*/
+    _WS: WS
+    _BASH_LINE : /\s*#![^\n]+\n/
 
     sexpr_strict: (atom | list | quoted)
     commented_sexpr: "#;" sexpr_strict
-    ?sexpr : _WS? sexpr_strict _WS? _COMMENT? | _COMMENT
+    _INTER : _COMMENT | _WS
+    sexpr : _INTER* sexpr_strict _INTER*
     quoted : "'" sexpr
-
-    line : sexpr | _COMMENT | _WS
-    _BASH_LINE : /\s*#![^\n]+\n/
-    sexpr_list : _BASH_LINE? line*
+    sexpr_list : _BASH_LINE? sexpr*
 
     atom : string
          | int
-         | bool
          | symbol
 
     int : dec_int | bin_int | hex_int
     dec_int : INT | SIGNED_INT
+    //dec_int : /[+-]?[0-9]+/
     bin_int : /0b[0-1]+/
     hex_int : /0x[0-9a-fA-F]+/
 
@@ -39,7 +41,7 @@ WAL_GRAMMAR = r"""
     grouped_symbol : "#" base_symbol
     timed_symbol : sexpr_strict "@" sexpr_strict
     timed_list : sexpr_strict "@" "<" [dec_int (_WS dec_int)*] ">"
-    !base_symbol : (LETTER | "_" | ".")(LETTER | /[0-9]/ | "_" | "-" | "$" | "." | "/" | "*" | "?")*
+    !base_symbol : (LETTER | "_" | ".")(LETTER | DIGIT | "_" | "-" | "$" | "." | "/" | "*" | "?")*
     bit_symbol : sexpr_strict "[" sexpr "]"
     sliced_symbol : sexpr_strict "[" sexpr ":" sexpr "]"
 
@@ -49,15 +51,13 @@ WAL_GRAMMAR = r"""
            | "[" [sexpr (_WS sexpr)*] "]"
            | "{" [sexpr (_WS sexpr)*] "}"
 
-    _COMMENT: _WS? ";" /.*/
-    _WS: WS
-
     %import common.ESCAPED_STRING
     %import common.SIGNED_INT
     %import common.INT
     %import common.WORD
     %import common.WS
     %import common.LETTER
+    %import common.DIGIT
     """
 
 class TreeToWal(Transformer):
@@ -77,7 +77,16 @@ class TreeToWal(Transformer):
     simple_symbol = lambda self, s: s[0]
     base_symbol = lambda self, s: S(''.join(list(map(lambda x: x.value, s))))
     scoped_symbol = lambda self, s: [Operator.RESOLVE_SCOPE, s[0]]
-    grouped_symbol = lambda self, s: [Operator.RESOLVE_GROUP, s[0]]
+    #grouped_symbol = lambda self, s: [Operator.RESOLVE_GROUP, s[0]]
+
+    def grouped_symbol(self, s):
+        if s[0].name == 't':
+            return True
+        elif s[0].name == 'f':
+            return False
+        else:
+            return [Operator.RESOLVE_GROUP, s[0]]
+    
     timed_symbol = lambda self, s: [Operator.REL_EVAL, s[0], s[1]]
     timed_list = lambda self, s: ExpandGroup([[Operator.REL_EVAL, s[0], time] for time in s[1:]])
 
@@ -105,8 +114,8 @@ class TreeToWal(Transformer):
 
 def read(code, start='sexpr'):
     try:
-        reader = Lark(WAL_GRAMMAR, start=start)
-        parsed = reader.parse(code)
+        reader = Lark(WAL_GRAMMAR, start=start, parser='earley')#, ambiguity='explicit')
+        parsed = reader.parse(code.strip())
         return TreeToWal().transform(parsed)
     except UnexpectedEOF as u:
         context = u.get_context(code)

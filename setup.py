@@ -39,7 +39,8 @@ setup(
     entry_points={
         'console_scripts': [
             'wal=wal.wal:run',
-            'walc=wal.walc:run'
+            'walc=wal.walc:run',
+            'wawk=examples.wawk.wawk:run'
         ],
     },
 )

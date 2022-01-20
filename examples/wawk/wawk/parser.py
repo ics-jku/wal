@@ -2,8 +2,8 @@
 import sys
 from lark import Lark, Transformer
 from wawk.ast_defs import Statement
-from wal.ast import S
-from wal.ast import Operator as Op
+from wal.ast_defs import S
+from wal.ast_defs import Operator as Op
 
 wawk_grammar = r"""
     ?expr: symbol
@@ -37,7 +37,7 @@ wawk_grammar = r"""
     scoped_symbol : "~" base_symbol
     grouped_symbol : "#" base_symbol
     timed_symbol : base_symbol "@" SIGNED_INT
-    !base_symbol : (LETTER | "_") (LETTER | INT | "_" | "-" | "$" | ".")*
+    !base_symbol : (LETTER | "_") (LETTER | INT | "_" | "$" | ".")*
     bit_symbol : simple_symbol "[" INT "]"
     sliced_symbol : simple_symbol "[" INT ":" INT "]"
 
@@ -140,7 +140,7 @@ class TreeToWal(Transformer):
         # convert == to =
         if x[1].children[0].value == '==':
             return [Op.EQ, x[0], x[2]]
-            
+
         return [Op(x[1].children[0].value), x[0], x[2]]
     
 def parse_wawk(code):

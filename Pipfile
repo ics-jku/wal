@@ -10,6 +10,7 @@ pylint = "*"
 coverage = "*"
 coverage-badge = "*"
 vcdvcd = "==2.1"
+lark-parser = "*"
 
 [requires]
 python_version = "3.7"

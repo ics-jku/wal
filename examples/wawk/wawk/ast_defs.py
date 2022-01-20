@@ -1,7 +1,7 @@
 '''Definitions for the wal-awk AST'''
 
 from dataclasses import dataclass
-from wal.ast import S, Operator
+from wal.ast_defs import S, Operator
 
 @dataclass
 class Statement:
