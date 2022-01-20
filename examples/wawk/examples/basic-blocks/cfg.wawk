@@ -4,6 +4,8 @@ BEGIN: {
   alias(pc, TOP.VexRiscv.lastStagePc);
   alias(inst, TOP.VexRiscv.lastStageInstruction);
   starts = array();
+  trans = array();
+  ends = array();
 }
 
 // Stmt 2: initialize pc

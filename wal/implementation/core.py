@@ -56,7 +56,7 @@ def op_div(seval, args):
         print('WARNING: division by zero. Is this intended?')
         return None
 
-    return int(evaluated[0] / evaluated[1])
+    return evaluated[0] / evaluated[1]
 
 
 def op_exp(seval, args):
@@ -594,6 +594,11 @@ def op_convert_binary(seval, args):
     assert isinstance(width, int), 'convert/bin: second argument must evaluate to int'
     return '{value:0{width}b}'.format(value=value, width=width)
 
+
+def op_convert_int(seval, args):
+    assert len(args) == 1, 'convert/int: expects exactly one argument (convert/int expr:int)'
+    return int(seval.eval(args[0]))
+
         
 def op_exit(seval, args):
     assert len(args) < 2, 'exit: expects none or one argument (exit return_code:int)'
@@ -658,5 +663,6 @@ core_operators = {
     Operator.RESOLVE_GROUP.value: op_resolve_group,
     Operator.SLICE.value: op_slice,
     Operator.EXIT.value: op_exit,
-    Operator.CONVERT_BINARY.value: op_convert_binary
+    Operator.CONVERT_BINARY.value: op_convert_binary,
+    Operator.CONVERT_INT.value: op_convert_int    
 }
