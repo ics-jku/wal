@@ -15,15 +15,8 @@ class BasicParserTest(unittest.TestCase):
 
     def test_boolean(self):
         '''Test boolean parser'''
-        reader = lambda c: read(c, 'bool')
-        #
-        #self.assertEqual(reader('#t'), 1)
-        #self.assertEqual(reader('#f'), 0)
         self.assertEqual(read_wal_sexpr('#t'), 1)
         self.assertEqual(read_wal_sexpr('#f'), 0)
-
-        #self.assertRaises(ParseError, reader, '523')
-        #self.assertRaises(ParseError, reader, '"#t"')
 
     def test_binary(self):
         '''Test bin int parser'''
@@ -175,12 +168,12 @@ class SimpleProgramTest(unittest.TestCase):
         golden = []
         self.assertEqual(read_wal_sexprs(p), golden)
 
-        p = ''' 
+        p = '''
 
         '''
         golden = []
-        self.assertEqual(read_wal_sexprs(p), golden)        
-        
+        self.assertEqual(read_wal_sexprs(p), golden)
+
         p = '''(+ 1 2)'''
         golden = [[Op.ADD, 1, 2]]
         self.assertEqual(read_wal_sexprs(p), golden)

@@ -1,5 +1,6 @@
 '''WAL Reader'''
-# pylint: disable=C0116,C0103
+# pylint: disable=C0116,C0103,R0201
+
 import ast
 from lark import Lark, Transformer
 from lark import UnexpectedToken, UnexpectedEOF, UnexpectedCharacters
@@ -64,7 +65,7 @@ class TreeToWal(Transformer):
     '''Transformer to create valid WAL expressions form parsed data'''
     string = lambda self, s: ast.literal_eval(s[0])
 
-    def symbol(self, sym): # pylint: disable=R0201
+    def symbol(self, sym):
         '''Converts symbols to operators if sym is a valid operator '''
         sym = sym[0]
         if isinstance(sym, Symbol):
@@ -82,11 +83,11 @@ class TreeToWal(Transformer):
     def grouped_symbol(self, s):
         if s[0].name == 't':
             return True
-        elif s[0].name == 'f':
+        if s[0].name == 'f':
             return False
-        else:
-            return [Operator.RESOLVE_GROUP, s[0]]
-    
+
+        return [Operator.RESOLVE_GROUP, s[0]]
+
     timed_symbol = lambda self, s: [Operator.REL_EVAL, s[0], s[1]]
     timed_list = lambda self, s: ExpandGroup([[Operator.REL_EVAL, s[0], time] for time in s[1:]])
 

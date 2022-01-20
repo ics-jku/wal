@@ -40,7 +40,7 @@ setup(
         'console_scripts': [
             'wal=wal.wal:run',
             'walc=wal.walc:run',
-            'wawk=examples.wawk.wawk:run'
+            'wawk=wawk.wawk:run'
         ],
     },
 )

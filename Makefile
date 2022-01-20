@@ -9,6 +9,7 @@ coverage:
 lint:
 	pylint -d C0301 wal/*.py
 	pylint -d C0301 tests/*.py
+	pylint -d C0301 wawk/*.py
 
 package:
 	rm -f dist/*

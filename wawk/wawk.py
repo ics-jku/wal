@@ -1,4 +1,4 @@
-'''Main wal command line tool entry point'''
+'''Main wawk command line tool entry point'''
 import argparse
 import os
 import sys
@@ -16,24 +16,16 @@ class Arguments:  # pylint: disable=too-few-public-methods
         parser = argparse.ArgumentParser()
         self.parser = parser
 
-        # parser.add_argument('program', nargs='1',
-        #                     default=None, help='program code')
         parser.add_argument('program_path', help='path to vcd file')
         parser.add_argument('vcd', help='path to vcd file')
         parser.add_argument('args', nargs='*',
-                            default=None, help='runtime arguments')        
-        # parser.add_argument('-f', action='store', dest='program_path',
-        #                     help='path to wawk program file')
+                            default=None, help='runtime arguments')
         parser.add_argument('-v', '--version', action='version',
                             version=f'%(prog)s {__version__}')
 
     def parse(self):
         '''Parse program arguments and check minimal requirements'''
         args = self.parser.parse_args()
-
-        # if args.program is None:
-        #     if args.program_path is None:
-        #         return None
 
         return args
 
@@ -46,7 +38,7 @@ def run():
     sys.setrecursionlimit(5000)
 
     try:
-        with open(args.program_path, 'r') as program_file:
+        with open(args.program_path, 'r', encoding='UTF-8') as program_file:
             ast = AST(parse_wawk(program_file.read()))
     except FileNotFoundError as exception:
         print(exception)
@@ -54,15 +46,15 @@ def run():
     except IOError as exception:
         print(exception)
         return os.EX_IOERR
-    
+
     wal = Wal()
     wal.eval_context.context['args'] = args.args
     wal.load(args.vcd, 'main')
-    
+
 
     for begin_action in ast.begin:
         wal.eval(begin_action)
-        
+
     while wal.step() == []:
         for statement in ast.statements:
             conditions = []

@@ -1,8 +1,7 @@
 '''wal command line compiler'''
 import argparse
 import pickle
-import wal
-from wal.version import version
+from wal.version import __version__
 
 from wal.reader import read_wal_sexprs
 

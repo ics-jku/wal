@@ -83,7 +83,7 @@ class Operator(Enum):
     SLICE = 'slice'
     # conversion
     CONVERT_BINARY = 'convert/bin'
-    CONVERT_INT = 'convert/int'    
+    CONVERT_INT = 'convert/int'
     # special
     FIND = 'find'
     FIND_G = 'find/g'

@@ -1,11 +1,11 @@
 '''Parsers for WAWK'''
-import sys
+# pylint: disable=C0103,R0201,C0116
 from lark import Lark, Transformer
 from wawk.ast_defs import Statement
 from wal.ast_defs import S
 from wal.ast_defs import Operator as Op
 
-wawk_grammar = r"""
+WAWK_GRAMMAR = r"""
     ?expr: symbol
          | fcall
          | forstmt
@@ -25,8 +25,8 @@ wawk_grammar = r"""
     list : "[" [expr ("," expr)*] "]"
 
     forstmt: forin | forinarray | forvar
-    forin: "for" "(" base_symbol "in" (list | fcall | base_symbol) ")" block 
-    forinarray: "for" "(" base_symbol "," base_symbol "in" (fcall | base_symbol) ")" block 
+    forin: "for" "(" base_symbol "in" (list | fcall | base_symbol) ")" block
+    forinarray: "for" "(" base_symbol "," base_symbol "in" (fcall | base_symbol) ")" block
     forvar: "for" "(" assign_std ";" expr ";" expr  ")" block
 
     cond : ifstmt
@@ -61,7 +61,7 @@ wawk_grammar = r"""
     in_group : "group" "(" (list | fcall | expr) ")" expr
 
     _NL: /(\r?\n)+\s*/
-    statement : [expr ("," expr)* ":"] block 
+    statement : [expr ("," expr)* ":"] block
     line : function | statement
     program : [line (_NL line)*]
 
@@ -83,12 +83,13 @@ wawk_grammar = r"""
     """
 
 class TreeToWal(Transformer):
+    '''Transforms a parsed tree into WAL data structures'''
 
     function = lambda self, f: Statement([S('BEGIN')], [Op.DEFUN, f[0], f[1:-1], f[-1]])
     statement = lambda self, s: Statement(s[:-1], s[-1])
     line = lambda self, l: l[0]
     program = lambda self, p: p
-    
+
     string = lambda self, s: s[0][1:-1].encode('utf-8').decode('unicode_escape')
     number = lambda self, n: int(n[0])
     simple_symbol = lambda self, s: s[0]
@@ -109,8 +110,8 @@ class TreeToWal(Transformer):
 
     def forvar(self, f):
         return [Op.LET, f[0][1], [Op.WHILE, f[1], [Op.DO, f[3], f[2]]]]
-    #forvar = lambda self, f: [Op.LET, [f[0], [Op.WHILE, f[1], [Op.DO, f[3], f[2]]]]        
-    
+    #forvar = lambda self, f: [Op.LET, [f[0], [Op.WHILE, f[1], [Op.DO, f[3], f[2]]]]
+
     array_op = lambda self, a: a[0]
     array_get = lambda self, a: [Op.GETA] + a
     array_set = lambda self, a: [Op.SETA] + a
@@ -118,7 +119,7 @@ class TreeToWal(Transformer):
     ifstmt = lambda self, c: [Op.IF] + c
     in_scope = lambda self, s: [Op.SCOPED, s[0], s[1]]
     in_group = lambda self, g: [Op.IN_GROUPS, g[0], g[1]]
-    
+
     list = lambda self, l: [Op.LIST] + l
     #pair = tuple
     #dict = dict
@@ -130,7 +131,7 @@ class TreeToWal(Transformer):
     def fcall(self, f):
         try:
             expr = [Op(f[0].name)] + f[1:]
-        except:
+        except: # pylint: disable=W0702
             expr = [f[0]] + f[1:]
         return expr
 
@@ -142,13 +143,13 @@ class TreeToWal(Transformer):
             return [Op.EQ, x[0], x[2]]
 
         return [Op(x[1].children[0].value), x[0], x[2]]
-    
+
 def parse_wawk(code):
-    json_parser = Lark(wawk_grammar, start='program')
+    json_parser = Lark(WAWK_GRAMMAR, start='program')
     parsed = json_parser.parse(code)
     return TreeToWal().transform(parsed)
-        
+
 def test():
-    json_parser = Lark(wawk_grammar, start='expr')
+    json_parser = Lark(WAWK_GRAMMAR, start='expr')
     parsed = json_parser.parse('group (groups("ready", "valid")) {x}')
     print(TreeToWal().transform(parsed))
