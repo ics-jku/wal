@@ -67,7 +67,7 @@ def op_whenever(seval, args):
 
 
 def op_fold_signal(seval, args):
-    assert len(args) == 4, 'fold/signal: expects 3 arguments (fold f acc stop signal)'
+    assert len(args) == 4, 'fold/signal: expects 3 arguments (fold/signal f acc stop signal)'
     assert seval.traces.contains(args[-1].name), f'fold/signal: last argument must be a valid signal name'
     func = seval.eval(args[0])
     acc = seval.eval(args[1])
