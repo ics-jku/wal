@@ -14,6 +14,11 @@ class TraceContainer:
         '''Load a trace from file and add it under trace id tid.'''
         self.traces[tid] = Trace(file, tid, from_string=from_string)
 
+    def unload(self, tid='DEFAULT'):
+        '''Remove the trace tid from the set of loaded traces. '''
+        if tid in self.traces:
+            del self.traces[tid]
+
     def signal_value(self, name, offset=0, scope=''):
         '''Get the value of signal name at current index + offset.'''
         if len(self.traces) == 0:

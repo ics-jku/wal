@@ -7,6 +7,7 @@ class Operator(Enum):
     '''Enum for built in operations'''
     # waveform
     LOAD = 'load'
+    UNLOAD = 'unload'
     STEP = 'step'
     # basic
     REQUIRE = 'require'
