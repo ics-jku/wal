@@ -1,4 +1,24 @@
-This repro introcudes the *Waveform Analysis Language* (WAL). The initial paper on WAL will appear at ASPDAC'22 and can be downloaded here: https://www.ics.jku.at/files/2022ASPDAC_WAL.pdf. The examples from the paper can be found in the examples folder.
+# WAL the Waveform Analysis Language
+      ┌─┐ ┌─┐ ┌─┐ 
+     ─┘W└─┘A└─┘L└─
+     
+Welcome to the Waveform Analysis Language (WAL) repository. This domain-specific language aims at enabling automated and sophisticated analysis of hardware waveforms. In WAL, hardware-specific things such as signals and simulation time are treated as first-class citizens.
+
+## Installation
+WAL is available from PyPi!                                                                                                                                                         
+> pip install wal-lang --user
+
+On some systems, pip does not add WALs installation path to the PATH variable. If the "wal" command is not available after installation please add the installation path, e.g. ~/.local/bin on Ubuntu, to your PATH variable.       
+
+To get the latest development version of WAL you can clone this repository.
+After that install WAL by typing make install inside the cloned directory.       
+
+### Example
+To get an impression of WAL you can check out this ASCII cast [ASCII Cast](https://asciinema.org/a/I8fQknySyaZqNjXAA8Ej7wOoq), in which the WAL REPL is used to compare two RISCV cores.
+
+## Publication
+The initial paper on WAL will was presented at ASPDAC'22 and can be downloaded here: https://www.ics.jku.at/files/2022ASPDAC_WAL.pdf. 
+The examples from the paper can be found in the examples folder.
 
 If you like WAL you can cite our paper as follows: 
 
