@@ -9,11 +9,6 @@ from functools import reduce, lru_cache
 from wal.ast_defs import Operator, Symbol
 
 
-def op_atom(seval, args):
-    evaluated = seval.eval_args(args)
-    return all([isinstance(arg, (Operator, Symbol, str, int)) for arg in evaluated])
-
-
 def op_add(seval, args):
     evaluated = seval.eval_args(args)
     assert len(evaluated) > 1
@@ -56,7 +51,7 @@ def op_div(seval, args):
         print('WARNING: division by zero. Is this intended?')
         return None
 
-    return evaluated[0] / evaluated[1]
+    return int(evaluated[0] / evaluated[1])
 
 
 def op_exp(seval, args):
@@ -114,7 +109,7 @@ def op_smaller_equal(seval, args):
 
 
 def op_and(seval, args):
-    assert len(args) > 0, '&&: expects at least one argument'    
+    assert len(args) > 0, '&&: expects at least one argument'
     for arg in args:
         if not seval.eval(arg):
             return False
@@ -290,17 +285,27 @@ def op_while(seval, args):
 def op_alias(seval, args):
     assert args, 'alias: expects at least two arguments'
     assert len(args) % 2 == 0, 'alias: expects an even number of arguments'
-    assert isinstance(args[0], Symbol), 'unalias: first argument of pair must be a symbol'
-    assert isinstance(args[1], Symbol), 'unalias: second argument of pair must be a symbol'
-    for i in range(0, int(len(args) / 2) + 1, 2):
-        seval.aliases[args[i].name] = args[i + 1].name
+
+    def chunks(lst, n):
+        '''Yield successive n-sized chunks from lst. https://stackoverflow.com/a/312464'''
+        for i in range(0, len(lst), n):
+            yield lst[i:i + n]
+
+    for pair in chunks(args, 2):
+        assert isinstance(pair[0], Symbol), 'alias: arguments to alias must be symbols'
+        assert isinstance(pair[1], Symbol), 'alias: arguments to alias must be symbols'
+        seval.aliases[pair[0].name] = pair[1].name
+
+    #for i in range(0, int(len(args) / 2) + 1, 2):
+    #    seval.aliases[args[i].name] = args[i + 1].name
 
 
 def op_unalias(seval, args):
-    assert len(args) == 1, 'unalias: expects exactly one argument'
-    assert isinstance(args[0], Symbol), 'unalias: argument must be a symbol'
-    assert args[0].name in seval.aliases, f'unalias: no alias {args[0].name} known. Can\'t unalias'
-    del seval.aliases[args[0].name]
+    assert len(args) >= 1, 'unalias: expects at least one argument (unalias id:symbol+)'
+    for arg in args:
+        assert isinstance(arg, Symbol), 'unalias: argument must be a symbol'
+        assert arg.name in seval.aliases, f'unalias: no alias {arg.name} known. Can\'t unalias'
+        del seval.aliases[arg.name]
 
 
 def op_quote(seval, args):
@@ -487,7 +492,8 @@ def op_groups(seval, args):
     (group "*_ready" "*_valid" "*_data") => all signals (as scope?) for which p_ready, p_valid. exist
     '''
     assert args, 'groups: expects at least one argument (groups post:str+)'
-    assert all(isinstance(arg, str) for arg in args)
+    assert all(isinstance(arg, (str, Symbol)) for arg in args)
+    args = list(map(lambda x: x if isinstance(x, str) else x.name, args))
 
     if seval.context['CS']:
         pattern = re.compile(rf'{seval.context["CS"]}\.[^\\.]+{args[0]}')
@@ -585,21 +591,6 @@ def op_slice(seval, args):
             return evaluated[0][upper:lower]
 
 
-def op_convert_binary(seval, args):
-    assert len(args) == 1 or len(args) == 2, 'convert/bin: expects at least one argument (convert/bin expr:int width:int)'
-    evaluated = seval.eval_args(args)
-    value = evaluated[0]
-    width = evaluated[1] if len(args) == 2 else 0
-    assert isinstance(value, int), 'convert/bin: first argument must evaluate to int'
-    assert isinstance(width, int), 'convert/bin: second argument must evaluate to int'
-    return '{value:0{width}b}'.format(value=value, width=width)
-
-
-def op_convert_int(seval, args):
-    assert len(args) == 1, 'convert/int: expects exactly one argument (convert/int expr:int)'
-    return int(seval.eval(args[0]))
-
-        
 def op_exit(seval, args):
     assert len(args) < 2, 'exit: expects none or one argument (exit return_code:int)'
     import sys
@@ -612,7 +603,6 @@ def op_exit(seval, args):
 
 
 core_operators = {
-    Operator.ATOM.value: op_atom,
     Operator.ADD.value: op_add,
     Operator.SUB.value: op_sub,
     Operator.MUL.value: op_mul,
@@ -662,7 +652,5 @@ core_operators = {
     Operator.IN_GROUPS.value: op_in_groups,
     Operator.RESOLVE_GROUP.value: op_resolve_group,
     Operator.SLICE.value: op_slice,
-    Operator.EXIT.value: op_exit,
-    Operator.CONVERT_BINARY.value: op_convert_binary,
-    Operator.CONVERT_INT.value: op_convert_int    
+    Operator.EXIT.value: op_exit
 }

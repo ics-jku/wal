@@ -28,30 +28,30 @@ def op_seta(seval, args):
     return res
 
 
-def op_geta(seval, args):
-    assert len(args) >= 2, 'geta: requires at least two arguments. (geta array:(array, symbol) [key:(int, str, symbol])'
-
-    if isinstance(args[0], Symbol):
-        if args[0].name in seval.context:
-            array = seval.context[args[0].name]
-        elif seval.stack and args[0].name in seval.stack[-1]:
-            array = seval.stack[-1][args[0].name]
-        else:
-            raise ValueError(f'geta: array {args[0].name} not found')
-    else:
-        array = seval.eval(args[0])
+def op_geta_default(seval, args):
+    assert len(args) >= 3, 'geta: requires at least three arguments. (geta array:(array, symbol) default:expr [key:(int, str, symbol])'
+    array = seval.eval(args[0])
 
     assert(isinstance(array, dict)), 'geta: first argument must be either array or symbol'
-    evaluated = seval.eval_args(args[1:])
+    evaluated = seval.eval_args(args[2:])
     assert all(map(lambda x: isinstance(x, (int, str, Symbol)),
                    evaluated)), 'geta: keys must be either int or string'
+
     key = '-'.join(map(str, evaluated))
+    default = args[1]
 
     if key in array:
         return array[key]
+    elif key not in array and default == None:
+        raise ValueError(f'Key {key} not found')
     else:
-        array[key] = 0
-        return 0
+        default = seval.eval(default)
+        return default
+
+
+def op_geta(seval, args):
+    assert len(args) >= 2, 'geta: requires at least two arguments. (geta array:(array, symbol) [key:(int, str, symbol])'
+    res = op_geta_default(seval, [args[0], None] + args[1:])
 
 
 def op_mapa(seval, args):
@@ -71,5 +71,6 @@ array_operators = {
     Operator.ARRAY.value: op_array,
     Operator.SETA.value: op_seta,
     Operator.GETA.value: op_geta,
+    Operator.GETA_DEFAULT.value: op_geta_default,
     Operator.MAPA.value: op_mapa
 }

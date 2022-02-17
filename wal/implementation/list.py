@@ -97,7 +97,7 @@ def op_sum(seval, args):
 
 
 def op_average(seval, args):
-    assert len(args) == 1, 'average: expects one argument (min list)'
+    assert len(args) == 1, 'average: expects one argument (average list)'
     evaluated = seval.eval(args[0])
     assert isinstance(evaluated, list), 'average: argument must be a list'
     return sum(evaluated) / len(evaluated)
@@ -136,11 +136,6 @@ def op_range(seval, args):
     return list(range(*evaluated))
 
 
-def op_is_list(seval, args):
-    assert len(args) == 1, 'list?: expects exactly one argument (list? list)'
-    return isinstance(seval.eval(args[0]), list)
-
-
 def op_for(seval, args):
     assert len(args) > 1, 'for: expects at least two arguments (for [id:symbol seq:list] body+)'
     assert isinstance(args[0], list), 'for: first argument must be a tuple like [id:symbol seq:list]'
@@ -175,6 +170,5 @@ list_operators = {
     Operator.LENGTH.value: op_length,
     Operator.FOLD.value: op_fold,
     Operator.RANGE.value: op_range,
-    Operator.IS_LIST.value: op_is_list,
     Operator.FOR.value: op_for
 }

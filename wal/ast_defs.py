@@ -11,7 +11,6 @@ class Operator(Enum):
     STEP = 'step'
     # basic
     REQUIRE = 'require'
-    ATOM = 'atom'
     ADD = '+'
     SUB = '-'
     MUL = '*'
@@ -50,7 +49,6 @@ class Operator(Enum):
     CALL = 'call'
     IMPORT = 'import'
     LIST = 'list'
-    IS_LIST = 'list?'
     FOR = 'for'
     FIRST = 'first'
     SECOND = 'second'
@@ -71,6 +69,7 @@ class Operator(Enum):
     ARRAY = 'array'
     SETA = 'seta'
     GETA = 'geta'
+    GETA_DEFAULT = 'geta/default'
     MAPA = 'mapa'
     ALLSCOPES = 'all-scopes'
     SCOPED = 'in-scope'
@@ -82,9 +81,16 @@ class Operator(Enum):
     IN_GROUPS = 'in-groups'
     RESOLVE_GROUP = 'resolve-group'
     SLICE = 'slice'
-    # conversion
+    # types
+    IS_ATOM = 'atom?'
+    IS_SYMBOL = 'symbol?'
+    IS_STRING = 'string?'
+    IS_INT = 'int?'
+    IS_LIST = 'list?'
     CONVERT_BINARY = 'convert/bin'
-    CONVERT_INT = 'convert/int'
+    STRING_TO_INT = 'string->int'
+    SYMBOL_TO_STRING = 'symbol->string'
+    INT_TO_STRING = 'int->string'
     # special
     FIND = 'find'
     FIND_G = 'find/g'
