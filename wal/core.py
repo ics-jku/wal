@@ -65,6 +65,11 @@ class Wal:
 
         return res
 
+    def run_file(self, filename):
+        '''Executes a WAL program from a file'''
+        with open(filename, 'r') as fin:
+            self.eval_context.eval(fin.read())
+
     # pylint: disable=R0201
     def decode(self, filename):
         '''Decodes a compiled WAL file and returns its WAL expressions'''

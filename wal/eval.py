@@ -1,5 +1,6 @@
 '''S-Exprssion eval functions'''
 from wal.ast_defs import Operator, Symbol, ExpandGroup
+from wal.implementation.types import type_operators
 from wal.implementation.list import list_operators
 from wal.implementation.array import array_operators
 from wal.implementation.wal import wal_operators
@@ -15,7 +16,7 @@ class SEval:
         '''Initial Evaluation Object'''
         self.traces = traces
         self.reset()
-        self.dispatch = {**core_operators, **list_operators, **array_operators, **wal_operators, **special_operators}
+        self.dispatch = {**core_operators, **type_operators, **list_operators, **array_operators, **wal_operators, **special_operators}
 
     def reset(self):
         '''Resets all traces back to time 0 and resets all WAL elements (e.g. aliases, imports, ...) '''

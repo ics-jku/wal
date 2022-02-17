@@ -133,7 +133,7 @@ class Trace:
             re.sub(r'\(([0-9]+)\)', r'_\1', k): v for k, v in self.data.references_to_ids.items()}
 
         self.rawsignals = list(self.data.references_to_ids.keys())
-        self.signals = ['TS', 'TRACE-NAME', 'TRACE-FILE', 'SIGNALS', 'INDEX', 'SCOPES'] + self.rawsignals
+        self.signals = ['TS', 'TRACE-NAME', 'TRACE-FILE', 'SIGNALS', 'INDEX', 'MAX-INDEX', 'SCOPES'] + self.rawsignals
 
         # remove duiplicate timestamps, enumerate all timestamps and create look up table
         self.timestamps = list(dict.fromkeys(self.timestamps))
@@ -177,6 +177,8 @@ class Trace:
                     res = list(filter(in_scope, self.rawsignals))
             elif name == 'INDEX':
                 res = self.index
+            elif name == 'MAX-INDEX':
+                res = len(self.timestamps)
             elif name == 'TS':
                 res = self.ts
             elif name == 'TRACE-NAME':
@@ -187,7 +189,14 @@ class Trace:
                 res = list(self.data.scopes.keys())
             else:
                 bits = self.data[name][self.timestamps[rel_index]]
-                res = int(bits, 2) if bits != 'x' else bits
+                try:
+                    res = int(bits, 2) if bits != 'x' else bits
+                except Exception:
+                    if bits == 'x' or bits == 'z':
+                        res = bits
+                    elif bits is None:
+                        res = [] #'! Error, no value !'
+                    
         else:
             raise ValueError(f'can not access {name} at negative timestamp')
 

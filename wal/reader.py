@@ -42,7 +42,7 @@ WAL_GRAMMAR = r"""
     grouped_symbol : "#" base_symbol
     timed_symbol : sexpr_strict "@" sexpr_strict
     timed_list : sexpr_strict "@" "<" [dec_int (_WS dec_int)*] ">"
-    !base_symbol : (LETTER | "_" | ".")(LETTER | DIGIT | "_" | "-" | "$" | "." | "/" | "*" | "?")*
+    !base_symbol : (LETTER | "_" | ".")(LETTER | DIGIT | "_" | "-" | "$" | "." | "/" | "*" | "?" | ">")*
     bit_symbol : sexpr_strict "[" sexpr "]"
     sliced_symbol : sexpr_strict "[" sexpr ":" sexpr "]"
 
