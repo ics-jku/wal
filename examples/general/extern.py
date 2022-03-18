@@ -1,4 +1,5 @@
 '''Python function that are included and called from WAL code'''
+# pylint: disable=E0401
 import re
 from random import randint
 import requests
