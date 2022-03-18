@@ -23,8 +23,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pytest build
-        pip install
+        pip install pytest build lark-parser vcdvcd=2.1 coverage
     - name: Test with pytest
       run: |
         py.test -v tests
