@@ -31,3 +31,6 @@ If you like WAL you can cite our paper as follows:
 }
 
 ```
+
+## Emacs Mode
+A basic major mode for Emacs is available [here](https://github.com/LucasKl/wal-major-mode).
