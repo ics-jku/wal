@@ -36,7 +36,7 @@ def op_find_g(seval, args):
     prev_indices = seval.traces.indices()
     found = []
     ended = []
-    while ended == []:
+    while not ended:
         if seval.eval(args[0]):
             indices = seval.traces.indices()
             found.append(indices if len(indices) > 1 else list(indices.values())[0])
@@ -56,7 +56,7 @@ def op_whenever(seval, args):
     prev_indices = seval.traces.indices()
     res = None
     ended = []
-    while ended == []:
+    while not ended:
         if seval.eval(args[0]):
             res = seval.eval_args(args[1:])[-1]
 

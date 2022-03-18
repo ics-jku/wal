@@ -1,5 +1,5 @@
 '''Python helper function for decoding RISC-V instructions'''
-# pylint: disable=W0703
+# pylint: disable=W0703,E0401
 from riscvmodel import code
 from riscvmodel.variant import Variant
 
