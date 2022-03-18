@@ -27,7 +27,7 @@ jobs:
     - name: Test with pytest
       run: |
         py.test -v tests
-    - name: Test 
+    - name: Build package using build
       run: |
         python -m build
     
