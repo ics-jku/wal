@@ -1,4 +1,4 @@
-from wal.ast_defs import Operator
+from wal.ast_defs import Operator, Symbol
 
 def op_find(seval, args):
     '''Find
@@ -68,11 +68,14 @@ def op_whenever(seval, args):
 
 def op_fold_signal(seval, args):
     assert len(args) == 4, 'fold/signal: expects 3 arguments (fold f acc stop signal)'
-    assert seval.traces.contains(args[-1].name), f'fold/signal: last argument must be a valid signal name'
     func = seval.eval(args[0])
+    assert isinstance(func, list) and \
+        (func[0] == Operator.LAMBDA or func[0] == Operator.FN), 'fold/signal: not a valid function'
     acc = seval.eval(args[1])
     stop = args[2]
-    signal = args[3]
+    signal = seval.eval(args[3])
+    assert isinstance(signal, Symbol), f'fold/signal: last argument must be a signal'
+    assert seval.traces.contains(signal.name), f'fold/signal: signal "{signal.name}" not found'
 
     # store indices at start
     prev_indices = seval.traces.indices()
