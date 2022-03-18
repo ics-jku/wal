@@ -1,4 +1,7 @@
 # WAL the Waveform Analysis Language
+[![Pylint](https://github.com/ics-jku/wal/actions/workflows/pylint.yml/badge.svg)](https://github.com/ics-jku/wal/actions/workflows/pylint.yml)
+[![Test and Build](https://github.com/ics-jku/wal/actions/workflows/python-app.yml/badge.svg)](https://github.com/ics-jku/wal/actions/workflows/python-app.yml)
+
       ┌─┐ ┌─┐ ┌─┐ 
      ─┘W└─┘A└─┘L└─
      
