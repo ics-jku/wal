@@ -20,4 +20,4 @@ jobs:
         pip install pylint lark-parser vcdvcd
     - name: Analysing the code with pylint
       run: |
-        pylint $(git ls-files '*.py')
+        pylint -d C0301 $(git ls-files '*.py')
