@@ -1,41 +1,48 @@
-from wal.ast_defs import Operator, Symbol
+'''Implementations for all list related functions'''
+from wal.ast_defs import Operator
 
 def op_list(seval, args):
+    '''Constructs a new list filled with evaluated arguments'''
     return seval.eval_args(args)
 
 
 def op_first(seval, args):
-    assert len(args) == 1, f'first: expects one argument (first list)'
+    '''Returns the first element of list'''
+    assert len(args) == 1, 'first: expects one argument (first list)'
     evaluated = seval.eval(args[0])
-    assert isinstance(evaluated, list), f'first: argument must be a list'
-    assert evaluated, f'first: argument must have length > 0'
+    assert isinstance(evaluated, list), 'first: argument must be a list'
+    assert evaluated, 'first: argument must have length > 0'
     return evaluated[0]
 
 
 def op_second(seval, args):
-    assert len(args) == 1, f'second: expects one argument (second list)'
+    '''Returns the second element of list'''
+    assert len(args) == 1, 'second: expects one argument (second list)'
     evaluated = seval.eval(args[0])
-    assert isinstance(evaluated, list), f'second: argument must be a list'
-    assert len(evaluated) > 1, f'second: argument must have length > 1'
+    assert isinstance(evaluated, list), 'second: argument must be a list'
+    assert len(evaluated) > 1, 'second: argument must have length > 1'
     return evaluated[1]
 
 
 def op_last(seval, args):
-    assert len(args) == 1, f'last: expects one argument (last list)'
+    '''Returns the last element of list'''
+    assert len(args) == 1, 'last: expects one argument (last list)'
     evaluated = seval.eval(args[0])
-    assert isinstance(evaluated, list), f'last: argument must be a list'
-    assert evaluated, f'last: argument must have length > 0'
+    assert isinstance(evaluated, list), 'last: argument must be a list'
+    assert evaluated, 'last: argument must have length > 0'
     return evaluated[-1]
 
 
 def op_rest(seval, args):
-    assert len(args) == 1, f'rest: expects one argument (rest list)'
+    '''Returns all elements but the first one from list'''
+    assert len(args) == 1, 'rest: expects one argument (rest list)'
     evaluated = seval.eval(args[0])
-    assert isinstance(evaluated, list), f'rest: argument must be a list'
+    assert isinstance(evaluated, list), 'rest: argument must be a list'
     return evaluated[1:] if len(evaluated) > 1 else []
 
 
 def op_in(seval, args):
+    '''Returns true if value is contained in list or array'''
     assert len(args) >= 2, 'in: expects at least 2 arguments (in value [list|array])'
     evaluated = seval.eval_args(args)
     assert isinstance(evaluated[-1], (list, dict)), 'in: expects list or array as last argument'
@@ -52,7 +59,8 @@ def op_in(seval, args):
 
 
 def op_map(seval, args):
-    assert len(args) == 2, 'map: expects two arguments'
+    '''Applies function to each element of list. Functions must expect exactly one argument.'''
+    assert len(args) == 2, 'map: expects two arguments (map function list)'
 
     arg = seval.eval(args[1])
     assert isinstance(arg, list), 'map: second argument must be a list'
@@ -63,19 +71,21 @@ def op_map(seval, args):
             res.append(seval.eval([args[0], [Operator.QUOTE, element]]))
     else:
         func = seval.eval(args[0])
-        assert func[0] == Operator.LAMBDA, 'map: first argument must be a function'
+        assert func[0] == Operator.LAMBDA or func[0] == Operator.FN, 'map: first argument must be a function'
         for element in arg:
             res.append(seval.eval_lambda(func, [[Operator.QUOTE, element]]))
     return res
 
 
 def op_zip(seval, args):
+    '''Combines two lists (a b c) (1 2 3) to ((a 1) (b 2) (c 3))'''
     assert len(args) == 2, 'zip: expects two arguments (zip list list)'
     evaluated = seval.eval_args(args)
     return list(map(list, zip(evaluated[0], evaluated[1])))
 
 
 def op_max(seval, args):
+    '''Returns the largest number from the list'''
     assert len(args) == 1, 'max: expects one argument (max list)'
     evaluated = seval.eval(args[0])
     assert isinstance(evaluated, list), 'max: argument must be a list'
@@ -83,6 +93,7 @@ def op_max(seval, args):
 
 
 def op_min(seval, args):
+    '''Returns the smalles number from the list'''
     assert len(args) == 1, 'min: expects one argument (min list)'
     evaluated = seval.eval(args[0])
     assert isinstance(evaluated, list), 'min: argument must be a list'
@@ -90,6 +101,7 @@ def op_min(seval, args):
 
 
 def op_sum(seval, args):
+    '''Returns the sum of all numbers in the list'''
     assert len(args) == 1, 'sum: expects one argument (min list)'
     evaluated = seval.eval(args[0])
     assert isinstance(evaluated, list), 'sum: argument must be a list'
@@ -97,6 +109,7 @@ def op_sum(seval, args):
 
 
 def op_average(seval, args):
+    '''Returns the average from the list'''
     assert len(args) == 1, 'average: expects one argument (min list)'
     evaluated = seval.eval(args[0])
     assert isinstance(evaluated, list), 'average: argument must be a list'
@@ -104,6 +117,7 @@ def op_average(seval, args):
 
 
 def op_length(seval, args):
+    '''Returns the length of list'''
     assert len(args) == 1, 'length: expects one argument (length list)'
     evaluated = seval.eval(args[0])
     assert isinstance(evaluated, (list, str)), 'length: argument must be a list'
@@ -111,6 +125,7 @@ def op_length(seval, args):
 
 
 def op_fold(seval, args):
+    '''Performs a fold left on list with function f'''
     assert len(args) == 3, 'fold: expects 3 arguments (fold f acc data:list)'
     evaluated = seval.eval_args(args[1:])
     assert isinstance(evaluated[-1], list), f'fold: last argument must be a list not {type(evaluated[-1])}'
@@ -129,6 +144,8 @@ def op_fold(seval, args):
 
 
 def op_range(seval, args):
+    '''Returns a list filled with numbers from arg0 to arg1. Arg1 can be omitted which
+    results in a list 0..arg0'''
     assert len(args) >= 1 and len(args) <= 3, 'range: expects one or two arguments (range start:int end:int step:int)'
     evaluated = seval.eval_args(args)
     assert all(isinstance(e, int) for e in evaluated), 'range: all arguments must be ints'
@@ -137,24 +154,26 @@ def op_range(seval, args):
 
 
 def op_is_list(seval, args):
+    '''Returns true if the argument is a list'''
     assert len(args) == 1, 'list?: expects exactly one argument (list? list)'
     return isinstance(seval.eval(args[0]), list)
 
 
 def op_for(seval, args):
+    '''Loops over each element in seq, binds it to id and evaluates the body'''
     assert len(args) > 1, 'for: expects at least two arguments (for [id:symbol seq:list] body+)'
     assert isinstance(args[0], list), 'for: first argument must be a tuple like [id:symbol seq:list]'
     assert len(args[0]) == 2,  'for: first argument must be a tuple like [id:symbol seq:list]'
     sym = args[0][0]
     sequence = seval.eval(args[0][1])
     assert isinstance(sequence, list), 'for: seq in [id:symbol seq:list] must be a list'
-    for v in sequence:
+    for value in sequence:
         if seval.stack: # if in a function
-            seval.stack[-1][sym.name] = v
+            seval.stack[-1][sym.name] = value
             seval.eval_args(args[1:])
             del seval.stack[-1][sym.name]
         else:
-            seval.context[sym.name] = v
+            seval.context[sym.name] = value
             seval.eval_args(args[1:])
             del seval.context[sym.name]
 

@@ -1,7 +1,10 @@
+'''Implementations for all array related functions'''
+
 from wal.ast_defs import Symbol, Operator
 
 
 def op_array(seval, args):
+    '''Creates a new array and populates it with the values passed in args'''
     res = {}
     for arg in args:
         assert len(arg) == 2, 'array: arguments must be (key:(int, str) sexpr) tuples'
@@ -13,6 +16,7 @@ def op_array(seval, args):
 
 
 def op_seta(seval, args):
+    '''Updates values depending on the tuples in args'''
     assert len(args) >= 3, 'seta: requires at least three arguments. (seta name [key:(int, str)] value)'
     evaluated_args = seval.eval_args(args[1:-1])
     evaluated_val = seval.eval(args[-1])
@@ -29,6 +33,7 @@ def op_seta(seval, args):
 
 
 def op_geta(seval, args):
+    '''Returns the value from key '-'.join(keys) from array'''
     assert len(args) >= 2, 'geta: requires at least two arguments. (geta array:(array, symbol) [key:(int, str, symbol])'
 
     if isinstance(args[0], Symbol):
@@ -49,12 +54,13 @@ def op_geta(seval, args):
 
     if key in array:
         return array[key]
-    else:
-        array[key] = 0
-        return 0
+
+    array[key] = 0
+    return 0
 
 
 def op_mapa(seval, args):
+    '''Applies function to every key value pair in array'''
     assert len(args) == 2, 'mapa: requires two arguments. (mapa function array)'
     func = seval.eval(args[0])
     assert isinstance(func, list) and func[0] == Operator.LAMBDA, 'mapa: first argument must be a function'
