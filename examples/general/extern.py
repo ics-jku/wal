@@ -1,11 +1,15 @@
+'''Python function that are included and called from WAL code'''
+import re
+from random import randint
+import requests
+
 def date():
-    import re
-    import requests
+    '''Return a list of the current day and the current year'''
     request = requests.get('https://www.timeanddate.com/', allow_redirects=True)
     day = re.search(r'<span id="ij1">(.*?)</span>', str(request.content)).group(1)
-    date = re.search(r'<span id="ij2">(.*?)</span>', str(request.content)).group(1)
-    return [day, date]
+    month_year = re.search(r'<span id="ij2">(.*?)</span>', str(request.content)).group(1)
+    return [day, month_year]
 
-def random_list(x):
-    from random import randint
-    return [randint(-100, 100) for i in range(x)]
+def random_list(length):
+    '''Return a list of random integers'''
+    return [randint(-100, 100) for i in range(length)]

@@ -6,7 +6,7 @@
 (defun div-by (x y) (= x (* y (/ x y))))
 (defun div-by-3-or-5 (x) (if (|| (div-by x 3) (div-by x 5)) x 0))
 
-(defun range (low high)
+(defun range2 (low high)
   (while (<= low high)
 	 (set (low (+ low 1))
 	      (tmp (+ '() tmp (- low 1))))))

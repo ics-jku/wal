@@ -1,7 +1,10 @@
-from setuptools import setup, find_packages
+'''Setup file for the wal-lang package'''
+# pylint: disable=W0122,E0602
 import pathlib
+from setuptools import setup, find_packages
 
-exec(open('wal/version.py').read())
+with open('wal/version.py', encoding="utf8") as f:
+    exec(f.read())
 
 here = pathlib.Path(__file__).parent.resolve()
 
