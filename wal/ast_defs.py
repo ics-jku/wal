@@ -15,6 +15,7 @@ class Operator(Enum):
     SUB = '-'
     MUL = '*'
     DIV = '/'
+    FDIV = 'fdiv'
     EXP = '**'
     NOT = '!'
     EQ = '='
@@ -96,6 +97,7 @@ class Operator(Enum):
     FIND_G = 'find/g'
     WHENEVER = 'whenever'
     FOLD_SIGNAL = 'fold/signal'
+    COUNT = 'count'
     # system
     EXIT = 'exit'
 

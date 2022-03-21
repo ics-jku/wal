@@ -54,6 +54,18 @@ def op_div(seval, args):
     return int(evaluated[0] / evaluated[1])
 
 
+def op_fdiv(seval, args):
+    evaluated = seval.eval_args(args)
+    # assert all(map(lambda x: isinstance(x, int), evaluated))
+    assert len(evaluated) == 2
+    if evaluated[1] == 0:
+        print('WARNING: division by zero. Is this intended?')
+        return None
+
+    return evaluated[0] / evaluated[1]
+
+
+
 def op_exp(seval, args):
     evaluated = seval.eval_args(args)
     assert all(map(lambda x: isinstance(x, int), evaluated))
@@ -607,6 +619,7 @@ core_operators = {
     Operator.SUB.value: op_sub,
     Operator.MUL.value: op_mul,
     Operator.DIV.value: op_div,
+    Operator.FDIV.value: op_fdiv,
     Operator.EXP.value: op_exp,
     Operator.NOT.value: op_not,
     Operator.EQ.value: op_eq,

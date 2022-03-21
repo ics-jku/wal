@@ -12,11 +12,11 @@
       (list (first xs) (append (rest xs) x))))
 
 (defun leval (e a)
-  (cond ((atom e) (assoc e a))
-  	((atom (first e))
+  (cond ((atom? e) (assoc e a))
+  	((atom? (first e))
 	  (cond
 	    ((= (first e) 'quote) (second e))
-	    ((= (first e) 'atom)  (atom (leval (second e) a)))
+	    ((= (first e) 'atom)  (atom? (leval (second e) a)))
 	    ((= (first e) 'eq) 	  (= (leval (second e) a) (leval (second (rest e)) a)))
 	    ((= (first e) 'car)   (first (leval (second e) a)))
 	    ((= (first e) 'cdr)   (rest (leval (second e) a)))
@@ -55,3 +55,4 @@
       	       	      ((eq 'a 'a) '2)) '1)
 (test "Cond2"  '(cond ((eq 'a 'b) '1)
   		      ((eq 'a 'a) '2)) '2)
+

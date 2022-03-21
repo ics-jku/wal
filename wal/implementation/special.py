@@ -95,10 +95,19 @@ def op_fold_signal(seval, args):
     return acc
 
 
+def op_count(seval, args):
+    '''Count
+       Returns the number of indices at which the condition in argument 1
+       is true. Steps each trace individually.
+    '''
+    indices = op_find(seval, args)
+    return len(indices)
+
 
 special_operators = {
     Operator.FIND.value: op_find,
     Operator.FIND_G.value: op_find_g,
     Operator.WHENEVER.value: op_whenever,
-    Operator.FOLD_SIGNAL.value: op_fold_signal
+    Operator.FOLD_SIGNAL.value: op_fold_signal,
+    Operator.COUNT.value : op_count,
 }

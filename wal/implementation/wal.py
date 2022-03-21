@@ -10,17 +10,17 @@ def op_load(seval, args):
     seval.traces.load(filename, tid)
     res = tid
 
-    
+
 def op_unload(seval, args):
     assert len(args) == 1, 'unload: expects one argument (unload trace:symbol)'
     assert isinstance(args[0], (str, Symbol)), 'unload: argument must be str or symbol'
-    tid = args[0] if isinstance(args[0], str) else args[0].name    
+    tid = args[0] if isinstance(args[0], str) else args[0].name
     return seval.traces.unload(tid)
 
 
 def op_step(seval, args):
     assert seval.traces.traces, 'step: no traces loaded'
-    
+
     def do_step(tid, steps=1):
         if isinstance(tid, str):
             return seval.traces.step(tid=tid, steps=steps)
@@ -28,7 +28,7 @@ def op_step(seval, args):
             return seval.traces.step(tid=tid.name, steps=steps)
         else:
             raise ValueError('step: arguments must be either str or symbol')
-            
+
     # step all traces +1
     if len(args) == 0:
         res = seval.traces.step()
@@ -67,14 +67,14 @@ def op_require(seval, args):
                     e.show()
                     exit(os.EX_DATAERR)
 
-                    
+
         old_context.update(seval.context)
         seval.context = old_context
 
 
 wal_operators = {
     Operator.LOAD.value: op_load,
-    Operator.UNLOAD.value: op_unload,    
+    Operator.UNLOAD.value: op_unload,
     Operator.STEP.value: op_step,
-    Operator.REQUIRE.value: op_require
+    Operator.REQUIRE.value: op_require,
 }
