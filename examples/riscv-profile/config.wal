@@ -1,0 +1,4 @@
+; VexRiscv
+(alias clk TOP.clk)
+(alias fire TOP.VexRiscv.lastStageIsFiring)
+(alias pc TOP.VexRiscv.lastStagePc)

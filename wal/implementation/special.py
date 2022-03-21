@@ -1,4 +1,5 @@
-from wal.ast_defs import Operator
+'''Implementations for special hardware related functions'''
+from wal.ast_defs import Operator, Symbol
 
 def op_find(seval, args):
     '''Find
@@ -35,7 +36,7 @@ def op_find_g(seval, args):
     prev_indices = seval.traces.indices()
     found = []
     ended = []
-    while ended == []:
+    while not ended:
         if seval.eval(args[0]):
             indices = seval.traces.indices()
             found.append(indices if len(indices) > 1 else list(indices.values())[0])
@@ -49,12 +50,13 @@ def op_find_g(seval, args):
 
 
 def op_whenever(seval, args):
+    '''Evaluates body at each index at which condition evaluate to true '''
     assert len(args) >= 2, 'whenever: expects exactly two arguments (whenever condition body)'
 
     prev_indices = seval.traces.indices()
     res = None
     ended = []
-    while ended == []:
+    while not ended:
         if seval.eval(args[0]):
             res = seval.eval_args(args[1:])[-1]
 
@@ -67,12 +69,17 @@ def op_whenever(seval, args):
 
 
 def op_fold_signal(seval, args):
-    assert len(args) == 4, 'fold/signal: expects 3 arguments (fold/signal f acc stop signal)'
-    assert seval.traces.contains(args[-1].name), f'fold/signal: last argument must be a valid signal name'
+    '''Performs a fold operation on the values of signal from index INDEX
+    until the stop condition evaluates to true. '''
+    assert len(args) == 4, 'fold/signal: expects 3 arguments (fold f acc stop signal)'
     func = seval.eval(args[0])
+    assert isinstance(func, list) and \
+        (func[0] == Operator.LAMBDA or func[0] == Operator.FN), 'fold/signal: not a valid function'
     acc = seval.eval(args[1])
     stop = args[2]
-    signal = args[3]
+    signal = seval.eval(args[3])
+    assert isinstance(signal, Symbol), 'fold/signal: last argument must be a signal'
+    assert seval.traces.contains(signal.name), f'fold/signal: signal "{signal.name}" not found'
 
     # store indices at start
     prev_indices = seval.traces.indices()
