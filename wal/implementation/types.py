@@ -45,8 +45,10 @@ def op_convert_binary(seval, args):
 
 def op_string_to_int(seval, args):
     '''Converts a string to an integer '''
-    assert len(args) == 1, 'convert/int: expects exactly one argument (convert/int expr:int)'
-    return int(seval.eval(args[0]))
+    assert len(args) == 1, 'string->int: expects exactly one argument (convert/int expr:str)'
+    evaluated = seval.eval(args[0])
+    assert isinstance(evaluated, str), 'string->int: argument must evaluate to srting'
+    return int(evaluated)
 
 
 def op_symbol_to_string(seval, args):
