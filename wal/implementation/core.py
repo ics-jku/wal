@@ -1,3 +1,5 @@
+'''Implementations for all basic core functions'''
+# pylint: disable=C0116,C0103
 import re
 import os
 import sys
@@ -5,7 +7,7 @@ import math
 import operator
 import importlib
 
-from functools import reduce, lru_cache
+from functools import reduce
 from wal.ast_defs import Operator, Symbol
 
 
@@ -63,7 +65,6 @@ def op_fdiv(seval, args):
         return None
 
     return evaluated[0] / evaluated[1]
-
 
 
 def op_exp(seval, args):
@@ -209,18 +210,17 @@ def op_inc(seval, args):
             assert isinstance(arg, Symbol), 'arguments to inc must be symbols'
             name = arg.name
 
-        if arg.name not in seval.context:
-            seval.context[arg.name] = 0
+        if name not in seval.context:
+            seval.context[name] = 0
 
-        assert isinstance(seval.context[arg.name], int), 'arguments to inc must be integers'
-        res = seval.context[arg.name] = seval.context[arg.name] + 1
+        assert isinstance(seval.context[name], int), 'arguments to inc must be integers'
+        res = seval.context[name] = seval.context[name] + 1
 
     return res
 
 
 def op_print(seval, args):
     print(*seval.eval_args(args), sep='')
-    return None
 
 
 def op_printf(seval, args):
@@ -231,17 +231,17 @@ def op_printf(seval, args):
         print(format_evaluated % tuple(evaluated), sep='', end='')
     else:
         raise ValueError('printf\'s first argument must be a format string')
-    return None
 
 
 def op_if(seval, args):
     assert len(args) == 2 or len(args) == 3, 'if: expects a condition, if-clause and optionally an else-clause'
     if seval.eval(args[0]):
         return seval.eval(args[1])
-    else:
-        if len(args) == 3:
-            return seval.eval(args[2])
 
+    if len(args) == 3:
+        return seval.eval(args[2])
+
+    return None
 
 def op_cond(seval, args):
     assert args, 'cond: expects a list of clauses (cond (cond1 clause+)+)'
@@ -250,7 +250,8 @@ def op_cond(seval, args):
         assert len(clause) >= 2, 'cond: clauses must be tuples (cond clause)'
         if seval.eval(clause[0]):
             return seval.eval_args(clause[1:])[-1]
-#            return seval.eval(clause[1])
+
+    return None
 
 
 def op_when(seval, args):
@@ -258,16 +259,18 @@ def op_when(seval, args):
     if seval.eval(args[0]):
         return seval.eval_args(args[1:])[-1]
 
+    return None
 
 def op_unless(seval, args):
     assert len(args) >= 2, 'unless: expects a condition and a clause'
     if not seval.eval(args[0]):
         return seval.eval_args(args[1:])[-1]
 
+    return None
+
 
 def op_case(seval, args):
     assert args, 'case: expects at least one case argument'
-    res = None
     keyform = seval.eval(args[0])
     clauses = args[1:]
     if len(set(map(lambda x: str(x[0]), clauses))) != len(clauses):
@@ -278,6 +281,9 @@ def op_case(seval, args):
         consequents = clause[1:]
         if keyform == key:
             return seval.eval_args(consequents)[-1]
+
+    return None
+
 
 def op_do(seval, args):
     assert args, 'do: expects at least on argument'
@@ -320,7 +326,7 @@ def op_unalias(seval, args):
         del seval.aliases[arg.name]
 
 
-def op_quote(seval, args):
+def op_quote(seval, args):  # pylint: disable=W0613
     assert len(args) == 1, 'quote: expects exactly one argument'
     return args[0]
 
@@ -340,7 +346,7 @@ def op_defun(seval, args):
     seval.context[args[0].name] = [Operator.LAMBDA, args[1], [Operator.DO, *args[2:]]]
 
 
-def op_lambda(seval, args):
+def op_lambda(seval, args):  # pylint: disable=W0613
     assert len(args) == 2, 'lambda: expects exactly two arguments (lambda (symbol* | (symbol expr)) sexpr)'
     assert isinstance(args[0], list), 'lambda: first argument must be a list of symbols or symbol expression pairs'
     assert all(isinstance(arg, (list, Symbol)) for arg in args[0])
@@ -353,8 +359,11 @@ def op_get(seval, args):
     evaluated = seval.eval_args(args)
     if isinstance(evaluated[0], str):
         return seval.eval(Symbol(evaluated[0]))
-    elif isinstance(evaluated[0], Symbol):
+
+    if isinstance(evaluated[0], Symbol):
         return seval.eval(evaluated[0])
+
+    return None
 
 
 def op_import(seval, args):
@@ -390,15 +399,17 @@ def op_call(seval, args):
     min_args = func.__code__.co_argcount - len(func.__defaults__) if func.__defaults__ else 0
     max_args = func.__code__.co_argcount
     assert n_args >= min_args <= max_args, f'{extern_name} requires {min_args} to {max_args}'
-    evaluated = list(map(lambda x: seval.eval(x), extern_args))
+    evaluated = list(map(seval.eval, extern_args))
     return func(*evaluated)
 
 
 def op_type(seval, args):
+    '''Return the type of argument'''
     return type(seval.eval(args[0]))
 
 
 def op_rel_eval(seval, args):
+    '''Evaluate an expression at a locally modified index. Index is restored after eval is done.'''
     assert len(args) == 2, '@: expects two arguments (@ expr:expr offset:expr->int)'
     assert isinstance(args[0], (Symbol, int, str, list)), '@: first argument must be a valid expression'
     offset = seval.eval(args[1])
@@ -435,6 +446,8 @@ def op_get_at_time_old(seval, args):
 
         if seval.traces.contains(name):
             return seval.traces.signal_value(name, args[1])
+
+    return None
 
 
 def op_scoped(seval, args):
@@ -484,6 +497,8 @@ def op_resolve_scope(seval, args):
     if seval.traces.contains(name):
         return seval.traces.signal_value(name)
 
+    return None
+
 
 def op_set_scope(seval, args):
     assert args, 'set-scope: exactly one argument required'
@@ -512,7 +527,7 @@ def op_groups(seval, args):
     else:
         pattern = re.compile(rf'.*{args[0]}')
 
-    candidates = list(filter(lambda signal: pattern.fullmatch(signal), seval.traces.signals))
+    candidates = list(filter(pattern.fullmatch, seval.traces.signals))
     groups = set()
     for pre in candidates:
         pre = pre[:-len(args[0])]  # cut off filter suffix
@@ -573,6 +588,8 @@ def op_resolve_group(seval, args):
     if seval.traces.contains(name):
         return seval.traces.signal_value(name)
 
+    return None
+
 
 def op_slice(seval, args):
     assert len(args) > 1 and len(args) < 4, 'slice: two or three arguments required (slice high:int [low:int])'
@@ -580,7 +597,7 @@ def op_slice(seval, args):
     assert isinstance(evaluated[0], (int, list, str)), 'slice: first argument must evaluate to a number or a list'
 
     if isinstance(evaluated[0], int):
-        if len(args) == 2:
+        if len(args) == 2: # pylint: disable=R1705
             index = evaluated[1]
             assert isinstance(index, int), 'slice: index must evaluate to int'
             return (evaluated[0] & (1 << index)) >> index
@@ -591,7 +608,7 @@ def op_slice(seval, args):
             assert isinstance(lower, int), 'slice: lower index must evaluate to int'
             return (evaluated[0] & (((1 << (upper - lower + 1)) - 1) << lower)) >> lower
     elif isinstance(evaluated[0], (list, str)):
-        if len(args) == 2:
+        if len(args) == 2: # pylint: disable=R1705
             index = evaluated[1]
             assert isinstance(index, int), 'slice: index must evaluate to int'
             return evaluated[0][index]
@@ -602,10 +619,11 @@ def op_slice(seval, args):
             assert isinstance(lower, int), 'slice: lower index must evaluate to int'
             return evaluated[0][upper:lower]
 
+    return None
+
 
 def op_exit(seval, args):
     assert len(args) < 2, 'exit: expects none or one argument (exit return_code:int)'
-    import sys
     if len(args) == 0:
         sys.exit(0)
     else:
@@ -665,5 +683,5 @@ core_operators = {
     Operator.IN_GROUPS.value: op_in_groups,
     Operator.RESOLVE_GROUP.value: op_resolve_group,
     Operator.SLICE.value: op_slice,
-    Operator.EXIT.value: op_exit
+    Operator.EXIT.value: op_exit,
 }

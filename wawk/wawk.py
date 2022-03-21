@@ -55,7 +55,7 @@ def run():
     for begin_action in ast.begin:
         wal.eval(begin_action)
 
-    while wal.step() == []:
+    while not wal.step():
         for statement in ast.statements:
             conditions = []
             for cond in statement.condition:

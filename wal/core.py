@@ -67,7 +67,7 @@ class Wal:
 
     def run_file(self, filename):
         '''Executes a WAL program from a file'''
-        with open(filename, 'r') as fin:
+        with open(filename, 'r', encoding='utf-8') as fin:
             self.eval_context.eval(fin.read())
 
     # pylint: disable=R0201

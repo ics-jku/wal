@@ -1,47 +1,56 @@
+'''Implementations for type related functions such as type checking'''
 from wal.ast_defs import Operator, Symbol
 
 
 def op_is_atom(seval, args):
+    '''Returns true if all arguments evaluate to atoms'''
     evaluated = seval.eval_args(args)
-    return all([isinstance(arg, (Operator, Symbol, str, int)) for arg in evaluated])
+    return all(isinstance(arg, (Operator, Symbol, str, int)) for arg in evaluated)
 
 
 def op_is_symbol(seval, args):
+    '''Returns true if all arguments evaluate to symbols'''
     evaluated = seval.eval_args(args)
-    return all([isinstance(arg, Symbol) for arg in evaluated])
+    return all(isinstance(arg, Symbol) for arg in evaluated)
 
 
 def op_is_string(seval, args):
+    '''Returns true if all arguments evaluate to strings'''
     evaluated = seval.eval_args(args)
-    return all([isinstance(arg, str) for arg in evaluated])
+    return all(isinstance(arg, str) for arg in evaluated)
 
 
 def op_is_int(seval, args):
+    '''Returns true if all arguments evaluate to integers'''
     evaluated = seval.eval_args(args)
-    return all([isinstance(arg, int) for arg in evaluated])
+    return all(isinstance(arg, int) for arg in evaluated)
 
 
 def op_is_list(seval, args):
+    '''Returns true if all arguments evaluate to lists'''
     evaluated = seval.eval_args(args)
-    return all([isinstance(arg, list) for arg in evaluated])
+    return all(isinstance(arg, list) for arg in evaluated)
 
 
 def op_convert_binary(seval, args):
+    '''Converts an integer to a binray string of width bits'''
     assert len(args) == 1 or len(args) == 2, 'convert/bin: expects at least one argument (convert/bin expr:int width:int)'
     evaluated = seval.eval_args(args)
     value = evaluated[0]
     width = evaluated[1] if len(args) == 2 else 0
     assert isinstance(value, int), 'convert/bin: first argument must evaluate to int'
     assert isinstance(width, int), 'convert/bin: second argument must evaluate to int'
-    return '{value:0{width}b}'.format(value=value, width=width)
+    return f'{value:0{width}b}'.format(value=value, width=width) # pylint: disable=C0116
 
 
 def op_string_to_int(seval, args):
+    '''Converts a string to an integer '''
     assert len(args) == 1, 'convert/int: expects exactly one argument (convert/int expr:int)'
     return int(seval.eval(args[0]))
 
 
 def op_symbol_to_string(seval, args):
+    '''Converts a symbol a to a string "a" '''
     assert len(args) == 1, 'symbol->string: expects exactly one argument (symbol->string expr:symbol)'
     evaluated = seval.eval(args[0])
     assert isinstance(evaluated, Symbol), 'symbol->string: argument must evaluate to symbol'
@@ -49,6 +58,7 @@ def op_symbol_to_string(seval, args):
 
 
 def op_int_to_string(seval, args):
+    '''Converts an integer to its string representation'''
     assert len(args) == 1, 'int->string: expects exactly one argument (symbol->string expr:symbol)'
     evaluated = seval.eval(args[0])
     assert isinstance(evaluated, int), 'int->string: argument must evaluate to symbol'

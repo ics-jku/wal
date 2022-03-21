@@ -4,6 +4,8 @@ import re
 from functools import lru_cache
 from vcdvcd import VCDVCD, StreamParserCallbacks
 
+SPECIAL_SIGNALS = ['SIGNALS', 'INDEX', 'MAX-INDEX', 'TS', 'TRACE-NAME', 'TRACE-FILE', 'SCOPES']
+
 class TraceContainer:
     '''Can hold multiple traces and dispatches value access to the correct trace.'''
 
@@ -158,45 +160,46 @@ class Trace:
         self.index += steps
         return None
 
-    def signal_value(self, name, offset, scope=''):
+    def signal_value(self, name, offset, scope=''): # pylint: disable=R0912
         '''Get the value of signal name at current time + offset.'''
         rel_index = self.index + offset
 
         res = None
         # handle special variables
         if rel_index in self.timestamps:
-            if name == 'SIGNALS':
-                if scope == '':
-                    res = self.rawsignals
-                else:
-                    def in_scope(signal):
-                        prefix_ok = signal.startswith(scope + '.')
-                        not_in_sub_scope = '.' not in signal[len(scope) + 1:]
-                        return prefix_ok and not_in_sub_scope
+            if name in SPECIAL_SIGNALS:
+                if name == 'SIGNALS':
+                    if scope == '':
+                        res = self.rawsignals
+                    else:
+                        def in_scope(signal):
+                            prefix_ok = signal.startswith(scope + '.')
+                            not_in_sub_scope = '.' not in signal[len(scope) + 1:]
+                            return prefix_ok and not_in_sub_scope
 
-                    res = list(filter(in_scope, self.rawsignals))
-            elif name == 'INDEX':
-                res = self.index
-            elif name == 'MAX-INDEX':
-                res = len(self.timestamps)
-            elif name == 'TS':
-                res = self.ts
-            elif name == 'TRACE-NAME':
-                res = self.tid
-            elif name == 'TRACE-FILE':
-                res = self.filename
-            elif name == 'SCOPES':
-                res = list(self.data.scopes.keys())
+                        res = list(filter(in_scope, self.rawsignals))
+                elif name == 'INDEX':
+                    res = self.index
+                elif name == 'MAX-INDEX':
+                    res = len(self.timestamps)
+                elif name == 'TS':
+                    res = self.ts
+                elif name == 'TRACE-NAME':
+                    res = self.tid
+                elif name == 'TRACE-FILE':
+                    res = self.filename
+                elif name == 'SCOPES':
+                    res = list(self.data.scopes.keys())
             else:
                 bits = self.data[name][self.timestamps[rel_index]]
                 try:
                     res = int(bits, 2) if bits != 'x' else bits
-                except Exception:
-                    if bits == 'x' or bits == 'z':
+                except ValueError:
+                    if bits in ('x', 'z'):
                         res = bits
                     elif bits is None:
                         res = [] #'! Error, no value !'
-                    
+
         else:
             raise ValueError(f'can not access {name} at negative timestamp')
 

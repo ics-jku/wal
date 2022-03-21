@@ -1,17 +1,22 @@
+'''Implementations for WAL related functions such as loading and unloading traces.'''
+import sys
+import os
 from wal.ast_defs import Operator, Symbol
 from wal.reader import read_wal_sexprs, ParseError
 
+
 def op_load(seval, args):
+    '''Load trace from file filename under id tid '''
     assert len(args) == 2, 'load: expects two arguments (load filename:str tid:str|symbol)'
     filename = seval.eval(args[0])
     assert isinstance(filename, str), 'load: first argument must be str'
     assert isinstance(args[1], (str, Symbol)), 'load: first argument must be str or symbol'
     tid = args[1] if isinstance(args[1], str) else args[1].name
     seval.traces.load(filename, tid)
-    res = tid
 
 
 def op_unload(seval, args):
+    '''Removes the trace with id t from WAL '''
     assert len(args) == 1, 'unload: expects one argument (unload trace:symbol)'
     assert isinstance(args[0], (str, Symbol)), 'unload: argument must be str or symbol'
     tid = args[0] if isinstance(args[0], str) else args[0].name
@@ -19,15 +24,16 @@ def op_unload(seval, args):
 
 
 def op_step(seval, args):
+    '''Steps the trace or all traces by offset'''
     assert seval.traces.traces, 'step: no traces loaded'
 
     def do_step(tid, steps=1):
         if isinstance(tid, str):
             return seval.traces.step(tid=tid, steps=steps)
-        elif isinstance(tid, Symbol):
+        if isinstance(tid, Symbol):
             return seval.traces.step(tid=tid.name, steps=steps)
-        else:
-            raise ValueError('step: arguments must be either str or symbol')
+
+        raise ValueError('step: arguments must be either str or symbol')
 
     # step all traces +1
     if len(args) == 0:
@@ -48,25 +54,25 @@ def op_step(seval, args):
             if step:
                 res.append(step)
 
-    return True if res == [] else False
+    return res == []
 
 
 def op_require(seval, args):
+    '''Executes WAL module and adds definitions to WAL context'''
     assert len(args) > 0, 'require: expects at least one argument (require module:symbol+)'
     assert all(isinstance(s, Symbol) for s in args), 'require: all argument must be symbols'
     for module in args:
         old_context = seval.context
         seval.context = {}
-        with open(module.name + '.wal', 'r', encoding='utf8') as file:
-                try:
-                    sexprs = read_wal_sexprs(file.read())
-                    for sexpr in sexprs:
-                        if sexpr:
-                            seval.eval(sexpr)
-                except ParseError as e:
-                    e.show()
-                    exit(os.EX_DATAERR)
-
+        with open(module.name + '.wal', 'r', encoding='utf-8') as file:
+            try:
+                sexprs = read_wal_sexprs(file.read())
+                for sexpr in sexprs:
+                    if sexpr:
+                        seval.eval(sexpr)
+            except ParseError as exception:
+                exception.show()
+                sys.exit(os.EX_DATAERR)
 
         old_context.update(seval.context)
         seval.context = old_context
