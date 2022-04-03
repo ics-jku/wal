@@ -1,3 +1,0 @@
-(set acc (+ acc 1))
-
-END: (print acc)

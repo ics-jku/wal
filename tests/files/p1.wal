@@ -1,0 +1,4 @@
+; Test program 1
+(print "hello, test")
+
+( + x 2)

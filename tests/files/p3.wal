@@ -1,0 +1,6 @@
+; Test program 3
+; Invalid
+
+(let [wait
+
+(print "Waited " wait " cycles")

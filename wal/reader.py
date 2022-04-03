@@ -4,6 +4,7 @@
 import ast
 from lark import Lark, Transformer
 from lark import UnexpectedToken, UnexpectedEOF, UnexpectedCharacters
+from lark.exceptions import VisitError
 from wal.ast_defs import Symbol, ExpandGroup, S, Operator
 
 operators = [op.value for op in Operator]
@@ -20,7 +21,7 @@ WAL_GRAMMAR = r"""
     _INTER : _COMMENT | _WS
     sexpr : _INTER* sexpr_strict _INTER*
     quoted : "'" sexpr
-    sexpr_list : _BASH_LINE? sexpr*
+    sexpr_list : _BASH_LINE? (_INTER* | sexpr*)
 
     atom : string
          | int
@@ -130,6 +131,9 @@ def read(code, start='sexpr'):
         context = u.get_context(code)
         msg = f'Unexpected "{u.char}" at line {u.line}:{u.column}'
         raise ParseError(context, msg) from u
+    except VisitError as u:
+        context = u.__context__
+        raise ParseError("", str(context)) from u
 
 
 def read_wal_sexpr(code):
