@@ -37,7 +37,6 @@ class TraceContainer:
         trace = list(self.traces.values())[0]
         return trace.signal_value(name, offset, scope)
 
-    @lru_cache()
     def contains(self, name):
         '''Return true if a signal with name exists in any trace.'''
         if len(self.traces) == 0:
@@ -117,7 +116,7 @@ class Trace:
 
         class TimestampCallback(StreamParserCallbacks):  # pylint: disable=R0903
             '''A simple callback used to construct a list of all timestamps'''
-            def time(inner, vcd, time, cur_sig_vals):  # pylint: disable=E0213,C0116,W0613,R0201
+            def time(inner, vcd, time, cur_sig_vals):  # pylint: disable=E0213,C0116,W0613,R0201,W0237
                 self.timestamps.append(time)
 
         if from_string:
