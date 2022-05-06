@@ -228,7 +228,11 @@ def op_printf(seval, args):
     format_evaluated = seval.eval(args[0])
     if isinstance(format_evaluated, str):
         evaluated = seval.eval_args(args[1:])
-        print(format_evaluated % tuple(evaluated), sep='', end='')
+        try:
+            final_str = format_evaluated % tuple(evaluated)
+            print(final_str, sep='', end='')
+        except Exception as e:
+            raise RuntimeError(str(e) + ': "' + format_evaluated + '"')
     else:
         raise ValueError('printf\'s first argument must be a format string')
 
