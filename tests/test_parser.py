@@ -196,13 +196,37 @@ class SimpleProgramTest(unittest.TestCase):
         golden = [[Op.SET, [S('x'), 5]], [Op.PRINT, [Op.ADD, 1, [Op.SUB, S('x'), 5]]]]
         self.assertEqual(read_wal_sexprs(p), golden)
 
-        # p = '''
-        # (set [x 5]) ;comment
-        # ; comment
-        #    ;comment
-        # (print (+ 1 (- x 5)))'''
-        # self.assertEqual(read_wal_sexprs(p), golden)
+        p = '''
+        (set [x 5]) ;comment
+        ; comment
+           ;comment
+        (print (+ 1 (- x 5)))'''
+        self.assertEqual(read_wal_sexprs(p), golden)
 
-        # p = '#;(+ 1 2)'
-        # golden = []
-        # self.assertEqual(read_wal_sexprs(p), golden)
+        p = ''';(+ 1 2)'''
+        golden = []
+        self.assertEqual(read_wal_sexprs(p), golden)
+
+
+class SimpleProgramFileTest(unittest.TestCase):
+    '''Test parse simple programs from files'''
+
+    def test_program1(self):
+        '''Test a simple program with two statements'''
+        with open('tests/files/p1.wal', encoding='utf-8') as f:
+            p = f.read()
+            golden = [[Op.PRINT, 'hello, test'], [Op.ADD, S('x'), 2]]
+            self.assertEqual(read_wal_sexprs(p), golden)
+
+    def test_program2(self):
+        '''Test a simple program with a when condition'''
+        with open('tests/files/p2.wal', encoding='utf-8') as f:
+            p = f.read()
+            golden = [[Op.WHEN, [Op.AND, S('i_valid'), S('i_ready')], [Op.PRINT, S('i_data')]]]
+            self.assertEqual(read_wal_sexprs(p), golden)
+
+    def test_program3(self):
+        '''Test a simple program with a syntax error'''
+        with open('tests/files/p3.wal', encoding='utf-8') as f:
+            p = f.read()
+            self.assertRaises(ParseError, read_wal_sexprs, p)

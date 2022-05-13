@@ -1,5 +1,0 @@
-; Test program 1
-
-BEGIN: (print "Track enable")
-
-counter_tb.enable: (print "enable")

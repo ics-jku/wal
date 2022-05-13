@@ -20,7 +20,7 @@ After that install WAL by typing make install inside the cloned directory.
 To get an impression of WAL you can check out this ASCII cast [ASCII Cast](https://asciinema.org/a/I8fQknySyaZqNjXAA8Ej7wOoq), in which the WAL REPL is used to compare two RISCV cores.
 
 ## Publication
-The initial paper on WAL will was presented at ASPDAC'22 and can be downloaded here: https://www.ics.jku.at/files/2022ASPDAC_WAL.pdf. 
+The initial paper on WAL was presented at ASPDAC'22 and can be downloaded here: https://www.ics.jku.at/files/2022ASPDAC_WAL.pdf. 
 The examples from the paper can be found in the examples folder.
 
 If you like WAL you can cite our paper as follows: 
