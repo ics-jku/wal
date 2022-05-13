@@ -1,0 +1,33 @@
+;; To try this example run "wal basics1.wal"
+
+;; To get access to the waveform in "counter.vcd" first we must load it.
+;; The "load" function loads the waveform from the file pointed to by the first
+;; parameter and registers it using the name passed as the second parameter.
+(load "counter.vcd" t)
+
+;; Now we can print all signal names that are in the waveform.
+;; "SIGNALS" is a special variable containing a list of all signal names.
+(print SIGNALS)
+
+;; Finally, we can start accessing the signal values.
+;; After loading the waveform the time index points to the first time step.
+;; "INDEX" is also a special variable containing the current time index.
+(print "Current Index: " INDEX)
+
+;; To get the value of a signal at the current index we just have to
+;; write the name of the signal!
+(print "Clk: " tb.dut.clk)
+
+;; We can now move the time index with the "step" function.
+;; This function expects an integer specifying how many steps we want to move
+;; the time index forward or backward.
+(step 1)
+(print "Current Index: " INDEX)
+
+;; Evaluating the clock signal again we now get the value 1.
+(print "Clk: " tb.dut.clk)
+
+;; Of course, moving the index back also works
+(step -1)
+(print "Current Index: " INDEX)
+(print "Clk: " tb.dut.clk)
