@@ -1,0 +1,46 @@
+;; To try this example run "wal basics2.wal"
+
+;; Now let us get to work and actually do something with the waveform.
+;; Our goal in this example is to find all the time indices at which the
+;; counter overflows.
+
+(load "counter.vcd" t)
+
+;; We have to check on each time index if the counter is overflowing and if
+;; it is we want to print the time index.
+;; Fir this WAL has an "if" function that works similar to other languages.
+(if (> 5 1)
+    (print "LARGER")
+    (print "SMALLER"))
+
+;; To go through the complete waveform we can use the "while" function.
+;; WALs while function works like any other while. It evaluates the
+;; first argument and checks if the result is not #f (WALs Boolean true),
+;; 0, or the empty list. It then evaluates the body.
+;; This is repeated as long as the condition is satisfied.
+
+;; Now we can combine both functions to actually find all the time steps
+;; at which the counter overflows.
+;; The "step" function returns #t if the INDEX has not reached the
+;; end of the waveform otherwise it returns #f.
+(while (step 1)
+  (if tb.dut.overflow
+      (print "Overflow at " INDEX)))
+
+;; Now we get 4 time indices at which the overflow signal is set to 1.
+;; However, we are only interested in indices at which the clock signal
+;; is also set to 1.
+;; For these cases, WAL supports operators like the logical and (&&).
+;; We can now update our condition to reflect this requirement.
+(while (step 1)
+  (if tb.dut.overflow
+      (print "Overflow at " INDEX)))
+
+;; What happening? Now we don't find a single occurrence!
+;; The time index still points to the end of the waveform from the previous loop.
+;; Lets move the index back and start again.
+(step (- INDEX))
+(print)
+(while (step 1)
+  (if (&& tb.dut.clk tb.dut.overflow)
+      (print "Overflow at " INDEX)))

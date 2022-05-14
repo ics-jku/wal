@@ -5,10 +5,10 @@
       ┌─┐ ┌─┐ ┌─┐ 
      ─┘W└─┘A└─┘L└─
      
-Welcome to the Waveform Analysis Language (WAL) repository. This domain-specific language aims at enabling automated and sophisticated analysis of hardware waveforms. In WAL, hardware-specific things such as signals and simulation time are treated as first-class citizens.
+Welcome to the Waveform Analysis Language (WAL) repository. This domain-specific language aims at enabling automated and sophisticated analysis of hardware waveforms. In WAL, hardware-specific things such as signals and simulation time are treated as first-class citizens of the language.
 
 ## Installation
-WAL is available from PyPi!                                                                                                                                                         
+WAL is available from [PyPi](https://pypi.org/project/wal-lang/)!                                                                                                                                                         
 > pip install wal-lang --user
 
 On some systems, pip does not add WALs installation path to the PATH variable. If the "wal" command is not available after installation please add the installation path, e.g. ~/.local/bin on Ubuntu, to your PATH variable.       
@@ -16,11 +16,18 @@ On some systems, pip does not add WALs installation path to the PATH variable. I
 To get the latest development version of WAL you can clone this repository.
 After that install WAL by typing make install inside the cloned directory.       
 
-### Example
-To get an impression of WAL you can check out this ASCII cast [ASCII Cast](https://asciinema.org/a/I8fQknySyaZqNjXAA8Ej7wOoq), in which the WAL REPL is used to compare two RISCV cores.
+## Examples
+To get an impression of WAL you can check out [basic examples](https://github.com/ics-jku/wal/tree/main/examples/basics).
+Also this ASCII cast [ASCII Cast](https://asciinema.org/a/I8fQknySyaZqNjXAA8Ej7wOoq), shows how the WAL REPL is used to compare two RISCV cores.
+
+A more sophisticated RISC-V core comparison is described [here](https://www.ics.jku.at/files/2022DAC_LBR-Waveform-based-Performance-Analyisis-for-RISC-V.pdf) and the WAL code to this publication can be found [here](https://github.com/LucasKl/dac22-lbr-experiments).
+
+### WAWK
+[WAWK](https://github.com/ics-jku/wal/tree/main/wawk) is a project building on top of the WAL language. It combines the waveform analysis of WAL with the programming Style of AWK.
+Internally, WAWK is transpiled to WAL expressions, showcasing how new languages can be build on top of WAL.
 
 ## Publication
-The initial paper on WAL will was presented at ASPDAC'22 and can be downloaded here: https://www.ics.jku.at/files/2022ASPDAC_WAL.pdf. 
+The initial paper on WAL was presented at ASPDAC'22 and can be downloaded here: https://www.ics.jku.at/files/2022ASPDAC_WAL.pdf. 
 The examples from the paper can be found in the examples folder.
 
 If you like WAL you can cite our paper as follows: 
