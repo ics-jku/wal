@@ -33,7 +33,8 @@ setup(
     keywords=['FPGA', 'verilog', 'vcd', 'development', 'hardware', 'rtl', 'simulation', 'verification'],
     packages=find_packages(),
     python_requires='>=3.5, <4',
-    install_requires=['vcdvcd==2.1', 'lark-parser'],
+    install_requires=['vcdvcd==2.1', 'lark-parser
+'],
     extras_require={
         'dev': [],
         'test': ['pylint', 'coverage'],
