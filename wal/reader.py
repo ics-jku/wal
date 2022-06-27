@@ -1,5 +1,5 @@
 '''WAL Reader'''
-# pylint: disable=C0116,C0103,R0201
+# pylint: disable=C0116,C0103
 
 import ast
 from lark import Lark, Transformer

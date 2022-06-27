@@ -70,7 +70,6 @@ class Wal:
         with open(filename, 'r', encoding='utf-8') as fin:
             self.eval_context.eval(fin.read())
 
-    # pylint: disable=R0201
     def decode(self, filename):
         '''Decodes a compiled WAL file and returns its WAL expressions'''
         with open(filename, 'br') as fin:

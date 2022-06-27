@@ -232,7 +232,7 @@ def op_printf(seval, args):
             final_str = format_evaluated % tuple(evaluated)
             print(final_str, sep='', end='')
         except Exception as e:
-            raise RuntimeError(str(e) + ': "' + format_evaluated + '"')
+            raise RuntimeError(str(e) + ': "' + format_evaluated + '"') from e
     else:
         raise ValueError('printf\'s first argument must be a format string')
 

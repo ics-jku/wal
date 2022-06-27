@@ -1,5 +1,5 @@
 '''Parsers for WAWK'''
-# pylint: disable=C0103,R0201,C0116
+# pylint: disable=C0103,C0116
 from lark import Lark, Transformer
 from wawk.ast_defs import Statement
 from wal.ast_defs import S
