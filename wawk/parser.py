@@ -98,8 +98,8 @@ class TreeToWal(Transformer):
     scoped_symbol = lambda self, s: [Op.SCOPED, s[0]]
     grouped_symbol = lambda self, s: [Op.RESOLVE_GROUP, s[0]]
     timed_symbol = lambda self, s: [Op.REL_EVAL, s[0], self.number([s[1].value])]
-    bit_symbol = lambda self, s: [Op.SLICE, s[0], self.number(s[1].value)]
-    sliced_symbol = lambda self, s: [Op.SLICE, s[0], self.number(s[1].value), self.number(s[2].value)]
+    bit_symbol = lambda self, s: [Op.SLICE, s[0], self.number([s[1].value])]
+    sliced_symbol = lambda self, s: [Op.SLICE, s[0], self.number([s[1].value]), self.number([s[2].value])]
     block = lambda self, b: [Op.DO] + b
     assign = lambda self, s: s[0]
     assign_std = lambda self, a: [Op.SET, [a[0], a[1]]]
