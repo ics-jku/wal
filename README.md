@@ -1,9 +1,11 @@
 # WAL the Waveform Analysis Language
 [![Pylint](https://github.com/ics-jku/wal/actions/workflows/pylint.yml/badge.svg)](https://github.com/ics-jku/wal/actions/workflows/pylint.yml)
 [![Test and Build](https://github.com/ics-jku/wal/actions/workflows/python-app.yml/badge.svg)](https://github.com/ics-jku/wal/actions/workflows/python-app.yml)
+     
+<p align="center">
+  <img src="https://wal-lang.org/static/logo.svg" alt="The Waveform Analysis language logo" width="200"/>
+</p>
 
-      ┌─┐ ┌─┐ ┌─┐ 
-     ─┘W└─┘A└─┘L└─
      
 Welcome to the Waveform Analysis Language (WAL) repository. This domain-specific language aims at enabling automated and sophisticated analysis of hardware waveforms. In WAL, hardware-specific things such as signals and simulation time are treated as first-class citizens of the language.
 
@@ -15,6 +17,9 @@ On some systems, pip does not add WALs installation path to the PATH variable. I
 
 To get the latest development version of WAL you can clone this repository.
 After that install WAL by typing make install inside the cloned directory.       
+
+## Documentation
+The WAL Programmer Manual is available on [wal-lang.org](https://wal-lang.org/documentation/core).
 
 ## Examples
 To get an impression of WAL you can check out [basic examples](https://github.com/ics-jku/wal/tree/main/examples/basics).
