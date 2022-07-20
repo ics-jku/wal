@@ -18,6 +18,9 @@ On some systems, pip does not add WALs installation path to the PATH variable. I
 To get the latest development version of WAL you can clone this repository.
 After that install WAL by typing make install inside the cloned directory.       
 
+## Documentation
+The WAL Programmer Manual is available on [wal-lang.org](https://wal-lang.org/documentation/core).
+
 ## Examples
 To get an impression of WAL you can check out [basic examples](https://github.com/ics-jku/wal/tree/main/examples/basics).
 Also this ASCII cast [ASCII Cast](https://asciinema.org/a/I8fQknySyaZqNjXAA8Ej7wOoq), shows how the WAL REPL is used to compare two RISCV cores.
