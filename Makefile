@@ -7,10 +7,7 @@ coverage:
 	coverage3 html
 
 lint:
-	pylint -d C0301 wal/*.py
-	pylint -d C0301 wal/implementation/*.py
-	pylint -d C0301 tests/*.py
-	pylint -d C0301 wawk/*.py
+	pylint -d C0301 -d C3001 $(shell git ls-files '*.py')
 
 package:
 	rm -f dist/*
@@ -26,9 +23,5 @@ install-pypy:
 
 clean:
 	rm -rf build dist
-
-push:
-	make lint
-	git push
 
 .PHONY: init test

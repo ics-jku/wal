@@ -16,7 +16,13 @@ WAL is available from [PyPi](https://pypi.org/project/wal-lang/)!
 On some systems, pip does not add WALs installation path to the PATH variable. If the "wal" command is not available after installation please add the installation path, e.g. ~/.local/bin on Ubuntu, to your PATH variable.       
 
 To get the latest development version of WAL you can clone this repository.
-After that install WAL by typing make install inside the cloned directory.       
+After that install WAL by typing make install inside the cloned directory.    
+
+### PyPy Support
+WAL also supports the alternative Python implementation PyPy. PyPy comes with a Just-in-Time compiler leading to substantial speedups in a lot of scenarios.
+To run WAL with PyPy, clone the repository and call 'make install-pypy'.
+If you are using PyPy you must also install the python-dev package for PyPy3.
+On Ubuntu this package can be installed with 'sudo apt install pypy3-dev'.
 
 ## Documentation
 The WAL Programmer Manual is available on [wal-lang.org](https://wal-lang.org/documentation/core).
