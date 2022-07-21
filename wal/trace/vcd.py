@@ -39,11 +39,11 @@ class TraceVcd(Trace):
         self.timestamps = dict(enumerate(self.timestamps))
         # stores current time stamp
         self.index = 0
-        self.max_index = max(self.timestamps.keys())
+        self.max_index = len(self.timestamps.keys()) - 1
 
         # append tid to scopes
         #self.scopes = list(map(lambda s: tid + Trace.SCOPE_SEPERATOR + s, self.data.scopes))
-        self.scopes = self.data.scopes
+        self.scopes = list(self.data.scopes.keys())
 
 
     def access_signal_data(self, name, index):

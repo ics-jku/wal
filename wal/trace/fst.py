@@ -33,13 +33,15 @@ class TraceFst(Trace):
 
         # remove duiplicate timestamps, enumerate all timestamps and create look up table
         fst.lib.fstReaderSetFacProcessMaskAll(self.fst)
-        self.timestamps = fst.lib.fstReaderGetTimestamps(self.fst)
+        raw_timestamps = fst.lib.fstReaderGetTimestamps(self.fst)
+        self.timestamps = raw_timestamps.val
+
         # stores current time stamp
         self.index = 0
-        self.max_index = self.timestamps.nvals
+        self.max_index = raw_timestamps.nvals - 1
 
 
     def access_signal_data(self, name, index):
         '''Backend specific function for accessing signals in the waveform'''
         handle = self.references_to_ids[name]
-        return fst.helpers.string(fst.lib.fstReaderGetValueFromHandleAtTime(self.fst, self.timestamps.val[index], handle, self.buf))
+        return fst.helpers.string(fst.lib.fstReaderGetValueFromHandleAtTime(self.fst, self.timestamps[index], handle, self.buf))

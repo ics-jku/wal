@@ -1,0 +1,6 @@
+// WAWK version of the basics2.wal example.
+// To try this example run "wawk basics2.wawk ../basics/counter.fst"
+
+tb.dut.clk, tb.dut.overflow: {
+  print("Overflow at " + INDEX);	 
+}

@@ -52,7 +52,7 @@ class Trace:
                 elif name == 'TRACE-FILE':
                     res = self.filename
                 elif name == 'SCOPES':
-                    res = list(self.data.scopes.keys())
+                    res = self.scopes #list(self.data.scopes.keys())
             else:
                 bits = self.access_signal_data(name, rel_index)
                 try:
@@ -72,4 +72,4 @@ class Trace:
     @property
     def ts(self):  # pylint: disable=C0103
         '''Converts the index to the current timestamp.'''
-        return self.timestamps.val[self.index]
+        return self.timestamps[self.index]
