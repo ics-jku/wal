@@ -1,2 +1,2 @@
 [MESSAGES CONTROL]
-disable=wildcard-import,unused-wildcard-import,unnecessary-lambda-assignment, too-many-instance-attributes
+disable=wildcard-import,unused-wildcard-import,unnecessary-lambda-assignment, too-many-instance-attributes, C0301, C3001
