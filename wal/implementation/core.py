@@ -506,7 +506,7 @@ def op_resolve_scope(seval, args):
 
 def op_set_scope(seval, args):
     assert args, 'set-scope: exactly one argument required'
-    assert isinstance(args[0], Symbol), f'set-scope: argument must be Symbo but is {type(args[0]).__name__}'
+    assert isinstance(args[0], Symbol), f'set-scope: argument must be Symbol but is {type(args[0]).__name__}'
     assert args[0].name in seval.traces.scopes, f'set-scope: {args[0].name} is not a valid scope' # pylint: disable=E1101
     seval.scope = args[0].name
     seval.context['CS'] = args[0].name
