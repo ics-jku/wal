@@ -27,8 +27,4 @@ install-pypy:
 clean:
 	rm -rf build dist
 
-push:
-	make lint
-	git push
-
 .PHONY: init test
