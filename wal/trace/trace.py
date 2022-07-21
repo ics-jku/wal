@@ -1,7 +1,8 @@
 '''Generic trace class '''
-
+# pylint: disable=E1101, W0201
 
 class Trace:
+    '''A generic class for representing waveforms'''
     SCOPE_SEPERATOR = ';'
     SPECIAL_SIGNALS = ['SIGNALS', 'INDEX', 'MAX-INDEX', 'TS', 'TRACE-NAME', 'TRACE-FILE', 'SCOPES']
     SPECIAL_SIGNALS_SET = set(SPECIAL_SIGNALS)
@@ -28,7 +29,7 @@ class Trace:
 
         res = None
         # handle special variables
-        if rel_index >= 0 and rel_index < self.max_index:
+        if 0 <= rel_index < self.max_index:
             if name in Trace.SPECIAL_SIGNALS:
                 if name == 'SIGNALS':
                     if scope == '':

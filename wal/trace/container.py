@@ -1,6 +1,5 @@
 '''Wrapper class for trace data'''
 
-import re
 from functools import lru_cache
 import pathlib
 
@@ -25,7 +24,7 @@ class TraceContainer:
             self.traces[tid] = TraceFst(file, tid, from_string=from_string)
         else:
             print(f'File extension "{file_extension}" not supported.')
-        
+
         self.n_traces += 1
         self.contains.cache_clear()
 
@@ -44,15 +43,16 @@ class TraceContainer:
         if self.n_traces == 1:
             trace = list(self.traces.values())[0]
             return trace.signal_value(name, offset, scope)
-        elif self.n_traces > 1 or Trace.SCOPE_SEPERATOR in name:
+
+        if self.n_traces > 1 or Trace.SCOPE_SEPERATOR in name:
             # extract tid of vcd
             seperator = name.index(Trace.SCOPE_SEPERATOR)
             trace_tid = name[:seperator]
             signal_name = name[seperator+1:]
             assert trace_tid in self.traces, f'No trace with tid {trace_tid}'
             return self.traces[trace_tid].signal_value(signal_name, offset, scope)
-        else:
-            raise RuntimeError('No traces loaded')
+
+        raise RuntimeError('No traces loaded')
 
 
     @lru_cache(maxsize=128)
@@ -61,15 +61,16 @@ class TraceContainer:
 
         if self.n_traces == 1:
             return name in (list(self.traces.values())[0]).signals
-        elif self.n_traces > 1 or Trace.SCOPE_SEPERATOR in name:
+
+        if self.n_traces > 1 or Trace.SCOPE_SEPERATOR in name:
             seperator = name.index(Trace.SCOPE_SEPERATOR)
             trace_tid = name[:seperator]
             signal_name = name[seperator+1:]
             assert trace_tid in self.traces, f'No trace with tid {trace_tid}'
             return signal_name in self.traces[trace_tid].signals
-        else:
-            return False
-        
+
+        return False
+
 
     def step(self, steps=1, tid=None):
         '''Step one or all traces.

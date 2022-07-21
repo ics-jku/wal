@@ -14,7 +14,7 @@ class TraceFst(Trace):
 
         if from_string:
             raise ValueError("FST traces do not support the from_string argument")
-    
+
         self.fst = fst.lib.fstReaderOpen(file.encode('utf-8'))
         self.filename = file
 
