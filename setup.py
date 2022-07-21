@@ -16,9 +16,9 @@ setup(
     description='Wal - Wavefile Analysis Language',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url='https://github.com/ics-jku/wal',
+    url='https://wal-lang.org',
     author='Lucas Klemmer',
-    author_email='lucas.klemmer@jku.at',
+    author_email='support@wal-lang.org',
     classifiers=[
         'Topic :: Scientific/Engineering :: Electronic Design Automation (EDA)',
         'Development Status :: 4 - Beta',
@@ -30,10 +30,10 @@ setup(
         'Programming Language :: Python :: 3 :: Only',
         'Operating System :: OS Independent'
     ],
-    keywords=['FPGA', 'verilog', 'vcd', 'development', 'hardware', 'rtl', 'simulation', 'verification'],
+    keywords=['verilog', 'vcd', 'fst', 'development', 'hardware', 'rtl', 'simulation', 'verification', 'FPGA'],
     packages=find_packages(),
     python_requires='>=3.5, <4',
-    install_requires=['vcdvcd==2.1', 'lark-parser', 'dataclasses'],
+    install_requires=['vcdvcd==2.1', 'lark-parser', 'dataclasses', 'pylibfst'],
     extras_require={
         'dev': [],
         'test': ['pylint', 'coverage'],

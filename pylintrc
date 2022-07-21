@@ -1,2 +1,2 @@
 [MESSAGES CONTROL]
-disable=wildcard-import,unused-wildcard-import
+disable=wildcard-import,unused-wildcard-import,unnecessary-lambda-assignment

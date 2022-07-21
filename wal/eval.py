@@ -79,7 +79,21 @@ class SEval:
         '''Main s-expression eval function'''
         res = NotImplementedError() # NotImplementedError(str(expr))
 
-        if isinstance(expr, list):
+        if isinstance(expr, Symbol):
+            name = expr.name
+            if expr.name in self.aliases: # if an alias exists
+                name = self.aliases[expr.name]
+            if self.traces.contains(name):  # if symbol is a signal from wavefile
+                res = self.traces.signal_value(name, scope=self.scope) # env[symbol_id]
+            else:
+                if self.stack and name in self.stack[-1]:  # if symbol existst in local scope
+                    res = self.stack[-1][name]
+                elif name in self.context:  # if symbol is not in stack but in global scope
+                    res = self.context[name]
+                else:
+                    self.context[name] = 0  # implicit initialization of variabels on first use
+                    res = 0
+        elif isinstance(expr, list):
             head = expr[0]
             #tail = [s for s in e.elements if isinstance(e, ExpandGroup) else e for e in expr[1:]]
             tail = []
@@ -104,27 +118,12 @@ class SEval:
                     if head[0] == Operator.LAMBDA:
                         res = self.eval_lambda(head, tail)
 
-        else:
-            if isinstance(expr, Symbol):
-                name = expr.name
-                if expr.name in self.aliases: # if an alias exists
-                    name = self.aliases[expr.name]
-                if self.traces.contains(name):  # if symbol is a signal from wavefile
-                    res = self.traces.signal_value(name, scope=self.scope) # env[symbol_id]
-                else:
-                    if self.stack and name in self.stack[-1]:  # if symbol existst in local scope
-                        res = self.stack[-1][name]
-                    elif name in self.context:  # if symbol is not in stack but in global scope
-                        res = self.context[name]
-                    else:
-                        self.context[name] = 0  # implicit initialization of variabels on first use
-                        res = 0
-            elif isinstance(expr, int):
-                res = expr
-            elif isinstance(expr, str):
-                res = expr
-            elif isinstance(expr, ExpandGroup):
-                res = list(map(self.eval, expr.elements))
+        elif isinstance(expr, int):
+            res = expr
+        elif isinstance(expr, str):
+            res = expr
+        elif isinstance(expr, ExpandGroup):
+            res = list(map(self.eval, expr.elements))
 
         if not isinstance(res, Exception):
             return res

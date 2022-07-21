@@ -10,6 +10,7 @@ pylint = "*"
 coverage = "*"
 coverage-badge = "*"
 vcdvcd = "==2.1"
+pylibfst = "*"
 lark-parser = "*"
 
 [requires]

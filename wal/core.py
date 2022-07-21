@@ -3,7 +3,7 @@
 
 import pickle
 
-from wal.trace import TraceContainer
+from wal.trace.container import TraceContainer
 from wal.eval import SEval
 from wal.reader import read_wal_sexpr, ParseError
 from wal.ast_defs import Symbol, Operator
