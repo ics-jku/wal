@@ -41,13 +41,16 @@ def main():  # pylint: disable=R1710
                     e.show()
                     sys.exit(os.EX_DATAERR)
 
-        try:
+        #try:
             for sexpr in sexprs:
                 wal.eval(sexpr)
-        except Exception as e: # pylint: disable=W0703
-            print()
-            print('>>>>> Runtime error! <<<<<')
-            print(e)
-            return os.EX_SOFTWARE
+        #except Exception as e: # pylint: disable=W0703
+        #    print()
+        #    print('>>>>> Runtime error! <<<<<')
+        #    print(e)
+        #    return os.EX_SOFTWARE
 
         return os.EX_OK
+
+if __name__ == '__main__':
+    sys.exit(main())

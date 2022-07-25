@@ -1,0 +1,12 @@
+(new-trace t 30)
+
+(defsig clk (- 1 clk@-1))
+(defsig cnt (cond [(! clk) cnt@-1]
+                  [(= cnt@-1 3) 0]
+                  [#t (+ cnt@-1 1)]))
+(defsig overflow (if (= cnt 3) 1 0))                  
+
+(require print-vcd)
+(render '("clk" "cnt" "overflow"))
+
+(dump-trace t)

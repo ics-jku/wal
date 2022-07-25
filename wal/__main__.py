@@ -1,12 +1,12 @@
 '''Wal main entry point'''
 import sys
 
-import wal
+from wal.wal import run, main
 
 
 def main():
     """The main routine."""
-    return wal.wal.run()
+    return run()
 
 if __name__ == "__main__":
     sys.exit(main())

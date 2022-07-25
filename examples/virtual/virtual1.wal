@@ -1,0 +1,20 @@
+
+
+;; in temperature: Events[Int]
+
+;; def low := temperature < 3
+;; def high := temperature > 8
+;; def unsafe := low || high
+
+;; out unsafe
+
+
+(load "../basics/counter.fst" t)
+
+(defsig low (< tb.dut.counter 3))
+(defsig high (> tb.dut.counter 8))
+(defsig unsafe (|| low high))
+
+(whenever #t (printf "%d: low = %d high = %d unsafe = %d\n" INDEX low high unsafe))
+
+(print (find unsafe))

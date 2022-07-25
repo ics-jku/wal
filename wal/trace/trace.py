@@ -8,6 +8,13 @@ class Trace:
     SPECIAL_SIGNALS_SET = set(SPECIAL_SIGNALS)
 
 
+    def __init__(self, tid, file):
+        self.tid = tid
+        self.filename = file
+        self.virtual_signals = {}
+        self.index = 0
+
+
     def set(self, index=0):
         '''Set the index of this trace'''
         self.index = index
@@ -33,14 +40,14 @@ class Trace:
             if name in Trace.SPECIAL_SIGNALS:
                 if name == 'SIGNALS':
                     if scope == '':
-                        res = self.rawsignals
+                        res = list(self.signals)
                     else:
                         def in_scope(signal):
                             prefix_ok = signal.startswith(scope + '.')
                             not_in_sub_scope = '.' not in signal[len(scope) + 1:]
                             return prefix_ok and not_in_sub_scope
 
-                        res = list(filter(in_scope, self.rawsignals))
+                        res = list(filter(in_scope, self.signals))
                 elif name == 'INDEX':
                     res = self.index
                 elif name == 'MAX-INDEX':
@@ -53,6 +60,8 @@ class Trace:
                     res = self.filename
                 elif name == 'SCOPES':
                     res = self.scopes #list(self.data.scopes.keys())
+            elif name in self.virtual_signals:
+                res = self.virtual_signals[name].value
             else:
                 bits = self.access_signal_data(name, rel_index)
                 try:
@@ -73,3 +82,8 @@ class Trace:
     def ts(self):  # pylint: disable=C0103
         '''Converts the index to the current timestamp.'''
         return self.timestamps[self.index]
+
+
+    def add_virtual_signal(self, signal):
+        self.signals.add(signal.name)
+        self.virtual_signals[signal.name] = signal

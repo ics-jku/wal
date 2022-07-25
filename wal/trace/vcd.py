@@ -9,7 +9,7 @@ class TraceVcd(Trace):
     '''Holds data for one vcd trace.'''
 
     def __init__(self, file, tid, from_string=False):
-        self.tid = tid
+        super().__init__(tid, file)
         self.timestamps = []
 
         class TimestampCallback(StreamParserCallbacks):  # pylint: disable=R0903
@@ -32,7 +32,7 @@ class TraceVcd(Trace):
             re.sub(r'\(([0-9]+)\)', r'_\1', k): v for k, v in self.data.references_to_ids.items()}
 
         self.rawsignals = list(self.data.references_to_ids.keys())
-        self.signals = set(Trace.SPECIAL_SIGNALS + self.rawsignals)
+        self.signals = set(self.rawsignals)
 
         # remove duiplicate timestamps, enumerate all timestamps and create look up table
         self.timestamps = list(dict.fromkeys(self.timestamps))

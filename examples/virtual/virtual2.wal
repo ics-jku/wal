@@ -1,0 +1,8 @@
+(load "../basics/counter.fst" t)
+
+(defsig count-reset (+ count-reset@-1 tb.dut.reset))
+
+(defsig safe (< count-reset 4))
+
+(whenever #t ;; (< INDEX 20)
+    (printf "%d: reset = %d count = %d safe = %d\n" INDEX tb.reset count-reset safe))
