@@ -9,6 +9,7 @@ import importlib
 
 from functools import reduce
 from wal.ast_defs import Operator, Symbol
+from wal.util import wal_str
 
 
 def op_add(seval, args):
@@ -220,7 +221,8 @@ def op_inc(seval, args):
 
 
 def op_print(seval, args):
-    print(*seval.eval_args(args), sep='')
+    res = [wal_str(x) if isinstance(x, list) else x for x in seval.eval_args(args)]
+    print(*res, sep='')
 
 
 def op_printf(seval, args):
@@ -414,18 +416,19 @@ def op_type(seval, args):
 
 def op_rel_eval(seval, args):
     '''Evaluate an expression at a locally modified index. Index is restored after eval is done.'''
-    assert len(args) == 2, '@: expects two arguments (@ expr:expr offset:expr->int)'
-    assert isinstance(args[0], (Symbol, int, str, list)), '@: first argument must be a valid expression'
+    assert len(args) == 2, 'reval: expects two arguments (reval expr:expr offset:expr->int)'
+    assert isinstance(args[0], (Symbol, int, str, list)), 'reval: first argument must be a valid expression'
     offset = seval.eval(args[1])
-    assert isinstance(offset, int), '@: second argument must evaluate to int'
+    assert isinstance(offset, int), 'reval: second argument must evaluate to int'
     # check if any trace becomes oob with offset
     for trace in seval.traces.traces.values():
         if trace.index + offset > trace.max_index or trace.index + offset < 0:
             return False
 
+    seval.traces.store_indices()
     seval.traces.step(offset)
     res = seval.eval(args[0])
-    seval.traces.step(-offset)
+    seval.traces.restore_indices()
     return res
 
 
