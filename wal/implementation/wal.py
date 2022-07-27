@@ -3,6 +3,7 @@ import sys
 import os
 from wal.ast_defs import Operator, Symbol
 from wal.reader import read_wal_sexprs, ParseError
+from wal.repl import WalRepl
 
 
 def op_load(seval, args):
@@ -78,9 +79,18 @@ def op_require(seval, args):
         seval.context = old_context
 
 
+def op_repl(seval, args): # pylint: disable=W0613
+    '''Starts a REPL in the current context'''
+    try:
+        WalRepl(seval, intro=WalRepl.dyn_intro).cmdloop()
+    except KeyboardInterrupt:
+        pass
+
+
 wal_operators = {
     Operator.LOAD.value: op_load,
     Operator.UNLOAD.value: op_unload,
     Operator.STEP.value: op_step,
     Operator.REQUIRE.value: op_require,
+    Operator.REPL.value: op_repl,
 }

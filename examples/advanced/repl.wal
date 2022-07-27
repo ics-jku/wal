@@ -1,0 +1,19 @@
+;; This example shows how an interactive REPL can be started
+;; when an error is detected. This allows to inspect signal
+;; values in the context in which the error occurred.
+
+(load "../basics/counter.fst" t)
+
+;; check if the tb.overflow signal is set to high whenever the counter overflows
+;; if tb.overflow is not high when the counter overflows drop into a REPL
+(whenever tb.clk
+  (unless (|| tb.overflow (! (&& tb.dut.counter (! tb.dut.counter@2))))
+  	  (repl)))
+
+;; Inside the REPL try evaluating:
+;; INDEX to see where we are
+;; tb.dut.counter and tb.dut.counter@2 to see the counter values
+;; tb.overflow and tb.overflow@2 to see the overflow signal
+
+;; In this example the overflow is high one cycle to late which
+;; can be seen by evaluating tb.overflow@2

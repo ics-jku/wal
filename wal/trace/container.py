@@ -13,6 +13,7 @@ class TraceContainer:
     def __init__(self):
         self.traces = {}
         self.n_traces = 0
+        self.index_stack = []
 
 
     def load(self, file, tid='DEFAULT', from_string=False):
@@ -127,4 +128,16 @@ class TraceContainer:
             indices[trace.tid] = trace.index
 
         return indices
-        # return list(indices.values())[0] if len(indices) == 1 else indices
+
+
+    def store_indices(self):
+        '''Store the current indices for all waveforms on a stack'''
+        self.index_stack.append(self.indices())
+
+
+    def restore_indices(self):
+        '''Restore the indices for all waveforms from the stack'''
+        if self.index_stack:
+            indices = self.index_stack.pop()
+            for tid, index in indices.items():
+                self.traces[tid].set(index)

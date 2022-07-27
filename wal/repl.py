@@ -1,19 +1,29 @@
 '''Implementation of basic read-eval-print-loop'''
 # pylint: disable=W0703,C0103
 import cmd
-from wal.core import Wal, wal_str
+from wal.util import wal_str
 from wal.reader import read_wal_sexpr, ParseError
 from wal.ast_defs import Operator
+from wal.trace.trace import Trace
 from wal.version import __version__
 
 
 class WalRepl(cmd.Cmd):
     '''WalRepl class implements basic read-eval-print-loop'''
-    intro = f'WAL {__version__}\n'
+
+    std_intro = f'WAL {__version__}\n'
+    dyn_intro = '''Started interactive WAL REPL.
+Exit to calling script with CTRL-C
+Exit to OS with (exit)'''
     terminator = ['(', ')']
-    wal = Wal()
     complete_list = [op.value for op in Operator]
     file = None
+
+    def __init__(self, wal, intro=std_intro):
+        super().__init__()
+        self.wal = wal
+        self.intro = intro
+
 
     @property
     def prompt(self):
@@ -54,11 +64,10 @@ class WalRepl(cmd.Cmd):
 
     def completenames(self, text, *ignored):
         tmp = self.complete_list + self.wal.traces.signals
+
+        if len(self.wal.traces.traces) == 1:
+            tmp += Trace.SPECIAL_SIGNALS
+
         candidates = [c for c in tmp if c.startswith(text)]
-
-#        if text[0] != '(' and len(candidates) == 1 and candidates[0] in self.complete_list:
-#            candidates[0] = '(' + candidates[0] + ' '
-
         candidates.append(None)
-
         return candidates

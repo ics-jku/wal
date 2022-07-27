@@ -9,6 +9,7 @@ class Operator(Enum):
     LOAD = 'load'
     UNLOAD = 'unload'
     STEP = 'step'
+    REPL = 'repl'
     # basic
     REQUIRE = 'require'
     ADD = '+'
