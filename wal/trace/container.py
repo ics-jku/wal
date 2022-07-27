@@ -41,9 +41,10 @@ class TraceContainer:
     def signal_value(self, name, offset=0, scope=''):
         '''Get the value of signal name at current index + offset.'''
 
-        if self.n_traces == 1:
+        if self.n_traces == 1 and Trace.SCOPE_SEPERATOR not in name:
             trace = list(self.traces.values())[0]
             return trace.signal_value(name, offset, scope)
+
 
         if self.n_traces > 1 or Trace.SCOPE_SEPERATOR in name:
             # extract tid of vcd
@@ -53,15 +54,16 @@ class TraceContainer:
             assert trace_tid in self.traces, f'No trace with tid {trace_tid}'
             return self.traces[trace_tid].signal_value(signal_name, offset, scope)
 
+
         raise RuntimeError('No traces loaded')
 
 
     @lru_cache(maxsize=128)
     def contains(self, name):
         '''Return true if a signal with name exists in any trace.'''
-
-        if self.n_traces == 1:
+        if self.n_traces == 1 and Trace.SCOPE_SEPERATOR not in name:
             return name in (list(self.traces.values())[0]).signals
+
 
         if self.n_traces > 1 or Trace.SCOPE_SEPERATOR in name:
             seperator = name.index(Trace.SCOPE_SEPERATOR)
@@ -69,6 +71,7 @@ class TraceContainer:
             signal_name = name[seperator+1:]
             assert trace_tid in self.traces, f'No trace with tid {trace_tid}'
             return signal_name in self.traces[trace_tid].signals
+
 
         return False
 

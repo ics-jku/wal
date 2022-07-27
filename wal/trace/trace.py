@@ -3,7 +3,7 @@
 
 class Trace:
     '''A generic class for representing waveforms'''
-    SCOPE_SEPERATOR = ';'
+    SCOPE_SEPERATOR = ':'
     SPECIAL_SIGNALS = ['SIGNALS', 'INDEX', 'MAX-INDEX', 'TS', 'TRACE-NAME', 'TRACE-FILE', 'SCOPES']
     SPECIAL_SIGNALS_SET = set(SPECIAL_SIGNALS)
 
