@@ -1,0 +1,40 @@
+(load "uart-axi.fst" t)
+
+(alias clk uut_rx.clk)
+(alias ready uut_rx.m_axis_tready)
+(alias valid uut_rx.m_axis_tvalid)
+(alias data uut_rx.m_axis_tdata)
+
+(set [byte-arrived 0]
+     [bytes-dropped 0]
+     [byte-delay '()])
+
+;; find all transmitted bytes that could not be read
+;; before the next byte arrived
+(whenever clk
+	  ;; triggered whenever new valid data is available
+	  (when (|| (&& (! valid@-2) valid)
+		    (&& (!= data@-2 data) valid))
+	    (set [byte-arrived INDEX])
+	    (printf "%8d: new byte 0x%03x " INDEX data))
+	  
+	  ;; triggered whenever a transaction happens
+	  (when (&& valid ready)
+	    ;; calculate the delay between when the byte was available and now
+	    ;; divide by 2 to get number of clock cycles
+	    (set [ack-delay (/ (- INDEX byte-arrived) 2)]
+		 [byte-delay (+ byte-delay ack-delay)])
+	    
+	    (if (= ack-delay 0)
+		(print "[OK]")
+		(printf "[DELAY %d]\n" ack-delay)))
+	  
+	  ;; triggered whenever the data changes whithout being acknowledged
+	  (when (&& (!= data data@2) valid (! ready))
+	    (inc bytes-dropped)
+	    (print "[DROPPED]")))
+
+(when bytes-dropped
+  (printf "\nWARNING: %d bytes dropped due to an unavailable AXI sink!\n" bytes-dropped))
+
+(printf "Average delay until byte acknowlede %d cycles\n" (average byte-delay))
