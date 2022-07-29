@@ -1,3 +1,4 @@
+;; This examples analyzes the uart->axi converter from https://github.com/fcayci/vhdl-axis-uart.
 (load "uart-axi.fst" t)
 
 (alias clk uut_rx.clk)
@@ -9,12 +10,13 @@
      [bytes-dropped 0]
      [byte-delay '()])
 
-;; find all transmitted bytes that could not be read
-;; before the next byte arrived
+;; Iterate over the complete trace and print all arrived,  read, and delayed byes.
+;; Also calculate the average delay between the time a byte
+;; is available and the time it is read by the AXI sink.
 (whenever clk
 	  ;; triggered whenever new valid data is available
-	  (when (|| (&& (! valid@-2) valid)
-		    (&& (!= data@-2 data) valid))
+	  (when (|| (&& (! valid@-2) valid) ;; rising edge on valid
+		    (&& (!= data@-2 data) valid)) ;; no rising edge on valid but data change
 	    (set [byte-arrived INDEX])
 	    (printf "%8d: new byte 0x%03x " INDEX data))
 	  
@@ -24,7 +26,7 @@
 	    ;; divide by 2 to get number of clock cycles
 	    (set [ack-delay (/ (- INDEX byte-arrived) 2)]
 		 [byte-delay (+ byte-delay ack-delay)])
-	    
+	    ;; chceck if byte was not read instantly
 	    (if (= ack-delay 0)
 		(print "[OK]")
 		(printf "[DELAY %d]\n" ack-delay)))
