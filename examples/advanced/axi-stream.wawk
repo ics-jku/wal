@@ -1,0 +1,57 @@
+// This examples analyzes the uart->axi converter from https://github.com/fcayci/vhdl-axis-uart.
+// Iterate over the complete trace and print all arrived,  read, and delayed byes.
+// Also calculate the average delay between the time a byte
+// is available and the time it is read by the AXI sink.
+// Run with: wawk axi-stream.wawk uart-axi.fst
+
+// executed before the waveform is processed
+BEGIN: {
+   alias(clk, uut_rx.clk);
+   alias(ready, uut_rx.m_axis_tready);
+   alias(valid, uut_rx.m_axis_tvalid);
+   alias(data, uut_rx.m_axis_tdata);
+
+   byte_arrived = 0;
+   bytes_dropped = 0;
+   byte_delay = [];
+}
+
+// return true when new valid data is available
+function new_data() {
+    res = (!valid@-2 && valid) || ((data@-2 != data) && valid);
+}
+
+clk, new_data(): {
+    byte_arrived = INDEX;
+    printf("%8d: new byte 0x%03x ", INDEX, data);
+}
+
+// executed whenever a transaction happens
+clk, valid, ready: {
+    // calculate the delay between when the byte was available and now
+    // divide by 2 to get number of clock cycles
+    ack_delay = (INDEX - byte_arrived) / 2;
+    byte_delay = byte_delay + ack_delay;
+
+    // chceck if byte was not read instantly
+    if (ack_delay == 0) {
+        print("[OK]");
+    } else {
+	printf("[DELAY %d]\n", ack_delay);
+    };
+}
+
+// executed whenever the data changes whithout being acknowledged
+clk, (data != data@2), valid, !ready: {
+    bytes_dropped = bytes_dropped + 1;
+    print("[DROPPED]");
+}
+
+// executed after the waveform has been processed
+END: {
+    if (bytes_dropped) {
+      printf("\nWARNING: %d bytes dropped due to an unavailable AXI sink!\n", bytes_dropped);
+    };
+
+    printf("Average delay until byte acknowlede %d cycles\n", average(byte_delay));
+}
