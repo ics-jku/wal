@@ -16,7 +16,7 @@ BEGIN: {
    byte_delay = [];
 }
 
-// return true when new valid data is available
+// returns true when new valid data is available
 function new_data() {
     res = (!valid@-2 && valid) || ((data@-2 != data) && valid);
 }

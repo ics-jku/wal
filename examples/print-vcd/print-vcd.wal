@@ -59,16 +59,16 @@
        	    	    (if (geta types signal)
 		    	(print-bin signal 10)
 			(print-signal signal 10))) signals))
-
-(when (< (length args) 3)
-      (print "No vcd or fst file specified")
-      (print "usage: print-vcd filename scope")
-      (exit 1))
       
 ;--------------------------------------------------------------------------------
 ; Main Program
 ;--------------------------------------------------------------------------------
-(load args[2] t)
+(when (< (length args) 1)
+      (print "No vcd or fst file specified")
+      (print "usage: print-vcd filename scope")
+      (exit 1))
+
+(load args[0] t)
 
 ; init types array
 (set [types (array)])
@@ -76,10 +76,10 @@
 ; get type of each signal in next 20 cycles
 (map (fn [x] (is-bin x INDEX 0)) SIGNALS)
 
-(step 2) ; (step args[3])
+;(step 2) ; (step args[3])
 (set (max-signal (max (map (fn [x] (length x)) SIGNALS))))
 
 ;; Set current scope
-(if (> (length args) 3)
-    (in-scope args[3] (render SIGNALS))
+(if (> (length args) 1)
+    (in-scope args[1] (render SIGNALS))
     (render SIGNALS))
