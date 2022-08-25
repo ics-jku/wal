@@ -150,15 +150,17 @@ def op_let(seval, args):
             del context[name]
 
     try:
-        for pair in args[:-1]:
-            assert len(pair) == 2, 'let: expects a list of pairs'
+        assert isinstance(args[0], list), 'let: expects a list of pairs'
+        for pair in args[0]:
+            assert isinstance(pair, list), 'let: expects a list of pairs'
             assert isinstance(pair[0], Symbol), 'let: first argument must be a symbol'
+            assert len(pair) == 2, 'let: expects a list of pairs'
             assert pair[0].name not in context, f'let: {pair[0]} already bound'
             context[pair[0].name] = seval.eval(pair[1])
             bound.add(pair[0].name)
 
         # evaluate body
-        res = seval.eval(args[-1])
+        res = seval.eval_args(args[1:])[-1]
         unbind()
         return res
     except Exception as e:
@@ -282,13 +284,17 @@ def op_case(seval, args):
     if len(set(map(lambda x: str(x[0]), clauses))) != len(clauses):
         raise ValueError('case with duplicate key')
 
+    default = None
     for clause in clauses:
         key = clause[0]
         consequents = clause[1:]
+
         if keyform == key:
             return seval.eval_args(consequents)[-1]
+        elif isinstance(key, Symbol) and key.name == 'default':
+            default = seval.eval_args(consequents)[-1]
 
-    return None
+    return default
 
 
 def op_do(seval, args):
