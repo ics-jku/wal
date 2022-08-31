@@ -546,8 +546,11 @@ def op_groups(seval, args):
         pre = pre[:-len(args[0])]  # cut off filter suffix
         if all(seval.traces.contains(f'{pre}{post}') for post in args[1:]):
             groups.add(pre)
-    # return list(map(lambda g: [Operator.QUOTE, Symbol(g)], groups))
-    return list(groups)
+    
+    groups = list(groups)
+    groups.sort()
+
+    return groups
 
 
 def op_in_group(seval, args):
