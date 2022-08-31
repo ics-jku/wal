@@ -99,6 +99,7 @@ class Operator(Enum):
     WHENEVER = 'whenever'
     FOLD_SIGNAL = 'fold/signal'
     COUNT = 'count'
+    TIMEFRAME = 'timeframe'
     # system
     EXIT = 'exit'
 

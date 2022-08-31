@@ -291,7 +291,8 @@ def op_case(seval, args):
 
         if keyform == key:
             return seval.eval_args(consequents)[-1]
-        elif isinstance(key, Symbol) and key.name == 'default':
+
+        if isinstance(key, Symbol) and key.name == 'default':
             default = seval.eval_args(consequents)[-1]
 
     return default
@@ -546,7 +547,7 @@ def op_groups(seval, args):
         pre = pre[:-len(args[0])]  # cut off filter suffix
         if all(seval.traces.contains(f'{pre}{post}') for post in args[1:]):
             groups.add(pre)
-    
+
     groups = list(groups)
     groups.sort()
 
