@@ -76,7 +76,7 @@ def main():  # pylint: disable=R1710
                     e.show()
                     sys.exit(os.EX_DATAERR)
 
-        #try:
+        try:
             for sexpr in sexprs:
                 wal.eval(sexpr)
         except Exception as e: # pylint: disable=W0703

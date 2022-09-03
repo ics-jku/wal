@@ -4,9 +4,10 @@ from wal.trace.virtual import TraceVirtual
 
 
 def op_defsig(seval, args):
-    '''Returns true if all arguments evaluate to atoms'''
+    '''Creates a new signal whose value is calculated by evaluating 
+    the body expressions. '''
     assert len(args) > 1, 'virtual: expects at least two arguments (virtual name body+)'
-    name = args[0].name
+    name = seval.context['CG'] + args[0].name
     body = args[1:]
 
     seval.traces.add_virtual_signal(name, body, seval)

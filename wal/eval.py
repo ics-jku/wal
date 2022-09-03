@@ -88,7 +88,8 @@ class SEval:
             name = expr.name
             if expr.name in self.aliases: # if an alias exists
                 name = self.aliases[expr.name]
-            elif self.traces.contains(name):  # if symbol is a signal from wavefile
+                
+            if self.traces.contains(name):  # if symbol is a signal from wavefile
                 res = self.traces.signal_value(name, scope=self.scope) # env[symbol_id]
             else:
                 if self.stack and name in self.stack[-1]:  # if symbol existst in local scope

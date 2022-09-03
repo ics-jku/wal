@@ -28,7 +28,7 @@ class TraceContainer:
             print(f'File extension "{file_extension}" not supported.')
 
         self.n_traces += 1
-        self.contains.cache_clear()
+        #self.contains.cache_clear()
 
 
     def unload(self, tid='DEFAULT'):
@@ -59,11 +59,11 @@ class TraceContainer:
         raise RuntimeError('No traces loaded')
 
 
-    @lru_cache(maxsize=128)
+    #@lru_cache(maxsize=128)
     def contains(self, name):
         '''Return true if a signal with name exists in any trace.'''
         if self.n_traces == 1 and Trace.SCOPE_SEPERATOR not in name:
-            return name in (list(self.traces.values())[0]).signals
+            return name in (list(self.traces.values())[0]).signals or name in Trace.SPECIAL_SIGNALS
 
 
         if self.n_traces > 1 or Trace.SCOPE_SEPERATOR in name:
@@ -145,3 +145,23 @@ class TraceContainer:
             indices = self.index_stack.pop()
             for tid, index in indices.items():
                 self.traces[tid].set(index)
+
+
+    def add_virtual_signal(self, name, expr, seval):
+        '''Add a virtual signal to the trace'''
+
+        if self.n_traces == 1:
+            trace = list(self.traces.values())[0]
+            signal = VirtualSignal(name, expr, trace, seval)
+            return trace.add_virtual_signal(signal)
+
+        if self.n_traces > 1 or Trace.SCOPE_SEPERATOR in name:
+            # extract tid of vcd
+            seperator = name.index(Trace.SCOPE_SEPERATOR)
+            trace_tid = name[:seperator]
+            signal_name = name[seperator+1:]
+            assert trace_tid in self.traces, f'No trace with tid {trace_tid}'
+            signal = VirtualSignal(name, expr, self.traces[trace_tid], seval)
+            return self.traces[trace_tid].add_virtual_signal(signal)
+
+        raise RuntimeError('No traces loaded')

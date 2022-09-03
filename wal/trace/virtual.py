@@ -10,7 +10,6 @@ class TraceVirtual(Trace):
 
     def __init__(self, tid, max_index):
         super().__init__(tid, 'virtual')
-
         self.signals = set()
         self.max_index = max_index
         self.timestamps = range(max_index)
@@ -30,8 +29,8 @@ class TraceVirtual(Trace):
             f.write('$enddefinitions $end\n')
 
             old_index = self.index
+            last_values = {}
             for index in range(int(self.max_index/2)):
-                print(index)
                 self.index = index
                 f.write(f'#{index}\n')
                 if index == 0:
@@ -39,9 +38,11 @@ class TraceVirtual(Trace):
                 
                 for signal in self.signals:
                     value = self.signal_value(signal, index)
-                    width = 32
-                    txt = f'{value:0{width}b}'.format(value=value, width=width)
-                    f.write(f'b{txt} {signal}\n')
+                    if (signal not in last_values) or (value != last_values[signal]):
+                        width = 32
+                        last_values[signal] = value
+                        txt = f'{value:0{width}b}'.format(value=value, width=width)
+                        f.write(f'b{txt} {signal}\n')
             
             self.index = old_index
         '''

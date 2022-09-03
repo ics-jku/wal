@@ -555,7 +555,7 @@ def op_groups(seval, args):
 
 
 def op_in_group(seval, args):
-    assert len(args) == 2, 'in-group: exactly two arguments required (in-group group:symbol expression)'
+    assert len(args) >= 2, 'in-group: exactly two arguments required (in-group group:symbol expression)'
     prev_group = seval.group
     prev_scope = seval.scope
 
@@ -574,23 +574,23 @@ def op_in_group(seval, args):
     seval.scope = seval.group[:scope_index + 1] if scope_index != -1 else prev_scope
     seval.context['CS'] = seval.scope
 
-    res = seval.eval(args[1])
+    res = seval.eval_args(args[1:])
     seval.group = prev_group
     seval.scope = prev_scope
     seval.context['CG'] = prev_group
     seval.context['CS'] = prev_scope
-    return res
+    return res[-1]
 
 
 def op_in_groups(seval, args):
-    assert len(args) == 2, 'in-groups: exactly two arguments required (in-group group:(symbol+) expression)'
+    assert len(args) >= 2, 'in-groups: exactly two arguments required (in-group group:(symbol+) expression)'
     groups = seval.eval(args[0])
     assert isinstance(groups, list), 'in-groups: first argument must evaluate to list'
     assert groups, 'in-groups: no groups specified'
 
     res = None
     for group in groups:
-        res = op_in_group(seval, [group, args[1]])
+        res = op_in_group(seval, [group, *args[1:]])
     return res
 
 
