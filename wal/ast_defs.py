@@ -9,6 +9,7 @@ class Operator(Enum):
     LOAD = 'load'
     UNLOAD = 'unload'
     STEP = 'step'
+    REPL = 'repl'
     # basic
     REQUIRE = 'require'
     ADD = '+'
@@ -98,6 +99,7 @@ class Operator(Enum):
     WHENEVER = 'whenever'
     FOLD_SIGNAL = 'fold/signal'
     COUNT = 'count'
+    TIMEFRAME = 'timeframe'
     # system
     EXIT = 'exit'
     # virtual signals

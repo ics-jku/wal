@@ -3,7 +3,7 @@
 
 class Trace:
     '''A generic class for representing waveforms'''
-    SCOPE_SEPERATOR = ';'
+    SCOPE_SEPERATOR = ':'
     SPECIAL_SIGNALS = ['SIGNALS', 'INDEX', 'MAX-INDEX', 'TS', 'TRACE-NAME', 'TRACE-FILE', 'SCOPES']
     SPECIAL_SIGNALS_SET = set(SPECIAL_SIGNALS)
 
@@ -65,13 +65,11 @@ class Trace:
             else:
                 bits = self.access_signal_data(name, rel_index)
                 try:
-                    res = int(bits, 2) if bits != 'x' else bits
+                    res = int(bits, 2)
                 except ValueError:
-                    if bits in ('x', 'z'):
-                        res = bits
-                    elif bits is None:
-                        res = [] #'! Error, no value !'
-
+                    res = bits
+        elif rel_index >= self.max_index:
+            res = self.access_signal_data(name, self.max_index)
         else:
             raise ValueError(f'can not access {name} at negative timestamp')
 

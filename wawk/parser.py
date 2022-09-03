@@ -106,11 +106,7 @@ class TreeToWal(Transformer):
     assign_arith = lambda self, a: [Op.SET, [a[0], [Op(a[1]), a[0], a[3]]]]
     forin = lambda self, f: [Op.MAP, [Op.LAMBDA, [f[0]], f[2]], f[1]]
     forinarray = lambda self, f: [Op.MAPA, [Op.LAMBDA, [f[0], f[1]], f[3]], f[2]]
-    #forvar = lambda self, f: [Op.DO, f[0], [Op.WHILE, f[1], [Op.DO, f[3], f[2]]]]
-
-    def forvar(self, f):
-        return [Op.LET, f[0][1], [Op.WHILE, f[1], [Op.DO, f[3], f[2]]]]
-    #forvar = lambda self, f: [Op.LET, [f[0], [Op.WHILE, f[1], [Op.DO, f[3], f[2]]]]
+    forvar = lambda self, f: [Op.LET, [f[0][1]], [Op.WHILE, f[1], [Op.DO, f[3], f[2]]]]
 
     array_op = lambda self, a: a[0]
     array_get = lambda self, a: [Op.GETA] + a

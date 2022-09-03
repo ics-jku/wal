@@ -98,7 +98,6 @@ def op_fold_signal(seval, args):
     for trace in seval.traces.traces.values():
         trace.index = prev_indices[trace.tid]
 
-
     return acc
 
 
@@ -111,10 +110,29 @@ def op_count(seval, args):
     return len(indices)
 
 
+def op_timeframe(seval, args):
+    '''Creates a new timeframe in which all INDEX manipulating operations
+    have no effect on the indices of the calling context'''
+    # store indices at start
+    prev_indices = seval.traces.indices()
+
+    res = list(map(seval.eval, args))
+
+    # restore indices to start values
+    for trace in seval.traces.traces.values():
+        trace.index = prev_indices[trace.tid]
+
+    if res:
+        return res[-1]
+
+    return None
+
+
 special_operators = {
     Operator.FIND.value: op_find,
     Operator.FIND_G.value: op_find_g,
     Operator.WHENEVER.value: op_whenever,
     Operator.FOLD_SIGNAL.value: op_fold_signal,
-    Operator.COUNT.value : op_count,
+    Operator.COUNT.value: op_count,
+    Operator.TIMEFRAME.value: op_timeframe,
 }

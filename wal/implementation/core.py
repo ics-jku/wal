@@ -9,6 +9,7 @@ import importlib
 
 from functools import reduce
 from wal.ast_defs import Operator, Symbol
+from wal.util import wal_str
 
 
 def op_add(seval, args):
@@ -149,15 +150,17 @@ def op_let(seval, args):
             del context[name]
 
     try:
-        for pair in args[:-1]:
-            assert len(pair) == 2, 'let: expects a list of pairs'
+        assert isinstance(args[0], list), 'let: expects a list of pairs'
+        for pair in args[0]:
+            assert isinstance(pair, list), 'let: expects a list of pairs'
             assert isinstance(pair[0], Symbol), 'let: first argument must be a symbol'
+            assert len(pair) == 2, 'let: expects a list of pairs'
             assert pair[0].name not in context, f'let: {pair[0]} already bound'
             context[pair[0].name] = seval.eval(pair[1])
             bound.add(pair[0].name)
 
         # evaluate body
-        res = seval.eval(args[-1])
+        res = seval.eval_args(args[1:])[-1]
         unbind()
         return res
     except Exception as e:
@@ -220,7 +223,8 @@ def op_inc(seval, args):
 
 
 def op_print(seval, args):
-    print(*seval.eval_args(args), sep='')
+    res = [wal_str(x) if isinstance(x, list) else x for x in seval.eval_args(args)]
+    print(*res, sep='')
 
 
 def op_printf(seval, args):
@@ -280,13 +284,18 @@ def op_case(seval, args):
     if len(set(map(lambda x: str(x[0]), clauses))) != len(clauses):
         raise ValueError('case with duplicate key')
 
+    default = None
     for clause in clauses:
         key = clause[0]
         consequents = clause[1:]
+
         if keyform == key:
             return seval.eval_args(consequents)[-1]
 
-    return None
+        if isinstance(key, Symbol) and key.name == 'default':
+            default = seval.eval_args(consequents)[-1]
+
+    return default
 
 
 def op_do(seval, args):
@@ -414,18 +423,19 @@ def op_type(seval, args):
 
 def op_rel_eval(seval, args):
     '''Evaluate an expression at a locally modified index. Index is restored after eval is done.'''
-    assert len(args) == 2, '@: expects two arguments (@ expr:expr offset:expr->int)'
-    assert isinstance(args[0], (Symbol, int, str, list)), '@: first argument must be a valid expression'
+    assert len(args) == 2, 'reval: expects two arguments (reval expr:expr offset:expr->int)'
+    assert isinstance(args[0], (Symbol, int, str, list)), 'reval: first argument must be a valid expression'
     offset = seval.eval(args[1])
-    assert isinstance(offset, int), '@: second argument must evaluate to int'
+    assert isinstance(offset, int), 'reval: second argument must evaluate to int'
     # check if any trace becomes oob with offset
     for trace in seval.traces.traces.values():
         if trace.index + offset > trace.max_index or trace.index + offset < 0:
             return False
 
+    seval.traces.store_indices()
     seval.traces.step(offset)
     res = seval.eval(args[0])
-    seval.traces.step(-offset)
+    seval.traces.restore_indices()
     return res
 
 
@@ -537,8 +547,11 @@ def op_groups(seval, args):
         pre = pre[:-len(args[0])]  # cut off filter suffix
         if all(seval.traces.contains(f'{pre}{post}') for post in args[1:]):
             groups.add(pre)
-    # return list(map(lambda g: [Operator.QUOTE, Symbol(g)], groups))
-    return list(groups)
+
+    groups = list(groups)
+    groups.sort()
+
+    return groups
 
 
 def op_in_group(seval, args):
