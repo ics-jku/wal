@@ -1,6 +1,5 @@
 '''Test wal array eval logic'''
 from wal.core import Wal
-from wal.ast_defs import Operator as Op
 from .test_eval import OpTest
 
 # pylint: disable=C0103
