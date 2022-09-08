@@ -16,6 +16,12 @@ def wal_str(sexpr):
         txt = f'"{sexpr}"'
     elif isinstance(sexpr, bool):
         txt = '#t' if sexpr else '#f'
+    elif isinstance(sexpr, dict):
+        content = []
+        for key, value in sexpr.items():
+            content.append('("' + key + '" ' + wal_str(value) + ')')
+
+        txt = '{' + ' '.join(content) + '}'
     else:
         txt = str(sexpr)
 
