@@ -20,7 +20,7 @@ tb.dut.clk, tb.dut.overflow: {
 Internally, WAWK is transpiled to WAL code similar to the example below.
 
 <p align="center">
-  <img src="https://wal-lang.org/static/wawk.png?" alt="Example for transpilation from WAWK to WAL" width="400"/>
+  <img src="https://wal-lang.org/static/wawk.png" alt="Example for transpilation from WAWK to WAL" width="400"/>
 </p>
 
 ## Examples
