@@ -42,8 +42,13 @@ WAWK_GRAMMAR = r"""
     sliced_symbol : simple_symbol "[" INT ":" INT "]"
 
     arith : expr b_op expr | u_op expr
-    !b_op : "+" | "-" | "*" | "/" | "&&" | "||" | "==" | "!=" | ">" | "<" | ">=" | "<="
     !u_op : "!"
+    b_op : m_d_op | a_s_op | comp_op | and_op | or_op
+    !m_d_op : "*" | "/"
+    !a_s_op : "+" | "-"
+    !comp_op : "==" | "!=" | ">" | "<" | ">=" | "<="
+    !and_op : "&&"
+    !or_op : "||"
 
     block : "{" (expr ";")* "}"
     assign : assign_arith | assign_std
