@@ -72,6 +72,7 @@ class Operator(Enum):
     SETA = 'seta'
     GETA = 'geta'
     GETA_DEFAULT = 'geta/default'
+    DELA = 'dela'
     MAPA = 'mapa'
     ALLSCOPES = 'all-scopes'
     SCOPED = 'in-scope'

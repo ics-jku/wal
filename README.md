@@ -3,7 +3,7 @@
 [![Test and Build](https://github.com/ics-jku/wal/actions/workflows/python-app.yml/badge.svg)](https://github.com/ics-jku/wal/actions/workflows/python-app.yml)
      
 <p align="center">
-  <img src="https://wal-lang.org/static/logo.svg" alt="The Waveform Analysis language logo" width="200"/>
+  <img src="https://wal-lang.org/static/logo.svg?" alt="The Waveform Analysis language logo" width="200"/>
 </p>
 
      
