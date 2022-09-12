@@ -50,14 +50,14 @@ WAWK_GRAMMAR = r"""
     a_sum_s.5: sum_s a_s_op sum_s
     mul.4: a_mul | expr
     a_mul.4: mul m_d_op mul
-    
+
     or_s.3: a_or_s | and_s
     a_or_s.3: or_s or_op or_s
     and_s.2: a_and_s | comp
     a_and_s.2: and_s and_op and_s
     comp.1: a_comp | expr
     a_comp.1: and_s comp_op and_s
-    
+
     !u_op : "!"
     !m_d_op : "*" | "/"
     !a_s_op : "+" | "-"
@@ -139,7 +139,7 @@ class TreeToWal(Transformer):
     or_s = lambda self, x: x[0]
     a_or_s = lambda self, x: [Op(x[1].children[0].value), x[0], x[2]]
     comp = lambda self, x: x[0]
-    
+
     array_op = lambda self, a: a[0]
     array_get = lambda self, a: [Op.GETA] + a
     array_set = lambda self, a: [Op.SETA] + a
