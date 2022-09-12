@@ -18,7 +18,9 @@ WAWK_GRAMMAR = r"""
          | "(" expr ")"
          | string
          | list
-         | arith
+         | neg
+         | sum_s
+         | or_s
          | SIGNED_INT -> number
          | INT -> number
 
@@ -41,9 +43,27 @@ WAWK_GRAMMAR = r"""
     bit_symbol : simple_symbol "[" INT "]"
     sliced_symbol : simple_symbol "[" INT ":" INT "]"
 
-    arith : expr b_op expr | u_op expr
-    !b_op : "+" | "-" | "*" | "/" | "&&" | "||" | "==" | "!=" | ">" | "<" | ">=" | "<="
+    neg.6 : a_neg | expr
+    a_neg.6 : u_op expr
+
+    sum_s.5: a_sum_s | mul
+    a_sum_s.5: sum_s a_s_op sum_s
+    mul.4: a_mul | expr
+    a_mul.4: mul m_d_op mul
+    
+    or_s.3: a_or_s | and_s
+    a_or_s.3: or_s or_op or_s
+    and_s.2: a_and_s | comp
+    a_and_s.2: and_s and_op and_s
+    comp.1: a_comp | expr
+    a_comp.1: and_s comp_op and_s
+    
     !u_op : "!"
+    !m_d_op : "*" | "/"
+    !a_s_op : "+" | "-"
+    !comp_op : "==" | "!=" | ">" | "<" | ">=" | "<="
+    !and_op : "&&"
+    !or_op : "||"
 
     block : "{" (expr ";")* "}"
     assign : assign_arith | assign_std
@@ -108,6 +128,18 @@ class TreeToWal(Transformer):
     forinarray = lambda self, f: [Op.MAPA, [Op.LAMBDA, [f[0], f[1]], f[3]], f[2]]
     forvar = lambda self, f: [Op.LET, [f[0][1]], [Op.WHILE, f[1], [Op.DO, f[3], f[2]]]]
 
+    neg = lambda self, x: x[0]
+    a_neg = lambda self, x: [Op(x[0].children[0].value), x[1]]
+    mul = lambda self, x: x[0]
+    a_mul = lambda self, x: [Op(x[1].children[0].value), x[0], x[2]]
+    sum_s = lambda self, x: x[0]
+    a_sum_s = lambda self, x: [Op(x[1].children[0].value), x[0], x[2]]
+    and_s = lambda self, x: x[0]
+    a_and_s = lambda self, x: [Op(x[1].children[0].value), x[0], x[2]]
+    or_s = lambda self, x: x[0]
+    a_or_s = lambda self, x: [Op(x[1].children[0].value), x[0], x[2]]
+    comp = lambda self, x: x[0]
+    
     array_op = lambda self, a: a[0]
     array_get = lambda self, a: [Op.GETA] + a
     array_set = lambda self, a: [Op.SETA] + a
@@ -131,10 +163,7 @@ class TreeToWal(Transformer):
             expr = [f[0]] + f[1:]
         return expr
 
-    def arith(self, x):
-        if len(x) == 2:
-            return [Op(x[0].children[0].value), x[1]]
-        # convert == to =
+    def a_comp(self, x):
         if x[1].children[0].value == '==':
             return [Op.EQ, x[0], x[2]]
 
