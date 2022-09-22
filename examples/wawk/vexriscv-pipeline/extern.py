@@ -3,7 +3,7 @@
 from riscvmodel import code
 from riscvmodel.variant import Variant
 
-variant = Variant('RV32IMCZicsr')
+variant = Variant('RV32G')
 
 def decode(instr):
     '''Decodes a RISC-V instruction and returns a string description'''
