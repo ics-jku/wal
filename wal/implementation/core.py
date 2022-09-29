@@ -406,12 +406,12 @@ def op_call(seval, args):
     extern_name = args[0]
     extern_args = args[1:]
     assert isinstance(extern_name, Symbol)
-    module, fname = extern_name.name.split('.')
-    func = getattr(seval.imports[module], fname)
-    n_args = len(extern_args)
-    min_args = func.__code__.co_argcount - len(func.__defaults__) if func.__defaults__ else 0
-    max_args = func.__code__.co_argcount
-    assert n_args >= min_args <= max_args, f'{extern_name} requires {min_args} to {max_args}'
+    split = extern_name.name.split('.')
+    func = seval.imports[split[0]]
+
+    for fid in split[1:]:
+        func = getattr(func, fid)
+
     evaluated = list(map(seval.eval, extern_args))
     return func(*evaluated)
 
@@ -533,8 +533,19 @@ def op_groups(seval, args):
     (group "*_ready" "*_valid" "*_data") => all signals (as scope?) for which p_ready, p_valid. exist
     '''
     assert args, 'groups: expects at least one argument (groups post:str+)'
-    assert all(isinstance(arg, (str, Symbol)) for arg in args)
-    args = list(map(lambda x: x if isinstance(x, str) else x.name, args))
+
+    def process_arg(arg):
+        '''evaluates arg if it is a list, else unpacks a signal or just returns a string'''
+        if isinstance(arg, list):
+            return seval.eval(arg)
+        if isinstance(arg, Symbol):
+            return arg.name
+        if isinstance(arg, str):
+            return arg
+
+        raise RuntimeError('groups: arguments must be string, symbol, or must evaluate to these types')
+
+    args = list(map(process_arg, args))
 
     if seval.context['CS']:
         pattern = re.compile(rf'{seval.context["CS"]}\.[^\\.]+{args[0]}')
@@ -555,7 +566,7 @@ def op_groups(seval, args):
 
 
 def op_in_group(seval, args):
-    assert len(args) == 2, 'in-group: exactly two arguments required (in-group group:symbol expression)'
+    assert len(args) >= 2, 'in-group: exactly two arguments required (in-group group:symbol expression)'
     prev_group = seval.group
     prev_scope = seval.scope
 
@@ -574,23 +585,23 @@ def op_in_group(seval, args):
     seval.scope = seval.group[:scope_index + 1] if scope_index != -1 else prev_scope
     seval.context['CS'] = seval.scope
 
-    res = seval.eval(args[1])
+    res = seval.eval_args(args[1:])
     seval.group = prev_group
     seval.scope = prev_scope
     seval.context['CG'] = prev_group
     seval.context['CS'] = prev_scope
-    return res
+    return res[-1]
 
 
 def op_in_groups(seval, args):
-    assert len(args) == 2, 'in-groups: exactly two arguments required (in-group group:(symbol+) expression)'
+    assert len(args) >= 2, 'in-groups: exactly two arguments required (in-group group:(symbol+) expression)'
     groups = seval.eval(args[0])
     assert isinstance(groups, list), 'in-groups: first argument must evaluate to list'
     assert groups, 'in-groups: no groups specified'
 
     res = None
     for group in groups:
-        res = op_in_group(seval, [group, args[1]])
+        res = op_in_group(seval, [group, *args[1:]])
     return res
 
 
