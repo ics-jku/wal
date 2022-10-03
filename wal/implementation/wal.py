@@ -72,8 +72,8 @@ def op_require(seval, args):
         fname = f'{module.name}.wal'
         if os.path.isfile(fname):
             pass
-        elif os.path.isfile(os.path.expanduser('~') +f'/.wal/libs/{fname}'):
-            fname = os.path.expanduser('~') + f'/.wal/libs/{fname}'
+        elif os.path.isfile(os.path.expanduser(f'~/.wal/libs/{fname}')):
+            fname = os.path.expanduser(f'~/.wal/libs/{fname}')
         else:
             print(f'require: cant find file {module.name}.wal')
             raise FileNotFoundError

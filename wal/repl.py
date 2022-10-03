@@ -1,12 +1,16 @@
 '''Implementation of basic read-eval-print-loop'''
 # pylint: disable=W0703,C0103
 import cmd
+import readline
+import os
 from wal.util import wal_str
 from wal.reader import read_wal_sexpr, ParseError
 from wal.ast_defs import Operator
 from wal.trace.trace import Trace
 from wal.version import __version__
 
+histfile = os.path.expanduser('~/.wal/.wal_history')
+histfile_size = 1000
 
 class WalRepl(cmd.Cmd):
     '''WalRepl class implements basic read-eval-print-loop'''
@@ -39,6 +43,10 @@ Exit to OS with (exit)'''
             evaluated = self.wal.eval(line)
             if evaluated is not None:
                 print(wal_str(evaluated))
+
+            if readline: # pylint: disable=W0125
+                readline.set_history_length(histfile_size)
+                readline.write_history_file(histfile)
         except Exception as e:
             print(e)
             print(wal_str(line))
@@ -71,3 +79,8 @@ Exit to OS with (exit)'''
         candidates = [c for c in tmp if c.startswith(text)]
         candidates.append(None)
         return candidates
+
+    def preloop(self):
+        print("read history", histfile)
+        if readline and os.path.exists(histfile):
+            readline.read_history_file(histfile)
