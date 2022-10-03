@@ -1,4 +1,4 @@
-#!/usr/bin/wal
+#!wal
 
 (defun is-bin [signal start i]
   (cond [(! (in (get signal)@i '(0 1 "x"))) (seta types signal #f)]
