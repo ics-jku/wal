@@ -1,8 +1,7 @@
 '''Implementations for WAL related functions such as loading and unloading traces.'''
-import sys
 import os
 from wal.ast_defs import Operator, Symbol
-from wal.reader import read_wal_sexprs, ParseError
+from wal.reader import read_wal_sexprs
 from wal.repl import WalRepl
 
 
@@ -64,19 +63,30 @@ def op_require(seval, args):
     assert all(isinstance(s, Symbol) for s in args), 'require: all argument must be symbols'
     for module in args:
         old_context = seval.context
-        seval.context = {}
-        with open(module.name + '.wal', 'r', encoding='utf-8') as file:
-            try:
-                sexprs = read_wal_sexprs(file.read())
-                for sexpr in sexprs:
-                    if sexpr:
-                        seval.eval(sexpr)
-            except ParseError as exception:
-                exception.show()
-                sys.exit(os.EX_DATAERR)
+
+        seval.context = {'CS': old_context['CS'],
+                         'CG': old_context['CG'],
+                         'VIRTUAL': old_context['VIRTUAL'],
+                         'args': old_context['args']}
+
+        fname = f'{module.name}.wal'
+        if os.path.isfile(fname):
+            pass
+        elif os.path.isfile(os.path.expanduser('~') +f'/.wal/libs/{fname}'):
+            fname = os.path.expanduser('~') + f'/.wal/libs/{fname}'
+        else:
+            print(f'require: cant find file {module.name}.wal')
+            raise FileNotFoundError
+
+        with open(fname, 'r', encoding='utf-8') as file:
+            sexprs = read_wal_sexprs(file.read())
+            for sexpr in sexprs:
+                if sexpr:
+                    seval.eval(sexpr)
 
         old_context.update(seval.context)
         seval.context = old_context
+
 
 
 def op_repl(seval, args): # pylint: disable=W0613
