@@ -81,6 +81,5 @@ Exit to OS with (exit)'''
         return candidates
 
     def preloop(self):
-        print("read history", histfile)
         if readline and os.path.exists(histfile):
             readline.read_history_file(histfile)
