@@ -66,7 +66,6 @@ def op_require(seval, args):
 
         seval.context = {'CS': old_context['CS'],
                          'CG': old_context['CG'],
-                         'VIRTUAL': old_context['VIRTUAL'],
                          'args': old_context['args']}
 
         fname = f'{module.name}.wal'
