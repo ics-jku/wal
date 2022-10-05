@@ -1,5 +1,5 @@
 '''Implementations for all list related functions'''
-from wal.ast_defs import Operator
+from wal.ast_defs import Operator, Symbol
 
 def op_list(seval, args):
     '''Constructs a new list filled with evaluated arguments'''
@@ -53,7 +53,7 @@ def op_in(seval, args):
                 res = False
                 break
     elif isinstance(evaluated[-1], dict):
-        key = '-'.join(map(str, evaluated[:-1]))
+        key = '-'.join(map(lambda x: x.name if isinstance(x, Symbol) else str(x), evaluated[:-1]))
         res = key in evaluated[-1]
     return res
 
