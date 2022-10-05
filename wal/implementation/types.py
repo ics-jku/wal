@@ -50,10 +50,10 @@ def op_string_to_int(seval, args):
     assert isinstance(evaluated, str), 'string->int: argument must evaluate to srting'
     if len(args) == 1:
         return int(evaluated)
-    else:
-        assert isinstance(args[1], int), 'string->int: argument base must be integer'
-        assert args[1] in [2, 8, 10, 16] , 'string->int: valid base values (2 8 10 16)'
-        return int(evaluated, args[1])
+
+    assert isinstance(args[1], int), 'string->int: argument base must be integer'
+    assert args[1] in [2, 8, 10, 16] , 'string->int: valid base values (2 8 10 16)'
+    return int(evaluated, args[1])
 
 
 def op_symbol_to_string(seval, args):

@@ -40,8 +40,10 @@ class TraceFst(Trace):
         self.index = 0
         self.max_index = raw_timestamps.nvals - 1
 
-
     def access_signal_data(self, name, index):
         '''Backend specific function for accessing signals in the waveform'''
         handle = self.references_to_ids[name]
         return fst.helpers.string(fst.lib.fstReaderGetValueFromHandleAtTime(self.fst, self.timestamps[index], handle, self.buf))
+
+    def signal_width(self, name):
+        raise NotImplementedError

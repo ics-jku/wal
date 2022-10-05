@@ -101,6 +101,7 @@ class Operator(Enum):
     FOLD_SIGNAL = 'fold/signal'
     COUNT = 'count'
     TIMEFRAME = 'timeframe'
+    SIGNAL_WIDTH = 'signal-width'
     # system
     EXIT = 'exit'
 

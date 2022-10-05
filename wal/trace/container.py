@@ -45,7 +45,6 @@ class TraceContainer:
             trace = list(self.traces.values())[0]
             return trace.signal_value(name, offset, scope)
 
-
         if self.n_traces > 1 or Trace.SCOPE_SEPERATOR in name:
             # extract tid of vcd
             seperator = name.index(Trace.SCOPE_SEPERATOR)
@@ -54,6 +53,24 @@ class TraceContainer:
             assert trace_tid in self.traces, f'No trace with tid {trace_tid}'
             return self.traces[trace_tid].signal_value(signal_name, offset, scope)
 
+
+        raise RuntimeError('No traces loaded')
+
+
+    def signal_width(self, name):
+        '''Get the value of signal name at current index + offset.'''
+
+        if self.n_traces == 1 and Trace.SCOPE_SEPERATOR not in name:
+            trace = list(self.traces.values())[0]
+            return trace.signal_width(name)
+
+        if self.n_traces > 1 or Trace.SCOPE_SEPERATOR in name:
+            # extract tid of vcd
+            seperator = name.index(Trace.SCOPE_SEPERATOR)
+            trace_tid = name[:seperator]
+            signal_name = name[seperator+1:]
+            assert trace_tid in self.traces, f'No trace with tid {trace_tid}'
+            return self.traces[trace_tid].signal_width(signal_name)
 
         raise RuntimeError('No traces loaded')
 
@@ -71,7 +88,6 @@ class TraceContainer:
             signal_name = name[seperator+1:]
             assert trace_tid in self.traces, f'No trace with tid {trace_tid}'
             return signal_name in self.traces[trace_tid].signals
-
 
         return False
 

@@ -49,3 +49,7 @@ class TraceVcd(Trace):
     def access_signal_data(self, name, index):
         '''Backend specific function for accessing signals in the waveform'''
         return self.data[name][self.timestamps[index]]
+
+
+    def signal_width(self, name):
+        return int(self.data[name].size)
