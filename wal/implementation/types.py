@@ -45,10 +45,15 @@ def op_convert_binary(seval, args):
 
 def op_string_to_int(seval, args):
     '''Converts a string to an integer '''
-    assert len(args) == 1, 'string->int: expects exactly one argument (convert/int expr:str)'
+    assert len(args) == 1 or len(args) == 2, 'string->int: expects exactly one argument (string->int expr:str base:int?)'
     evaluated = seval.eval(args[0])
     assert isinstance(evaluated, str), 'string->int: argument must evaluate to srting'
-    return int(evaluated)
+    if len(args) == 1:
+        return int(evaluated)
+    else:
+        assert isinstance(args[1], int), 'string->int: argument base must be integer'
+        assert args[1] in [2, 8, 10, 16] , 'string->int: valid base values (2 8 10 16)'
+        return int(evaluated, args[1])
 
 
 def op_symbol_to_string(seval, args):
