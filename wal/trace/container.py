@@ -56,7 +56,6 @@ class TraceContainer:
 
         raise RuntimeError('No traces loaded')
 
-
     def signal_width(self, name):
         '''Get the value of signal name at current index + offset.'''
 
