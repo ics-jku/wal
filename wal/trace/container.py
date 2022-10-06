@@ -74,7 +74,6 @@ class TraceContainer:
 
         raise RuntimeError('No traces loaded')
 
-
     @lru_cache(maxsize=128)
     def contains(self, name):
         '''Return true if a signal with name exists in any trace.'''

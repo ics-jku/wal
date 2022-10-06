@@ -71,7 +71,6 @@ class Trace:
         '''Returns the signal width'''
         raise NotImplementedError
 
-
     @property
     def ts(self):  # pylint: disable=C0103
         '''Converts the index to the current timestamp.'''
