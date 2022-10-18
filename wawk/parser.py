@@ -8,13 +8,7 @@ from wal.ast_defs import Operator as Op
 WAWK_GRAMMAR = r"""
     ?expr: symbol
          | fcall
-         | forstmt
-         | assign
-         | block
-         | array_op
-         | cond
-         | in_scope
-         | in_group
+         | array_get
          | "(" expr ")"
          | string
          | list
@@ -24,15 +18,26 @@ WAWK_GRAMMAR = r"""
          | SIGNED_INT -> number
          | INT -> number
 
+    line_expr: assign
+         | array_set
+
+    block_expr: forstmt
+         | cond
+         | in_scope
+         | in_group
+
+    substatement: (subline | block_expr | block) ";"*
+    subline: (line_expr | expr) ";"
+
     list : "[" [expr ("," expr)*] "]"
 
     forstmt: forin | forinarray | forvar
-    forin: "for" "(" base_symbol "in" (list | fcall | base_symbol) ")" block
-    forinarray: "for" "(" base_symbol "," base_symbol "in" (fcall | base_symbol) ")" block
-    forvar: "for" "(" assign_std ";" expr ";" expr  ")" block
+    forin: "for" "(" base_symbol "in" (list | fcall | base_symbol) ")" substatement
+    forinarray: "for" "(" base_symbol "," base_symbol "in" (fcall | base_symbol) ")" substatement
+    forvar: "for" "(" assign_std ";" expr ";" expr  ")" substatement
 
     cond : ifstmt
-    ifstmt : "if" "(" expr ")" expr ("else" expr)?
+    ifstmt : "if" "(" expr ")" substatement ("else" substatement)?
 
     symbol : simple_symbol | sliced_symbol | bit_symbol
     simple_symbol : base_symbol | scoped_symbol | grouped_symbol | timed_symbol | bit_symbol | sliced_symbol
@@ -65,7 +70,7 @@ WAWK_GRAMMAR = r"""
     !and_op : "&&"
     !or_op : "||"
 
-    block : "{" (expr ";")* "}"
+    block : "{" (substatement)* "}"
     assign : assign_arith | assign_std
     assign_std : base_symbol "=" expr
     !assign_arith : base_symbol ("+"| "-" | "*" | "/") "=" expr
@@ -77,8 +82,8 @@ WAWK_GRAMMAR = r"""
     array_get : base_symbol "[" (INT | string | symbol) ("," (INT | string | symbol))* "]"
     array_set : base_symbol "[" (INT | string | symbol) ("," (INT | string | symbol))* "]" "=" expr
 
-    in_scope : "scope" "(" (symbol | list | fcall) ")" expr
-    in_group : "group" "(" (list | fcall | expr) ")" expr
+    in_scope : "scope" "(" (symbol | list | fcall) ")" substatement
+    in_group : "group" "(" (list | fcall | expr) ")" substatement
 
     _NL: /(\r?\n)+\s*/
     statement : [expr ("," expr)* ":"] block
@@ -109,6 +114,11 @@ class TreeToWal(Transformer):
     statement = lambda self, s: Statement(s[:-1], s[-1])
     line = lambda self, l: l[0]
     program = lambda self, p: p
+
+    substatement = lambda self, s: s[0]
+    subline = lambda self, l: l[0]
+    block_expr = lambda self, b: b[0]
+    line_expr = lambda self, l: l[0]
 
     string = lambda self, s: s[0][1:-1].encode('utf-8').decode('unicode_escape')
     number = lambda self, n: int(n[0])

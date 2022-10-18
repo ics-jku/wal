@@ -1,5 +1,5 @@
 '''Implementations for all list related functions'''
-from wal.ast_defs import Operator
+from wal.ast_defs import Operator, Symbol
 
 def op_list(seval, args):
     '''Constructs a new list filled with evaluated arguments'''
@@ -53,7 +53,7 @@ def op_in(seval, args):
                 res = False
                 break
     elif isinstance(evaluated[-1], dict):
-        key = '-'.join(map(str, evaluated[:-1]))
+        key = '-'.join(map(lambda x: x.name if isinstance(x, Symbol) else str(x), evaluated[:-1]))
         res = key in evaluated[-1]
     return res
 
@@ -160,7 +160,7 @@ def op_for(seval, args):
     assert len(args[0]) == 2,  'for: first argument must be a tuple like [id:symbol seq:list]'
     sym = args[0][0]
     sequence = seval.eval(args[0][1])
-    assert isinstance(sequence, list), 'for: seq in [id:symbol seq:list] must be a list'
+    assert isinstance(sequence, (list, str)), 'for: seq in [id:symbol seq:list] must be a list'
     for value in sequence:
         if seval.stack: # if in a function
             seval.stack[-1][sym.name] = value

@@ -128,6 +128,16 @@ def op_timeframe(seval, args):
     return None
 
 
+def op_signal_width(seval, args):
+    '''Returns the width of a signal'''
+    assert len(args) == 1, 'signal-width: expects exactly one argument (signal-width signal:str?)'
+    arg = seval.eval(args[0])
+    assert isinstance(arg, (str, Symbol)), 'signal-width: expects exactly one argument (signal-width signal:str?)'
+    name = arg if isinstance(arg, str) else arg.name
+    assert seval.traces.contains(name), f'signal-width: no signal "{name}"'
+    return seval.traces.signal_width(name)
+
+
 special_operators = {
     Operator.FIND.value: op_find,
     Operator.FIND_G.value: op_find_g,
@@ -135,4 +145,5 @@ special_operators = {
     Operator.FOLD_SIGNAL.value: op_fold_signal,
     Operator.COUNT.value: op_count,
     Operator.TIMEFRAME.value: op_timeframe,
+    Operator.SIGNAL_WIDTH.value: op_signal_width,
 }

@@ -51,6 +51,7 @@ def main():  # pylint: disable=R1710
     args = arg_parser.parse()
 
     wal = Wal()
+    wal.eval_context.context['args'] = args.args
 
     if args.load is not None:
         for i, path in enumerate(args.load):
@@ -62,9 +63,7 @@ def main():  # pylint: disable=R1710
         if not args.program_path: # if no arguments where given start REPL
             return WalRepl(wal).cmdloop()
 
-
         filename = args.program_path
-        wal.eval_context.context['args'] = args.args
 
         if filename[-3:] == '.wo':
             sexprs = wal.decode(filename)
