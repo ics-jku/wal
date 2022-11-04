@@ -17,8 +17,10 @@ class Trace:
         '''Add steps to the index of this trace.
         If the resulting index is invalid the tid of this trace is returned.'''
         rel_index = self.index + steps
-        if rel_index < 0 or rel_index >= self.max_index:
+
+        if rel_index < 0 or rel_index > self.max_index:
             return self.tid
+
         self.index = rel_index
         return None
 
@@ -29,7 +31,7 @@ class Trace:
 
         res = None
         # handle special variables
-        if 0 <= rel_index < self.max_index:
+        if 0 <= rel_index <= self.max_index:
             if name in Trace.SPECIAL_SIGNALS:
                 if name == 'SIGNALS':
                     if scope == '':
@@ -52,7 +54,7 @@ class Trace:
                 elif name == 'TRACE-FILE':
                     res = self.filename
                 elif name == 'SCOPES':
-                    res = self.scopes #list(self.data.scopes.keys())
+                    res = self.scopes
             else:
                 bits = self.access_signal_data(name, rel_index)
                 try:
