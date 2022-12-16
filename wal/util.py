@@ -7,7 +7,7 @@ def wal_str(sexpr):
         if len(sexpr) == 2 and sexpr[0] == Operator.QUOTE:
             txt = f"'{wal_str(sexpr[1])}"
         elif len(sexpr) == 3 and sexpr[0] == Operator.REL_EVAL:
-            txt = f'{sexpr[1].name}@sexpr[2]'
+            txt = f'{wal_str(sexpr[1])}@{sexpr[2]}'
         elif len(sexpr) > 0 and sexpr[0] == Operator.ARRAY:
             txt = '{' + ' '.join(map(wal_str, sexpr)) + '}'
         else:
