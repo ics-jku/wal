@@ -1,25 +1,21 @@
 test:
-	py.test -v tests
+	python -m pytest -v tests
 
 coverage:
-	coverage3 run -m unittest discover
-	coverage3 report -m
-	coverage3 html
+	python -m coverage run -m unittest discover
+	python -m coverage report -m
+	python -m coverage html
 
 lint:
-	pylint -d C0301 -d C3001 $(shell git ls-files '*.py')
+	python -m pylint -d C0301 -d C3001 $(shell git ls-files '*.py')
 
 package:
 	rm -f dist/*
-	python3 -m build
+	python -m build
 
 install: clean package
-	pip3 uninstall wal-lang -y
-	pip3 install dist/wal_lang-*-py3-none-any.whl --user
-
-install-pypy:
-	pypy3 -m pip uninstall wal-lang -y
-	pypy3 -m pip install dist/wal_lang-*-py3-none-any.whl --user
+	python -m pip uninstall wal-lang -y
+	python -m pip install dist/wal_lang-*-py3-none-any.whl --user
 
 clean:
 	rm -rf build dist
