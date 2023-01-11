@@ -31,7 +31,8 @@ class SEval:
         self.group = ''
         self.context = {
             'CS': '',
-            'CG': ''
+            'CG': '',
+            'args': [],
         }
 
 

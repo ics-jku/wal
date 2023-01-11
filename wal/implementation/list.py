@@ -120,7 +120,7 @@ def op_length(seval, args):
     '''Returns the length of list'''
     assert len(args) == 1, 'length: expects one argument (length list)'
     evaluated = seval.eval(args[0])
-    assert isinstance(evaluated, (list, str)), 'length: argument must be a list'
+    assert isinstance(evaluated, (list, str, dict)), 'length: argument must be a list'
     return len(evaluated)
 
 

@@ -34,9 +34,10 @@ class TraceVcd(Trace):
         self.rawsignals = list(self.data.references_to_ids.keys())
         self.signals = set(Trace.SPECIAL_SIGNALS + self.rawsignals)
 
-        # remove duiplicate timestamps, enumerate all timestamps and create look up table
-        self.timestamps = list(dict.fromkeys(self.timestamps))
-        self.timestamps = dict(enumerate(self.timestamps))
+        # remove duplicate timestamps, enumerate all timestamps and create look up table
+        self.all_timestamps = list(dict.fromkeys(self.timestamps))
+        self.all_timestamps = dict(enumerate(self.timestamps))
+        self.timestamps = self.all_timestamps
         # stores current time stamp
         self.index = 0
         self.max_index = len(self.timestamps.keys()) - 1

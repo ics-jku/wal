@@ -4,7 +4,7 @@
 class Trace:
     '''A generic class for representing waveforms'''
     SCOPE_SEPERATOR = ':'
-    SPECIAL_SIGNALS = ['SIGNALS', 'INDEX', 'MAX-INDEX', 'TS', 'TRACE-NAME', 'TRACE-FILE', 'SCOPES']
+    SPECIAL_SIGNALS = ['SIGNALS', 'LOCAL-SIGNALS', 'INDEX', 'MAX-INDEX', 'TS', 'TRACE-NAME', 'TRACE-FILE', 'SCOPES', 'LOCAL-SCOPES']
     SPECIAL_SIGNALS_SET = set(SPECIAL_SIGNALS)
 
 
@@ -34,8 +34,10 @@ class Trace:
         if 0 <= rel_index <= self.max_index:
             if name in Trace.SPECIAL_SIGNALS:
                 if name == 'SIGNALS':
+                    res = self.rawsignals
+                elif name == 'LOCAL-SIGNALS':
                     if scope == '':
-                        res = self.rawsignals
+                        res = [s for s in self.rawsignals if '.' not in s]
                     else:
                         def in_scope(signal):
                             prefix_ok = signal.startswith(scope + '.')
@@ -53,6 +55,10 @@ class Trace:
                     res = self.tid
                 elif name == 'TRACE-FILE':
                     res = self.filename
+                elif name == 'LOCAL-SCOPES':
+                    if scope != '':
+                        scope += '.'
+                    res = [s for s in self.scopes if (s.startswith(scope)) and ('.' not in s[len(scope) + 1:])]
                 elif name == 'SCOPES':
                     res = self.scopes
             else:
@@ -68,7 +74,6 @@ class Trace:
 
         return res
 
-
     def signal_width(self, name):
         '''Returns the signal width'''
         raise NotImplementedError
@@ -77,3 +82,12 @@ class Trace:
     def ts(self):  # pylint: disable=C0103
         '''Converts the index to the current timestamp.'''
         return self.timestamps[self.index]
+
+    def set_sampling_points(self, new_indices):
+        new_timestamps = [self.all_timestamps[i] for i in new_indices]
+        self.timestamps = list(dict.fromkeys(new_timestamps))
+        self.timestamps = dict(enumerate(self.timestamps))
+        # stores current time stamp
+        self.index = 0
+        self.max_index = len(self.timestamps.keys()) - 1
+

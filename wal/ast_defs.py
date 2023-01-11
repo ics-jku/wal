@@ -102,6 +102,7 @@ class Operator(Enum):
     COUNT = 'count'
     TIMEFRAME = 'timeframe'
     SIGNAL_WIDTH = 'signal-width'
+    SAMPLE_AT = 'sample-at'
     # system
     EXIT = 'exit'
 

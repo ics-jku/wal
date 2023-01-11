@@ -138,6 +138,21 @@ def op_signal_width(seval, args):
     return seval.traces.signal_width(name)
 
 
+def op_sample_at(seval, args):
+    '''Sets the timestamps of trace t to list xs'''
+    assert len(args) == 1 or len(args) == 2, 'sample-at: expects one or two arguments (sample-at timestamps:list? trace:symbol?)'
+    timestamps = seval.eval(args[0])
+    assert isinstance(timestamps, list), 'sample-at: first argument must be a list of integers'
+    assert all(map(lambda x: isinstance(x, int), timestamps)), 'sample-at: second argument must be a list of integers'
+
+    if len(args) == 2:
+        tid = args[1]
+        assert isinstance(tid, Symbol), 'sample-at: second argument must be a symbol'
+        seval.traces.traces[tid.name].set_sampling_points(timestamps)
+    else:
+        list(seval.traces.traces.values())[0].set_sampling_points(timestamps)
+
+
 special_operators = {
     Operator.FIND.value: op_find,
     Operator.FIND_G.value: op_find_g,
@@ -146,4 +161,5 @@ special_operators = {
     Operator.COUNT.value: op_count,
     Operator.TIMEFRAME.value: op_timeframe,
     Operator.SIGNAL_WIDTH.value: op_signal_width,
+    Operator.SAMPLE_AT.value: op_sample_at,
 }

@@ -13,9 +13,14 @@ package:
 	rm -f dist/*
 	python -m build
 
-install: clean package
+uninstall:
 	python -m pip uninstall wal-lang -y
+
+install-user: clean package uninstall
 	python -m pip install dist/wal_lang-*-py3-none-any.whl --user
+
+install: clean package uninstall
+	python -m pip install dist/wal_lang-*-py3-none-any.whl
 
 clean:
 	rm -rf build dist

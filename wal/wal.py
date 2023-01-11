@@ -75,15 +75,15 @@ def main():  # pylint: disable=R1710
                     e.show()
                     sys.exit(os.EX_DATAERR)
 
-        try:
-            for sexpr in sexprs:
-                wal.eval(sexpr)
-        except Exception as e: # pylint: disable=W0703
-            print()
-            print('>>>>> Runtime error! <<<<<')
-            print(e)
-            if args.repl_on_failure:
-                WalRepl(wal, intro=WalRepl.dyn_intro).cmdloop()
-            return os.EX_SOFTWARE
+        #try:
+        for sexpr in sexprs:
+            wal.eval(sexpr)
+        # except Exception as e: # pylint: disable=W0703
+        #     print()
+        #     print('>>>>> Runtime error! <<<<<')
+        #     print(e)
+        #     if args.repl_on_failure:
+        #         WalRepl(wal, intro=WalRepl.dyn_intro).cmdloop()
+        #     return os.EX_SOFTWARE
 
     return os.EX_OK
