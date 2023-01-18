@@ -79,8 +79,7 @@ class TraceContainer:
         if self.n_traces == 1 and Trace.SCOPE_SEPERATOR not in name:
             return name in (list(self.traces.values())[0]).signals
 
-
-        if self.n_traces > 1 or Trace.SCOPE_SEPERATOR in name:
+        if Trace.SCOPE_SEPERATOR in name:
             seperator = name.index(Trace.SCOPE_SEPERATOR)
             trace_tid = name[:seperator]
             signal_name = name[seperator+1:]
