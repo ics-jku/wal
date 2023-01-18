@@ -116,6 +116,11 @@ def op_timeframe(seval, args):
     # store indices at start
     prev_indices = seval.traces.indices()
 
+    if len(seval.traces.traces) == 1:
+        seval.context['TIMEFRAME-START'] = list(prev_indices.values())[0]
+    else:
+        seval.context['TIMEFRAME-START'] = prev_indices
+
     res = list(map(seval.eval, args))
 
     # restore indices to start values
