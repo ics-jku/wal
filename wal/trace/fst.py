@@ -49,4 +49,3 @@ class TraceFst(Trace):
 
     def signal_width(self, name):
         return self.references_to_ids[name].length
-

@@ -162,7 +162,8 @@ def op_sample_at(seval, args):
         assert isinstance(tid, Symbol), 'sample-at: second argument must be a symbol'
         seval.traces.traces[tid.name].set_sampling_points(timestamps)
     else:
-        list(seval.traces.traces.values())[0].set_sampling_points(timestamps)
+        for trace in seval.traces.traces.values():
+            trace.set_sampling_points(timestamps)
 
 
 special_operators = {

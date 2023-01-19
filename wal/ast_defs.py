@@ -10,6 +10,7 @@ class Operator(Enum):
     UNLOAD = 'unload'
     STEP = 'step'
     REPL = 'repl'
+    LOADED_TRACES = 'loaded-traces'
     # basic
     REQUIRE = 'require'
     ADD = '+'

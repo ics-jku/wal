@@ -45,7 +45,7 @@ class TraceContainer:
             trace = list(self.traces.values())[0]
             return trace.signal_value(name, offset, scope)
 
-        if self.n_traces > 1 or Trace.SCOPE_SEPERATOR in name:
+        if Trace.SCOPE_SEPERATOR in name:
             # extract tid of vcd
             seperator = name.index(Trace.SCOPE_SEPERATOR)
             trace_tid = name[:seperator]
@@ -63,7 +63,7 @@ class TraceContainer:
             trace = list(self.traces.values())[0]
             return trace.signal_width(name)
 
-        if self.n_traces > 1 or Trace.SCOPE_SEPERATOR in name:
+        if Trace.SCOPE_SEPERATOR in name:
             # extract tid of vcd
             seperator = name.index(Trace.SCOPE_SEPERATOR)
             trace_tid = name[:seperator]

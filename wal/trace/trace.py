@@ -84,10 +84,10 @@ class Trace:
         return self.timestamps[self.index]
 
     def set_sampling_points(self, new_indices):
+        '''Updates the indices at which data is sampled'''
         new_timestamps = [self.all_timestamps[i] for i in new_indices]
         self.timestamps = list(dict.fromkeys(new_timestamps))
         self.timestamps = dict(enumerate(self.timestamps))
         # stores current time stamp
         self.index = 0
         self.max_index = len(self.timestamps.keys()) - 1
-

@@ -650,6 +650,11 @@ def op_slice(seval, args):
     return None
 
 
+def op_loaded_traces(seval, args):
+    assert(len(args) == 0), 'loaded-traces: Expects no arguments (loaded-traces)'
+    return list(seval.traces.traces.keys())
+
+
 def op_exit(seval, args):
     assert len(args) < 2, 'exit: expects none or one argument (exit return_code:int)'
     if len(args) == 0:
@@ -711,5 +716,6 @@ core_operators = {
     Operator.IN_GROUPS.value: op_in_groups,
     Operator.RESOLVE_GROUP.value: op_resolve_group,
     Operator.SLICE.value: op_slice,
+    Operator.LOADED_TRACES.value: op_loaded_traces,
     Operator.EXIT.value: op_exit,
 }
