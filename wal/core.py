@@ -7,6 +7,7 @@ from wal.trace.container import TraceContainer
 from wal.eval import SEval
 from wal.reader import read_wal_sexpr, ParseError
 
+
 class Wal:
     '''Main Wal class to be imported into other applications'''
 
@@ -68,8 +69,3 @@ class Wal:
         '''Executes a WAL program from a file'''
         with open(filename, 'r', encoding='utf-8') as fin:
             self.eval_context.eval(fin.read())
-
-    def decode(self, filename):
-        '''Decodes a compiled WAL file and returns its WAL expressions'''
-        with open(filename, 'br') as fin:
-            return pickle.load(fin)

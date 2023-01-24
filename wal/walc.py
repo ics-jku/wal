@@ -1,6 +1,7 @@
 '''wal command line compiler'''
 import argparse
 import pickle
+from pathlib import Path
 from wal.version import __version__
 
 from wal.reader import read_wal_sexprs
@@ -27,21 +28,25 @@ class Arguments:  # pylint: disable=too-few-public-methods
         return args
 
 
+def wal_compile(inname, outname):
+    with open(inname, 'r', encoding='utf8') as fin:
+        code = fin.read()
+        compiled = read_wal_sexprs(code)
+
+        if outname:
+            name = outname
+        else:
+            name = Path(name).with_suffix('.wo')
+
+        with open(name, 'wb') as fout:
+            pickle.dump(compiled, fout)
+
+    
 def run():  # pylint: disable=R1710
     '''Entry point for the compiler script'''
 
     arg_parser = Arguments()
     args = arg_parser.parse()
 
-    with open(args.input_name, 'r', encoding='utf8') as fin:
-        code = fin.read()
-        compiled = read_wal_sexprs(code)
+    wal_compile(args.input_name, args.output_name)
 
-        if args.output_name:
-            name = args.output_name
-        else:
-            index = args.input_name.index('.')
-            name = args.input_name[:index] + '.wo'
-
-        with open(name, 'wb') as fout:
-            pickle.dump(compiled, fout)

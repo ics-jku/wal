@@ -1,6 +1,9 @@
 '''Implementations for WAL related functions such as loading and unloading traces.'''
 import os
+import pickle
+from pathlib import Path
 from wal.ast_defs import Operator, Symbol
+from wal.util import wal_decode
 from wal.reader import read_wal_sexprs
 from wal.repl import WalRepl
 
@@ -68,23 +71,35 @@ def op_require(seval, args):
                          'CG': old_context['CG'],
                          'args': old_context['args']}
 
-        fname = f'{module.name}.wal'
-        if os.path.isfile(fname):
-            pass
-        elif os.path.isfile(os.path.expanduser(f'~/.wal/libs/{fname}')):
-            fname = os.path.expanduser(f'~/.wal/libs/{fname}')
+        def wal_file_exists(name):
+            if os.path.isfile(name):
+                return name
+            elif os.path.isfile(os.path.expanduser(f'~/.wal/libs/{name}')):
+                return os.path.expanduser(f'~/.wal/libs/{name}')
+
+            return False
+
+        sexprs = None
+        if name := wal_file_exists(module.name + '.wo'):
+            sexprs = wal_decode(name)
+        elif name := wal_file_exists(module.name + '.wal'):
+            with open(name, 'r', encoding='utf-8') as file:
+                sexprs = read_wal_sexprs(file.read())
+                # save compiled sexprs to file
+                path = Path(name).with_suffix('.wo')
+                with open(path, 'wb') as fout:
+                    pickle.dump(sexprs, fout)
         else:
             print(f'require: cant find file {module.name}.wal')
             raise FileNotFoundError
 
-        with open(fname, 'r', encoding='utf-8') as file:
-            sexprs = read_wal_sexprs(file.read())
+        if sexprs:
             for sexpr in sexprs:
                 if sexpr:
                     seval.eval(sexpr)
 
-        old_context.update(seval.context)
-        seval.context = old_context
+            old_context.update(seval.context)
+            seval.context = old_context
 
 
 

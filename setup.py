@@ -1,6 +1,8 @@
 '''Setup file for the wal-lang package'''
 # pylint: disable=W0122,E0602
 import pathlib
+import os
+import importlib
 from setuptools import setup, find_packages
 
 with open('wal/version.py', encoding="utf8") as f:
@@ -26,7 +28,6 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3 :: Only',
@@ -34,18 +35,22 @@ setup(
     ],
     keywords=['verilog', 'vcd', 'fst', 'development', 'hardware', 'rtl', 'simulation', 'verification', 'FPGA'],
     packages=find_packages(),
-    python_requires='>=3.7, <4',
+    python_requires='>=3.8, <4',
     install_requires=['vcdvcd==2.1', 'lark-parser', 'dataclasses', 'pylibfst'],
     extras_require={
         'dev': [],
         'test': ['pylint', 'coverage'],
+    },
+    package_data={
+        'wal': ['libs/std/std.wal']
     },
 
     entry_points={
         'console_scripts': [
             'wal=wal.wal:run',
             'walc=wal.walc:run',
-            'wawk=wawk.wawk:run'
+            'wawk=wawk.wawk:run',
+            'wal_setup=wal.install:run'
         ],
     },
 )

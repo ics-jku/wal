@@ -7,8 +7,11 @@ import sys
 
 from wal.core import Wal
 from wal.repl import WalRepl
+from wal.util import wal_decode
 from wal.reader import read_wal_sexprs, ParseError
 from wal.version import __version__ as wal_version
+from wal.ast_defs import Operator as Op
+from wal.ast_defs import Symbol as S
 
 
 class Arguments:  # pylint: disable=too-few-public-methods
@@ -53,6 +56,9 @@ def main():  # pylint: disable=R1710
     wal = Wal()
     wal.eval_context.context['args'] = args.args
 
+    # load standard library
+    wal.eval_context.eval([Op.REQUIRE, S('std')])
+
     if args.load is not None:
         for i, path in enumerate(args.load):
             wal.load(path, f't{i}')
@@ -66,7 +72,7 @@ def main():  # pylint: disable=R1710
         filename = args.program_path
 
         if filename[-3:] == '.wo':
-            sexprs = wal.decode(filename)
+            sexprs = wal_decode(filename)
         else:
             with open(filename, 'r', encoding='utf8') as file:
                 try:

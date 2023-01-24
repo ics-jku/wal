@@ -1,5 +1,6 @@
 ''' Utility functions for WAL'''
 from wal.ast_defs import Symbol, Operator
+import pickle
 
 def wal_str(sexpr):
     '''Returns a string representation of a WAL expression'''
@@ -30,3 +31,9 @@ def wal_str(sexpr):
         txt = str(sexpr)
 
     return txt
+
+
+def wal_decode(filename):
+    '''Decodes a compiled WAL file and returns its WAL expressions'''
+    with open(filename, 'br') as fin:
+        return pickle.load(fin)

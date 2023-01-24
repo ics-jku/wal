@@ -1,0 +1,38 @@
+(defun ALL-INDICES []
+  (map (fn [t] (list t (in-group (+ t ":") #INDEX))) (loaded-traces)))
+
+(defun mytimeframe [body]
+  (let ([TIMEFRAME-START (ALL-INDICES)])
+    (eval body)
+    (for [trace TIMEFRAME-START]
+	 (in-group (first trace) (step (- (second trace) INDEX))))))
+
+(defun trace-index [trace]
+   (in-group (+ trace ":") #INDEX))
+
+(defun set-index [i]
+  (cond [(< i 0) #f]
+	[(> i MAX-INDEX) #f]
+	[#t (step (- i INDEX))]))
+
+(defun set-index/all [i]
+  (cond [(< i 0) #f]
+	[(> i MAX-INDEX) #f]
+	[#t (for [trace (loaded-traces)]
+		 (step (- i (trace-index trace))))]))
+
+(defun mysum [xs]
+  (set [acc 0])
+  (for [x xs] (set [acc (+ acc x)]))
+  acc)
+
+(defun mymap [f xs]
+  (set [acc '()])
+  (for [x xs] (print x) (set [acc (+ acc (f x))]))
+  acc)
+
+;; Scopes
+(defun myin-scope [scope body] 0)
+
+(defun myresolve-scope [signal]
+  (get (+ CS signal)))
