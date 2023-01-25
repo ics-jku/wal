@@ -1,56 +1,94 @@
 '''Trace implementation for the VCD file format '''
 
-import re
-from vcdvcd import VCDVCD, StreamParserCallbacks
-
+import bisect
+import os
+import sys
+from pyDigitalWaveTools.vcd.parser import VcdParser, VcdVarScope, VcdVarParsingInfo
 from wal.trace.trace import Trace
 
 class TraceVcd(Trace):
     '''Holds data for one vcd trace.'''
 
-    def __init__(self, file, tid, from_string=False):
+    def __init__(self, filename, tid, from_string=False):
         self.tid = tid
         self.timestamps = []
-
-        class TimestampCallback(StreamParserCallbacks):  # pylint: disable=R0903
-            '''A simple callback used to construct a list of all timestamps'''
-            def time(inner, vcd, time, cur_sig_vals):  # pylint: disable=E0213,C0116,W0613,W0237
-                self.timestamps.append(time)
+        self.filename = filename
+        self.index = 0
+        self.scopes = []
+        self.rawsignals = []
+        self.name_to_id = {}
+        self.data = {}
+        self.all_timestamps = set()
 
         if from_string:
-            self.data = VCDVCD(vcd_string=file, callbacks=TimestampCallback(), store_scopes=True)
-            self.filename = tid
-        else:
-            self.data = VCDVCD(file, callbacks=TimestampCallback(), store_scopes=True)
-            self.filename = file
+            raise ValueError("FST traces do not support the from_string argument")
 
-        # get mapping from name to tid and remove trailing signal wtidth, [31:0] etc.
-        self.data.references_to_ids = {re.sub(r'\[\d+:\d+\]', '', k): v for
-                                        k, v in self.data.references_to_ids.items()}
-        # rename grouped signals like reg(0), reg(1) to reg_0, reg_1
-        self.data.references_to_ids = {
-            re.sub(r'\(([0-9]+)\)', r'_\1', k): v for k, v in self.data.references_to_ids.items()}
 
-        self.rawsignals = list(self.data.references_to_ids.keys())
+
+        if os.path.getsize(self.filename) > 1: #00000000:
+            print('''\033[93mYou opened a VCD file of more than 100mb.
+Maybe you should convert it to the FST format. Try "vcd2fst" from GTKWave.\033[0m''', file=sys.stderr)
+
+        with open(self.filename, encoding='utf-8') as vcd_file:
+            vcd = VcdParser()
+            vcd.parse(vcd_file)
+            top = vcd.scope
+
+        self.walk(top)
+
         self.signals = set(Trace.SPECIAL_SIGNALS + self.rawsignals)
-
-        # remove duplicate timestamps, enumerate all timestamps and create look up table
-        self.all_timestamps = list(dict.fromkeys(self.timestamps))
-        self.all_timestamps = dict(enumerate(self.timestamps))
+        self.all_timestamps = list(self.all_timestamps)
+        self.all_timestamps.sort()
+        self.all_timestamps = dict(enumerate(self.all_timestamps))
         self.timestamps = self.all_timestamps
-        # stores current time stamp
-        self.index = 0
         self.max_index = len(self.timestamps.keys()) - 1
 
-        # append tid to scopes
-        #self.scopes = list(map(lambda s: tid + Trace.SCOPE_SEPERATOR + s, self.data.scopes))
-        self.scopes = list(self.data.scopes.keys())
+    def remove_leading_radix(self, bits):
+        '''Removes the leading radix char inserted by pyDigitalWaveTools'''
+        return bits if ((bits[0] == '0') or (bits[0] == '1')) else bits[1:]
+
+    def walk(self, data, scope=''):
+        '''Walks the parsed vcd data and gathers all required info'''
+        if isinstance(data, VcdVarScope):
+            name = data.name
+            if name == 'root':
+                name = ''
+
+            newscope = f'{scope}{name}'
+            if newscope:
+                self.scopes.append(newscope)
+                newscope = newscope + '.'
+
+            for child in data.children.values():
+                self.walk(child, newscope)
+        elif isinstance(data, VcdVarParsingInfo):
+            name = scope + data.name
+            self.all_timestamps = self.all_timestamps.union(set(map(lambda x: x[0], data.data)))
+            self.rawsignals.append(name)
+
+            dump = dict(data.data if isinstance(data.vcdId, str) else data.vcdId)
+            dump = {k: self.remove_leading_radix(v)  for k, v in dump.items()}
+
+            self.data[name] = {
+                'data': dump,
+                'indices': list(dump.keys()),
+                'width': data.width,
+                'type': data.sigType
+            }
 
 
     def access_signal_data(self, name, index):
         '''Backend specific function for accessing signals in the waveform'''
-        return self.data[name][self.timestamps[index]]
+        index = self.all_timestamps[index]
+        keys = self.data[name]['indices']
+
+        if index not in keys:
+            index_i = bisect.bisect_left(keys, index) - 1
+            return self.data[name]['data'][keys[index_i]]
+
+        return self.data[name]['data'][index]
 
 
     def signal_width(self, name):
-        return int(self.data[name].size)
+        '''Returns the width of a signal'''
+        return self.data[name]['type']['width']
