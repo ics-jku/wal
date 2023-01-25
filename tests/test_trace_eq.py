@@ -4,15 +4,10 @@ from itertools import combinations
 
 from wal.core import Wal
 
+# pylint: disable=C0103,C0115,C0116,E1101
 
 class TraceEqTest():
 
-    @classmethod
-    def setUpClass(cls):
-        "Child classes must override this method and define cls.x and cls.y"
-        if cls is TraceEqTest:
-            raise unittest.SkipTest
-    
     def setUp(self):
         #self.traces = []
         self.traces = map(lambda f: f'tests/traces/{f}', self.traces)
@@ -21,16 +16,16 @@ class TraceEqTest():
         wal = Wal()
         wal.load(data[0])
         return wal.eval(data[1])
-        
+
     def eval_eq(self, p):
         res = list(map(lambda t: self.wal_eval([t, p]), self.traces))
 
-        for p in combinations(res, 2):
-            self.assertEqual(p[0], p[1])
+        for pair in combinations(res, 2):
+            self.assertEqual(pair[0], pair[1])
 
     def test_trace_name(self):
         self.eval_eq('TRACE-NAME')
-            
+
     def test_signals(self):
         self.eval_eq('SIGNALS')
 
@@ -42,7 +37,7 @@ class TraceEqTest():
 
     def test_goto_end(self):
         self.eval_eq("(do (while (step) 0) INDEX)")
-        
+
     def test_ts_list(self):
         self.eval_eq("(map (lambda [x] TS@x) (range MAX-INDEX))")
 
@@ -56,7 +51,7 @@ class CounterEqualTest(TraceEqTest, unittest.TestCase):
     def setUp(self):
         self.traces = ['counter.vcd', 'counter.fst']
         super().setUp()
-    
+
     def test_group_clk(self):
         self.eval_eq('(groups clk)')
 
@@ -73,4 +68,3 @@ class CounterEqualTest(TraceEqTest, unittest.TestCase):
 
     def test_local_signals(self):
         self.eval_eq("(in-scope 'tb LOCAL-SIGNALS)")
-        

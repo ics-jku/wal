@@ -4,12 +4,13 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-
-[packages]
-pylint = "*"
+build = "*"
 coverage = "*"
 coverage-badge = "*"
-vcdvcd = "==2.1"
+pylint = "*"
+
+[packages]
+pyDigitalWaveTools = "*"
 pylibfst = "*"
 lark-parser = "*"
 
