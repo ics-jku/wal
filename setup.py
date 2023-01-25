@@ -29,13 +29,14 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3 :: Only',
         'Operating System :: OS Independent'
     ],
-    keywords=['verilog', 'vcd', 'fst', 'development', 'hardware', 'rtl', 'simulation', 'verification', 'FPGA'],
+    keywords=['verilog', 'VHDL', 'vcd', 'fst', 'development', 'hardware', 'rtl', 'simulation', 'verification', 'FPGA'],
     packages=find_packages(),
     python_requires='>=3.7, <4',
-    install_requires=['vcdvcd==2.1', 'lark-parser', 'dataclasses', 'pylibfst'],
+    install_requires=['pyDigitalWaveTools', 'lark-parser', 'dataclasses', 'pylibfst'],
     extras_require={
         'dev': [],
         'test': ['pylint', 'coverage'],
