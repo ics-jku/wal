@@ -25,8 +25,8 @@ class TraceVcd(Trace):
 
 
 
-        if os.path.getsize(self.filename) > 1: #00000000:
-            print('''\033[93mYou opened a VCD file of more than 100mb.
+        if os.path.getsize(self.filename) > 10000000:
+            print('''\033[93mYou opened a VCD file of more than 10mb.
 Maybe you should convert it to the FST format. Try "vcd2fst" from GTKWave.\033[0m''', file=sys.stderr)
 
         with open(self.filename, encoding='utf-8') as vcd_file:
