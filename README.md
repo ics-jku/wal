@@ -15,7 +15,7 @@ WAL is available from [PyPi](https://pypi.org/project/wal-lang/)!
 On some systems, pip does not add WALs installation path to the PATH variable. If the "wal" command is not available after installation please add the installation path, e.g. ~/.local/bin on Ubuntu, to your PATH variable.
 
 To get the latest development version of WAL you can clone this repository.
-After that, install WAL by typing make install inside the cloned directory.
+After that, follow the instructions for your OS below inside the cloned directory.
 
 ## Installation from Source
 For Ubuntu (22.04 LTS):
@@ -31,6 +31,15 @@ echo "export PATH=\$PATH:$HOME/.local/bin" >> ~/.bashrc
 For Fedora (36):
 ```
 sudo dnf install git cmake g++ zlib-devel python3-devel
+git clone https://github.com/ics-jku/wal.git
+cd wal
+pip install build
+make install
+```
+
+For OpenSuse Tumbleweed:
+```
+sudo zypper install git cmake gcc-c++ zlib-devel python3-devel
 git clone https://github.com/ics-jku/wal.git
 cd wal
 pip install build
