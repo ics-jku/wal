@@ -9,6 +9,7 @@ import importlib
 
 from functools import reduce
 from wal.ast_defs import Operator, Symbol
+from wal.reader import read_wal_sexpr
 from wal.util import wal_str
 
 
@@ -348,6 +349,17 @@ def op_eval(seval, args):
     assert len(args) == 1, 'eval: expects exactly one argument'
     evaluated = seval.eval(args[0])
     return seval.eval(evaluated)
+
+
+def op_parse(seval, args):
+    '''Parses and returns its arguments as WAL expressions'''
+    evaluated = seval.eval_args(args)
+    assert(all(isinstance(arg, str) for arg in evaluated)), 'parse: all arguments must be string (parse string+)'
+    sexprs = [read_wal_sexpr(arg) for arg in evaluated]
+    if len(sexprs) == 1:
+        return sexprs[0]
+    else:
+        return [Operator.DO] + sexprs
 
 
 def op_defun(seval, args):
@@ -698,6 +710,7 @@ core_operators = {
     Operator.UNALIAS.value: op_unalias,
     Operator.QUOTE.value: op_quote,
     Operator.EVAL.value: op_eval,
+    Operator.PARSE.value: op_parse,
     Operator.DEFUN.value: op_defun,
     Operator.LAMBDA.value: op_lambda,
     Operator.FN.value: op_lambda,

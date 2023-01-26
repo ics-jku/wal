@@ -45,6 +45,7 @@ class Operator(Enum):
     UNALIAS = 'unalias'
     QUOTE = 'quote'
     EVAL = 'eval'
+    PARSE = 'parse'
     DEFUN = 'defun'
     LAMBDA = 'lambda'
     FN = 'fn'
