@@ -358,8 +358,8 @@ def op_parse(seval, args):
     sexprs = [read_wal_sexpr(arg) for arg in evaluated]
     if len(sexprs) == 1:
         return sexprs[0]
-    else:
-        return [Operator.DO] + sexprs
+
+    return [Operator.DO] + sexprs
 
 
 def op_defun(seval, args):
