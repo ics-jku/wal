@@ -81,5 +81,8 @@ Exit to OS with (exit)'''
         return candidates
 
     def preloop(self):
+        if not os.path.exists(histfile):
+            os.makedirs(os.path.expanduser('~/.wal'), exist_ok=True)
+
         if readline and os.path.exists(histfile):
             readline.read_history_file(histfile)
