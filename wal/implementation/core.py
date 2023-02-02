@@ -557,7 +557,13 @@ def op_groups(seval, args):
 
         raise RuntimeError('groups: arguments must be string, symbol, or must evaluate to these types')
 
-    args = list(map(process_arg, args))
+    def lookup_alias(arg):
+        if arg in seval.aliases:
+            return seval.aliases[arg]
+
+        return arg
+
+    args = list(map(lookup_alias, map(process_arg, args)))
 
     if seval.context['CS']:
         pattern = re.compile(rf'{seval.context["CS"]}\.[^\\.]+{args[0]}')
