@@ -32,7 +32,6 @@ class Operator(Enum):
     PRINTF = 'printf'
     SET = 'set'
     LET = 'let'
-    LETRET = 'letret'
     INC = 'inc'
     IF = 'if'
     COND = 'cond'
@@ -44,9 +43,14 @@ class Operator(Enum):
     ALIAS = 'alias'
     UNALIAS = 'unalias'
     QUOTE = 'quote'
+    QUASIQUOTE = 'quasiquote'
+    UNQUOTE = 'unquote'
     EVAL = 'eval'
     PARSE = 'parse'
     DEFUN = 'defun'
+    DEFMACRO = 'defmacro'
+    MACROEXPAND = 'macroexpand'
+    GENSYM = 'gensym'
     LAMBDA = 'lambda'
     FN = 'fn'
     GET = 'get'
@@ -128,3 +132,78 @@ class ExpandGroup:
     '''Wrapper for expand groups'''
     def __init__(self, elements):
         self.elements = elements
+
+
+class Environment:
+    '''Object that holds a WAL environment '''
+
+    def __init__(self, parent=None):
+        self.environment = {}
+        self.parent = parent
+
+    def define(self, name, value):
+        '''Define new variable in this context '''
+
+        assert name not in self.environment, f'variable {name} already defined'
+        self.environment[name] = value
+
+    def is_defined(self, name):
+        '''Check if name is defined somewhere and return that environment'''
+
+        if name in self.environment:
+            return self.environment
+
+        if self.parent:
+            return self.parent.is_defined(name)
+
+        return False
+
+    def write(self, name, value):
+        '''Write to variable name'''
+
+        if name in self.environment:
+            self.environment[name] = value
+        else:
+            assert self.parent
+            self.parent.write(name, value)
+
+    def read(self, name):
+        '''Read from variable name'''
+
+        if name in self.environment:
+            return self.environment[name]
+
+        assert self.parent, f'variable {name} is undefined'
+        return self.parent.read(name)
+
+
+
+class Closure:
+    '''Class implementing a closure '''
+
+    def __init__(self, environment, args, expression, name='lambda'):
+        self.name = name
+        self.environment = environment
+        self.args = args
+        self.expression = expression
+
+
+class Macro:
+    '''Class that holds a macro'''
+
+    def __init__(self, name, args, expression):
+        self.name = name
+        self.args = args
+        self.expression = expression
+
+
+@dataclass
+class Unquote:
+    '''Utility class for unquote syntax'''
+    content: any
+
+
+@dataclass
+class UnquoteSplice:
+    '''Utility class for unquote splice syntax'''
+    content: any

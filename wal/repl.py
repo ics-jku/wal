@@ -5,6 +5,7 @@ import readline
 import os
 from wal.util import wal_str
 from wal.reader import read_wal_sexpr, ParseError
+from wal.expander import expand
 from wal.ast_defs import Operator
 from wal.trace.trace import Trace
 from wal.version import __version__
@@ -40,7 +41,8 @@ Exit to OS with (exit)'''
 
     def onecmd(self, line):
         try:
-            evaluated = self.wal.eval(line)
+            expanded = expand(self.wal.eval_context, line)
+            evaluated = self.wal.eval(expanded)
             if evaluated is not None:
                 print(wal_str(evaluated))
 

@@ -5,7 +5,7 @@ import ast
 from lark import Lark, Transformer
 from lark import UnexpectedToken, UnexpectedEOF, UnexpectedCharacters
 from lark.exceptions import VisitError
-from wal.ast_defs import Symbol, ExpandGroup, S, Operator
+from wal.ast_defs import Symbol, ExpandGroup, S, Operator, Unquote, UnquoteSplice
 
 operators = [op.value for op in Operator]
 
@@ -16,11 +16,14 @@ WAL_GRAMMAR = r"""
     _WS: WS
     _BASH_LINE : /\s*#![^\n]+\n/
 
-    sexpr_strict: (atom | list | quoted)
+    sexpr_strict: (atom | list | quoted | quasiquoted | unquote | unquote_splice)
     commented_sexpr: "#;" sexpr_strict
     _INTER : _COMMENT | _WS
     sexpr : _INTER* sexpr_strict _INTER*
     quoted : "'" sexpr
+    quasiquoted : "`" sexpr
+    unquote : "," sexpr
+    unquote_splice : ",@" sexpr
     sexpr_list : _BASH_LINE? (_INTER* | sexpr*)
 
     atom : string
@@ -62,6 +65,7 @@ WAL_GRAMMAR = r"""
     %import common.DIGIT
     """
 
+
 class TreeToWal(Transformer):
     '''Transformer to create valid WAL expressions form parsed data'''
     string = lambda self, s: ast.literal_eval(s[0])
@@ -74,6 +78,9 @@ class TreeToWal(Transformer):
         return sym
 
     quoted = lambda self, q: [Operator.QUOTE, q[0]]
+    quasiquoted = lambda self, q: [Operator.QUASIQUOTE, q[0]]
+    unquote = lambda self, q: Unquote(q[0])
+    unquote_splice = lambda self, q: UnquoteSplice(q[0])
 
     operator = lambda self, o: S(o[0].value)
     simple_symbol = lambda self, s: s[0]

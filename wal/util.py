@@ -1,11 +1,17 @@
 ''' Utility functions for WAL'''
-from wal.ast_defs import Symbol, Operator
+# pylint: disable=R0912
+
+from wal.ast_defs import Symbol, Operator, Closure, Macro
 
 def wal_str(sexpr):
     '''Returns a string representation of a WAL expression'''
     if isinstance(sexpr, list):
         if len(sexpr) == 2 and sexpr[0] == Operator.QUOTE:
             txt = f"'{wal_str(sexpr[1])}"
+        elif len(sexpr) == 2 and sexpr[0] == Operator.QUASIQUOTE:
+            txt = f"`{wal_str(sexpr[1])}"
+        elif len(sexpr) == 2 and sexpr[0] == Operator.UNQUOTE:
+            txt = f",{wal_str(sexpr[1])}"
         elif len(sexpr) == 3 and sexpr[0] == Operator.REL_EVAL:
             txt = f'{wal_str(sexpr[1])}@{sexpr[2]}'
         elif len(sexpr) > 0 and sexpr[0] == Operator.ARRAY:
@@ -14,6 +20,10 @@ def wal_str(sexpr):
             txt = '(' + ' '.join(map(wal_str, sexpr)) + ')'
     elif isinstance(sexpr, Symbol):
         txt = sexpr.name
+    elif isinstance(sexpr, Macro):
+        txt = 'Macro: ' + wal_str(sexpr.expression)
+    elif isinstance(sexpr, Closure):
+        txt = 'Function: ' + wal_str(sexpr.expression)
     elif isinstance(sexpr, Operator):
         txt = sexpr.value
     elif isinstance(sexpr, str):
