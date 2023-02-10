@@ -34,7 +34,7 @@ class BasicOpTest(unittest.TestCase):
         self.wal.eval("(set [x 'a])")
         self.checkEqual("(symbol? x)", True)
         self.checkEqual('(symbol? "symbol")', False)
-        self.checkEqual('(symbol? a)', False)
+        self.checkEqual('(symbol? (let ([a 5]) a))', False)
         self.checkEqual('(symbol? 1)', False)
         self.checkEqual("(symbol? '(1 2))", False)
         self.checkEqual("(symbol? (array))", False)
@@ -48,7 +48,7 @@ class BasicOpTest(unittest.TestCase):
         self.checkEqual("(string? (symbol->string 'a))", True)
 
         self.checkEqual('(string? 1)', False)
-        self.checkEqual('(string? a)', False)
+        self.checkEqual('(let ([a 5]) (string? a))', False)
         self.checkEqual("(string? 'a)", False)
         self.checkEqual("(string? '(1 2))", False)
         self.checkEqual("(string? (array))", False)
@@ -74,7 +74,7 @@ class BasicOpTest(unittest.TestCase):
         self.checkEqual("(list? (range 10))", True)
         self.checkEqual("(list? '(+ 1 2))", True)
 
-        self.checkEqual("(list? (&& bar))", False)
+        self.checkEqual("(list? (&& 123))", False)
         self.checkEqual("(list? 'a)", False)
         self.checkEqual('(list? "a")', False)
         self.checkEqual("(list? (array))", False)

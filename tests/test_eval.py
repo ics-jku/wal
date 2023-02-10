@@ -17,21 +17,21 @@ class OpTest(unittest.TestCase):
 
     def setUp(self):
         self.w = Wal()
-        self.w.eval_context.context['x'] = 5
-        self.w.eval_context.context['y'] = 10
-        self.w.eval_context.context['z'] = 0
+        self.w.eval_context.environment.define('x', 5)
+        self.w.eval_context.environment.define('y', 10)
+        self.w.eval_context.environment.define('z', 0)
 
     @property
     def x(self):  # pylint: disable=C0116
-        return self.w.eval_context.context['x']
-
+        return self.w.eval_context.environment.read('x')
+    
     @property
     def y(self):  # pylint: disable=C0116
-        return self.w.eval_context.context['y']
+        return self.w.eval_context.environment.read('y')
 
     @property
     def z(self):  # pylint: disable=C0116
-        return self.w.eval_context.context['z']
+        return self.w.eval_context.environment.read('z')
 
     def checkEqual(self, sexpr, res):
         '''eval first argument and check if result matches second argument '''
@@ -477,8 +477,10 @@ class EvalControlFlowTest(OpTest):
         '''Test deleting aliases using unalias'''
         self.w.eval('(alias abc x)')
         self.checkEqual('abc', self.x)
-        self.w.eval('(unalias abc)')
-        self.checkEqual('abc', 0)
+
+        with self.assertRaises(AssertionError):
+            self.w.eval('(unalias abc)')
+            self.w.eval('abc')
 
         with self.assertRaises(AssertionError):
             self.w.eval('(unalias)')
@@ -533,14 +535,7 @@ class EvalFunctionTest(OpTest):
             self.w.eval('(lambda (x))')
 
         with self.assertRaises(AssertionError):
-            self.w.eval('(lambda x x)')
-
-        with self.assertRaises(AssertionError):
             self.w.eval('(lambda (x 1) x)')
-
-    def test_lambda_eval(self):
-        '''Lambdas should return themselves if evaluated'''
-        self.checkEqual('(lambda (x) x)', [Operator.LAMBDA, [S('x')], S('x')])
 
     def test_lambda_apply(self):
         '''Lambdas should perform correct action if applied'''

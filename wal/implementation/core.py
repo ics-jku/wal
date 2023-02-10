@@ -371,10 +371,10 @@ def op_defun(seval, args):
 
 
 def op_lambda(seval, args):  # pylint: disable=W0613
-    assert len(args) == 2, 'fn: expects exactly two arguments (lambda (symbol | (symbol*)) sexpr)'
-    assert isinstance(args[0], (list, Symbol)), 'fn: first argument must be a list of symbols or a single symbol'
+    assert len(args) == 2, 'lambda: expects exactly two arguments (lambda (symbol | (symbol*)) sexpr)'
+    assert isinstance(args[0], (list, Symbol)), 'lambda: first argument must be a list of symbols or a single symbol'
     if isinstance(args[0], list):
-        assert all(isinstance(arg, Symbol) for arg in args[0])
+        assert all(isinstance(arg, Symbol) for arg in args[0]), f'lambda: arguments must be symbols but are {wal_str(args[0])}'
 
     return Closure(seval.environment, args[0], args[1])
 

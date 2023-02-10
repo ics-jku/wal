@@ -84,10 +84,11 @@ class SEval:
             name = expr.name
             if expr.name in self.aliases: # if an alias exists
                 name = self.aliases[expr.name]
+
             if self.traces.contains(name):  # if symbol is a signal from wavefile
                 res = self.traces.signal_value(name, scope=self.scope) # env[symbol_id]
             else:
-                res = self.environment.read(expr.name)
+                res = self.environment.read(name)
         elif isinstance(expr, list):
             head = expr[0]
             tail = []
