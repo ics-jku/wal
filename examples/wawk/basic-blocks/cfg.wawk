@@ -6,6 +6,8 @@ BEGIN: {
   starts = array();
   trans = array();
   ends = array();
+  bstart = 0;
+  lasti = 0;
 }
 
 // Stmt 2: initialize pc

@@ -1,6 +1,8 @@
 BEGIN: {
   import(extern);
   print("<html><head><title>VexRiscv Pipeline</title></head><body><h2>VexRiscv Pipeline Visualization</h2><table style='width:100%'><tr><th>Time</th><th>Decode</th><th>Execute</th><th>Memory</th><th>WriteBack</th></tr>");
+  decode_halt = 0;
+  error_id = 0;
 }
 
 function show_warning(error_id, msg) {
@@ -19,11 +21,11 @@ TOP.clk: {
     if (decode_halt > 4) {
       show_warning(error_id, "Pipeline halted for " + decode_halt + " cycles");
       error_id += 1;
-    };
+    }
     decode_halt = 0;
   } else {
     decode_halt += 1;
-  };
+  }
 }
 
 // main generation of HTML table
@@ -32,12 +34,17 @@ TOP.clk: {
   for (stage in ["decode", "execute", "memory", "writeBack"]) {
     group(["TOP.VexRiscv." + stage]) {
       instr = call(extern.decode, #_INSTRUCTION);
-      if (#_arbitration_isFlushed) render_cell("flush", "#ff6040")
-      else if (#_arbitration_isFiring) render_cell(instr, "#2ade2a")
-      else if (#_arbitration_isMoving) render_cell(instr, "#90ee90")
-      else if (!#_arbitration_isMoving) render_cell(instr, "#ffbf40");
-    };
-  };
+      if (#_arbitration_isFlushed) {
+      	 render_cell("flush", "#ff6040");
+      } else if (#_arbitration_isFiring) {
+          render_cell(instr, "#2ade2a");
+      } else if (#_arbitration_isMoving) {
+      	 render_cell(instr, "#90ee90");
+      } else if (!#_arbitration_isMoving) {
+         render_cell(instr, "#ffbf40");
+      };
+    }
+  }
   print("</tr>");
 }
 

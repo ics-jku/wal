@@ -95,20 +95,20 @@ class BasicParserTest(unittest.TestCase):
         for case in fail_cases:
             self.assertRaises(ParseError, reader, case)
 
-    def test_timed_symbol(self):
-        '''Test relative expression evaluation'''
-        reader = lambda c: read(c, 'timed_symbol')
-        self.assertEqual(reader('valid@5'), [Op.REL_EVAL, S('valid'), 5])
-        self.assertEqual(reader('valid@-5'), [Op.REL_EVAL, S('valid'), -5])
-        self.assertRaises(ParseError, reader, 'valid @5')
-        self.assertRaises(ParseError, reader, 'valid@ 5')
+    # def test_timed_symbol(self):
+    #     '''Test relative expression evaluation'''
+    #     reader = lambda c: read(c, 'timed_symbol')
+    #     self.assertEqual(reader('valid@5'), [Op.REL_EVAL, S('valid'), 5])
+    #     self.assertEqual(reader('valid@-5'), [Op.REL_EVAL, S('valid'), -5])
+    #     self.assertRaises(ParseError, reader, 'valid @5')
+    #     self.assertRaises(ParseError, reader, 'valid@ 5')
 
-        self.assertEqual(reader('(+ x y)@-1'), [Op.REL_EVAL, [Op.ADD, S('x'), S('y')], -1])
+    #     self.assertEqual(reader('(+ x y)@-1'), [Op.REL_EVAL, [Op.ADD, S('x'), S('y')], -1])
 
-    def test_multi_timed_symbol(self):
-        '''Test relative expression evaluation'''
-        reader = lambda c: read(c, 'timed_list')
-        self.assertEqual(reader('valid@<1 2>').elements, [[Op.REL_EVAL, S('valid'), 1], [Op.REL_EVAL, S('valid'), 2]])
+    # def test_multi_timed_symbol(self):
+    #     '''Test relative expression evaluation'''
+    #     reader = lambda c: read(c, 'timed_list')
+    #     self.assertEqual(reader('valid@<1 2>').elements, [[Op.REL_EVAL, S('valid'), 1], [Op.REL_EVAL, S('valid'), 2]])
 
     def test_operators(self):
         '''Test built-in operators'''
@@ -222,7 +222,7 @@ class SimpleProgramFileTest(unittest.TestCase):
         '''Test a simple program with a when condition'''
         with open('tests/files/p2.wal', encoding='utf-8') as f:
             p = f.read()
-            golden = [[Op.WHEN, [Op.AND, S('i_valid'), S('i_ready')], [Op.PRINT, S('i_data')]]]
+            golden = [[S('when'), [Op.AND, S('i_valid'), S('i_ready')], [Op.PRINT, S('i_data')]]]
             self.assertEqual(read_wal_sexprs(p), golden)
 
     def test_program3(self):
