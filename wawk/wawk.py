@@ -48,7 +48,7 @@ def run():
         return os.EX_IOERR
 
     wal = Wal()
-    wal.eval_context.context['args'] = args.args
+    wal.eval_context.global_environment.write('args', args.args)
     wal.load(args.vcd, 'main')
 
 

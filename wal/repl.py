@@ -5,6 +5,7 @@ import readline
 import os
 from wal.util import wal_str
 from wal.reader import read_wal_sexpr, ParseError
+from wal.passes import expand, optimize
 from wal.ast_defs import Operator
 from wal.trace.trace import Trace
 from wal.version import __version__
@@ -40,7 +41,10 @@ Exit to OS with (exit)'''
 
     def onecmd(self, line):
         try:
-            evaluated = self.wal.eval(line)
+            expanded = expand(self.wal.eval_context, line, parent=self.wal.eval_context.global_environment)
+            optimized = optimize(expanded)
+            evaluated = self.wal.eval(optimized)
+
             if evaluated is not None:
                 print(wal_str(evaluated))
 
@@ -81,5 +85,8 @@ Exit to OS with (exit)'''
         return candidates
 
     def preloop(self):
+        if not os.path.exists(histfile):
+            os.makedirs(os.path.expanduser('~/.wal'), exist_ok=True)
+
         if readline and os.path.exists(histfile):
             readline.read_history_file(histfile)

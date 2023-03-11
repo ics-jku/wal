@@ -151,7 +151,7 @@ class TreeToWal(Transformer):
     comp = lambda self, x: x[0]
 
     array_op = lambda self, a: a[0]
-    array_get = lambda self, a: [Op.GETA] + a
+    array_get = lambda self, a: [Op.GETA_DEFAULT, a[0], 0] + a[1:]
     array_set = lambda self, a: [Op.SETA] + a
     cond = lambda self, c: c[0]
     ifstmt = lambda self, c: [Op.IF] + c

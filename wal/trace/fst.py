@@ -19,7 +19,8 @@ class TraceFst(Trace):
         self.filename = file
 
         # get scopes and signals
-        (self.scopes, self.references_to_ids) = fst.get_scopes_signals(self.fst)
+        (self.scopes, signals) = fst.get_scopes_signals2(self.fst)
+        self.references_to_ids = signals.by_name
 
         # get mapping from name to tid and remove trailing signal width, ' [31:0]' etc.
         self.references_to_ids = {re.sub(r' *\[\d+:\d+\]', '', k): v for
@@ -31,10 +32,11 @@ class TraceFst(Trace):
         self.rawsignals = list(self.references_to_ids.keys())
         self.signals = set(Trace.SPECIAL_SIGNALS + self.rawsignals)
 
-        # remove duiplicate timestamps, enumerate all timestamps and create look up table
+        # remove duplicate timestamps, enumerate all timestamps and create look up table
         fst.lib.fstReaderSetFacProcessMaskAll(self.fst)
         raw_timestamps = fst.lib.fstReaderGetTimestamps(self.fst)
-        self.timestamps = raw_timestamps.val
+        self.all_timestamps = raw_timestamps.val
+        self.timestamps = self.all_timestamps
 
         # stores current time stamp
         self.index = 0
@@ -42,8 +44,8 @@ class TraceFst(Trace):
 
     def access_signal_data(self, name, index):
         '''Backend specific function for accessing signals in the waveform'''
-        handle = self.references_to_ids[name]
+        handle = self.references_to_ids[name].handle
         return fst.helpers.string(fst.lib.fstReaderGetValueFromHandleAtTime(self.fst, self.timestamps[index], handle, self.buf))
 
     def signal_width(self, name):
-        raise NotImplementedError
+        return self.references_to_ids[name].length

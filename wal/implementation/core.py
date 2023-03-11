@@ -8,13 +8,14 @@ import operator
 import importlib
 
 from functools import reduce
-from wal.ast_defs import Operator, Symbol
+from wal.ast_defs import Operator, Symbol, Closure, Environment, Macro, Unquote, UnquoteSplice
+from wal.reader import read_wal_sexpr
+from wal.passes import expand, optimize
 from wal.util import wal_str
 
 
 def op_add(seval, args):
     evaluated = seval.eval_args(args)
-    assert len(evaluated) > 1
     if any(map(lambda x: isinstance(x, list), evaluated)):
         res = []
         for item in evaluated:
@@ -48,13 +49,11 @@ def op_mul(seval, args):
 
 def op_div(seval, args):
     evaluated = seval.eval_args(args)
-    assert all(map(lambda x: isinstance(x, int), evaluated))
+    assert all(map(lambda x: isinstance(x, (int, float)), evaluated))
     assert len(evaluated) == 2
-    if evaluated[1] == 0:
-        print('WARNING: division by zero. Is this intended?')
-        return None
+    assert evaluated[1] != 0, 'div: division by zero'
 
-    return int(evaluated[0] / evaluated[1])
+    return evaluated[0] / evaluated[1]
 
 
 def op_fdiv(seval, args):
@@ -78,7 +77,7 @@ def op_exp(seval, args):
 def op_not(seval, args):
     evaluated = seval.eval_args(args)
     assert len(evaluated) >= 1
-    assert all(isinstance(arg, int) for arg in evaluated)
+    assert all(isinstance(arg, int) for arg in evaluated), wal_str(evaluated)
     return not any(evaluated)
 
 
@@ -139,52 +138,20 @@ def op_or(seval, args):
 
 
 def op_let(seval, args):
-    assert len(args)
-    context = seval.context
-    if seval.stack:
-        context = seval.stack[-1]
-    bound = set()
+    assert isinstance(args[0], list), 'let: expects a list of pairs as first argument'
+    save_env = seval.environment
+    new_env = Environment(parent=save_env)
+    seval.environment = new_env
 
-    def unbind():
-        for name in bound:
-            del context[name]
+    for pair in args[0]:
+        assert isinstance(pair, list), 'let: expects a list of pairs as first argument'
+        assert isinstance(pair[0], Symbol), 'let: first element of let pair must be a Symbol'
+        assert len(pair) == 2, 'let: expects a list of pairs as first argument'
+        new_env.define(pair[0].name, seval.eval(pair[1]))
 
-    try:
-        assert isinstance(args[0], list), 'let: expects a list of pairs'
-        for pair in args[0]:
-            assert isinstance(pair, list), 'let: expects a list of pairs'
-            assert isinstance(pair[0], Symbol), 'let: first argument must be a symbol'
-            assert len(pair) == 2, 'let: expects a list of pairs'
-            assert pair[0].name not in context, f'let: {pair[0]} already bound'
-            context[pair[0].name] = seval.eval(pair[1])
-            bound.add(pair[0].name)
-
-        # evaluate body
-        res = seval.eval_args(args[1:])[-1]
-        unbind()
-        return res
-    except Exception as e:
-        unbind()
-        raise e
-
-
-def op_letret(seval, args):
-    assert len(args) == 2, 'letret: expects exactly two parameters (letret def body)'
-    context = seval.context
-    if seval.stack:
-        context = seval.stack[-1]
-
-    pair = args[0]
-    assert isinstance(pair, list), 'letret: first argument must be a pair (name def)'
-    assert len(pair) == 2, 'letret: first argument must be a pair (name def)'
-    assert pair[0].name not in context, f'letret: {pair[0]} already bound'
-    context[pair[0].name] = seval.eval(pair[1])
-    # eval body
-    seval.eval(args[1])
-    res = context[pair[0].name]
-    del context[pair[0].name]
+    res = seval.eval_args(args[1:])[-1]
+    seval.environment = save_env
     return res
-
 
 
 def op_set(seval, args):
@@ -193,37 +160,19 @@ def op_set(seval, args):
         assert isinstance(arg, list), 'set: arguments must be (key:symbol expr) tuples'
         assert len(arg) == 2, 'set: arguments must be (key:symbol expr) tuples'
         key = arg[0]
-        assert isinstance(key, Symbol), 'set: key must be a symbol not'
+        assert isinstance(key, Symbol), 'set: key must be a symbol'
         res = seval.eval(arg[1])
-        if seval.stack: # if in a function
-            seval.stack[-1][arg[0].name] = res
+        defined_at = seval.environment.is_defined(key.name)
+        if defined_at:
+            defined_at[key.name] = res
         else:
-            seval.context[arg[0].name] = res
-
-    return res
-
-
-def op_inc(seval, args):
-    assert args, 'inc expects at least one argument'
-    for arg in args:
-        if isinstance(arg, Symbol):
-            name = arg.name
-        else:
-            arg = seval.eval(arg)
-            assert isinstance(arg, Symbol), 'arguments to inc must be symbols'
-            name = arg.name
-
-        if name not in seval.context:
-            seval.context[name] = 0
-
-        assert isinstance(seval.context[name], int), 'arguments to inc must be integers'
-        res = seval.context[name] = seval.context[name] + 1
+            seval.environment.define(key.name, res)
 
     return res
 
 
 def op_print(seval, args):
-    res = [wal_str(x) if isinstance(x, list) else x for x in seval.eval_args(args)]
+    res = [x if isinstance(x, str) else wal_str(x) for x in seval.eval_args(args)]
     print(*res, sep='')
 
 
@@ -248,31 +197,6 @@ def op_if(seval, args):
 
     if len(args) == 3:
         return seval.eval(args[2])
-
-    return None
-
-def op_cond(seval, args):
-    assert args, 'cond: expects a list of clauses (cond (cond1 clause+)+)'
-    for clause in args:
-        assert isinstance(clause, list), 'cond: clauses must be tuples (cond clause)'
-        assert len(clause) >= 2, 'cond: clauses must be tuples (cond clause)'
-        if seval.eval(clause[0]):
-            return seval.eval_args(clause[1:])[-1]
-
-    return None
-
-
-def op_when(seval, args):
-    assert len(args) >= 2, 'when: expects a condition and a clause'
-    if seval.eval(args[0]):
-        return seval.eval_args(args[1:])[-1]
-
-    return None
-
-def op_unless(seval, args):
-    assert len(args) >= 2, 'unless: expects a condition and a clause'
-    if not seval.eval(args[0]):
-        return seval.eval_args(args[1:])[-1]
 
     return None
 
@@ -327,9 +251,6 @@ def op_alias(seval, args):
         assert isinstance(pair[1], Symbol), 'alias: arguments to alias must be symbols'
         seval.aliases[pair[0].name] = pair[1].name
 
-    #for i in range(0, int(len(args) / 2) + 1, 2):
-    #    seval.aliases[args[i].name] = args[i + 1].name
-
 
 def op_unalias(seval, args):
     assert len(args) >= 1, 'unalias: expects at least one argument (unalias id:symbol+)'
@@ -344,26 +265,93 @@ def op_quote(seval, args):  # pylint: disable=W0613
     return args[0]
 
 
+def op_quasiquote(seval, args):
+    assert len(args) == 1, 'quasiqoute: expects exactly one argument'
+
+    def unquote(expr):
+        if isinstance(expr, list) and len(expr) > 0:
+            res = []
+            for element in expr:
+                if isinstance(element, Unquote):
+                    res.append(seval.eval(unquote(element.content)))
+                elif isinstance(element, UnquoteSplice):
+                    res = res + seval.eval(unquote(element.content))
+                else:
+                    res.append(unquote(element))
+
+            return res
+
+        return expr
+
+    return unquote(args[0])
+
+
+# pylint: disable=W0613
+def op_unquote(seval, args):
+    assert False, 'unquote: not in quasiquote'
+
+
 def op_eval(seval, args):
     assert len(args) == 1, 'eval: expects exactly one argument'
     evaluated = seval.eval(args[0])
     return seval.eval(evaluated)
 
 
+def op_parse(seval, args):
+    '''Parses and returns its arguments as WAL expressions'''
+    evaluated = seval.eval_args(args)
+    assert(all(isinstance(arg, str) for arg in evaluated)), 'parse: all arguments must be string (parse string+)'
+    sexprs = [optimize(expand(seval, read_wal_sexpr(arg), parent=seval.global_environment)) for arg in evaluated]
+    if len(sexprs) == 1:
+        return sexprs[0]
+
+    return [Operator.DO] + sexprs
+
+
 def op_defun(seval, args):
     assert len(args) >= 3, 'defun: '
     assert isinstance(args[0], Symbol), f'defun: first argument must be a symbol not {args[0]}'
-    assert isinstance(args[1], list), 'defun: second argument must be a list of symbols'
-    #assert all(isinstance(s, Symbol) for s in args[1]), 'defun: second argument must be a list of symbols'
+    assert isinstance(args[1], (list, Symbol)), 'defun: second argument must be a list of symbols'
     assert isinstance(args[2], (Symbol, int, str, list)), 'defun: third argument must be a valid expression'
-    seval.context[args[0].name] = [Operator.LAMBDA, args[1], [Operator.DO, *args[2:]]]
+
+    if isinstance(args[0], list):
+        assert all(isinstance(arg, Symbol) for arg in args[0])
+
+    seval.environment.define(args[0].name, Closure(seval.environment, args[1], [Operator.DO, *args[2:]], name=args[0].name))
 
 
 def op_lambda(seval, args):  # pylint: disable=W0613
-    assert len(args) == 2, 'lambda: expects exactly two arguments (lambda (symbol* | (symbol expr)) sexpr)'
-    assert isinstance(args[0], list), 'lambda: first argument must be a list of symbols or symbol expression pairs'
-    assert all(isinstance(arg, (list, Symbol)) for arg in args[0])
-    return [Operator.LAMBDA, args[0], args[1]]
+    assert len(args) == 2, 'lambda: expects exactly two arguments (lambda (symbol | (symbol*)) sexpr)'
+    assert isinstance(args[0], (list, Symbol)), 'lambda: first argument must be a list of symbols or a single symbol'
+    if isinstance(args[0], list):
+        assert all(isinstance(arg, Symbol) for arg in args[0]), f'lambda: arguments must be symbols but are {wal_str(args[0])}'
+
+    return Closure(seval.environment, args[0], args[1])
+
+
+def op_defmacro(seval, args):
+    assert len(args) >= 3, 'defmacro: expects at least three arguments'
+    assert isinstance(args[0], Symbol), f'defmacro: first argument must be a symbol not {args[0]}'
+    assert isinstance(args[2], (Symbol, int, str, list)), 'defmacro: third argument must be a valid expression'
+
+    if isinstance(args[0], list):
+        assert all(isinstance(arg, Symbol) for arg in args[0])
+
+    body = list(map(lambda arg: expand(seval, arg), args[2:]))
+    seval.environment.define(args[0].name, Macro(args[0].name, args[1], [Operator.DO, *body]))
+
+
+def op_macroexpand(seval, args):
+    assert len(args) == 1, 'macroexpand: expects exactly one argument'
+    expanded = expand(seval, args[0])
+    optimized = optimize(expanded)
+    return optimized
+
+
+# pylint: disable=W0613
+def op_gensym(seval, args):
+    seval.gensymi += 1
+    return Symbol(f'${seval.gensymi}')
 
 
 def op_get(seval, args):
@@ -439,31 +427,6 @@ def op_rel_eval(seval, args):
     return res
 
 
-def op_get_at_time_old(seval, args):
-    assert len(args) == 2, '@: exactly two arguments required (@ signal:symbol offset:int)'
-    # if first arg is not symbol or str eval it
-    if not isinstance(args[0], (Symbol, str)):
-        args[0] = seval.eval(args[0])
-        # first arg must now be either symbol or str
-    if isinstance(args[0], Symbol):
-        if args[0].name in seval.aliases:
-            name = seval.aliases[args[0].name]
-        else:
-            name = args[0].name
-        if args[0].scoped:
-            name = seval.scope + '.' + name
-        elif isinstance(args[0], str):
-            name = args[0]
-        else:
-            raise ValueError(f'@: first argument must be Symbol or string but is {type(args[0]).__name__}')
-        assert isinstance(args[1], int), f'@: second argument must be int but is {type(args[1]).__name__}'
-
-        if seval.traces.contains(name):
-            return seval.traces.signal_value(name, args[1])
-
-    return None
-
-
 def op_scoped(seval, args):
     assert len(args) == 2, 'scoped: exactly two arguments required (scoped scope:symbol expression)'
     prev_scope = seval.scope
@@ -477,10 +440,10 @@ def op_scoped(seval, args):
         name = evaluated
 
     seval.scope = name
-    seval.context['CS'] = seval.scope
+    seval.global_environment.write('CS', seval.scope)
     res = seval.eval(args[1])
     seval.scope = prev_scope
-    seval.context['CS'] = prev_scope
+    seval.global_environment.write('CS', prev_scope)
     return res
 
 
@@ -488,12 +451,13 @@ def op_allscopes(seval, args):
     assert args, 'all-scopes: exactly one argument required'
     assert isinstance(args[0], list), 'all-scopes: argument must be a valid expression'
     res = []
-    prev_scope = seval.context['CS']
+    prev_scope = seval.global_environment.read('CS')
     for scope in seval.traces.scopes: # pylint: disable=E1101
         seval.scope = scope
-        seval.context['CS'] = scope
+        seval.global_environment.write('CS', scope)
         res.append(seval.eval(args[0]))
-    seval.context['CS'] = prev_scope
+
+    seval.global_environment.write('CS', prev_scope)
     return res
 
 
@@ -503,10 +467,11 @@ def op_resolve_scope(seval, args):
     if args[0].name in seval.aliases:
         args[0].name = seval.aliases[args[0].name]
 
-    if seval.context['CS'] in seval.traces.scopes:  # if the scope is a real scope add .
-        name = seval.context['CS'] + '.' + args[0].name
+    if seval.global_environment.read('CS') in seval.traces.scopes:
+        # if the scope is a real scope add .
+        name = seval.global_environment.read('CS') + '.' + args[0].name
     else:  # if scope is not a real scope it must be a group name, no dot required
-        name = seval.context['CS'] + args[0].name
+        name = seval.global_environment.read('CS') + args[0].name
 
     if seval.traces.contains(name):
         return seval.traces.signal_value(name)
@@ -519,13 +484,14 @@ def op_set_scope(seval, args):
     assert isinstance(args[0], Symbol), f'set-scope: argument must be Symbol but is {type(args[0]).__name__}'
     assert args[0].name in seval.traces.scopes, f'set-scope: {args[0].name} is not a valid scope' # pylint: disable=E1101
     seval.scope = args[0].name
-    seval.context['CS'] = args[0].name
+    seval.global_environment.write('CS', args[0].name)
 
 
 def op_unset_scope(seval, args):
     assert not args, 'unset-scope: expects no arguments'
     seval.scope = ''
-    seval.context['CS'] = ''
+    seval.global_environment.write('CS', '')
+
 
 
 def op_groups(seval, args):
@@ -545,10 +511,16 @@ def op_groups(seval, args):
 
         raise RuntimeError('groups: arguments must be string, symbol, or must evaluate to these types')
 
-    args = list(map(process_arg, args))
+    def lookup_alias(arg):
+        if arg in seval.aliases:
+            return seval.aliases[arg]
 
-    if seval.context['CS']:
-        pattern = re.compile(rf'{seval.context["CS"]}\.[^\\.]+{args[0]}')
+        return arg
+
+    args = list(map(lookup_alias, map(process_arg, args)))
+
+    if seval.global_environment.read('CS'):
+        pattern = re.compile(rf'{seval.global_environment.read("CS")}\.[^\\.]+{args[0]}')
     else:
         pattern = re.compile(rf'.*{args[0]}')
 
@@ -579,17 +551,17 @@ def op_in_group(seval, args):
         name = evaluated
 
     seval.group = name
-    seval.context['CG'] = seval.group
+    seval.global_environment.write('CG', seval.group)
 
     scope_index = seval.group.rfind('.')
     seval.scope = seval.group[:scope_index + 1] if scope_index != -1 else prev_scope
-    seval.context['CS'] = seval.scope
+    seval.global_environment.write('CS', seval.scope)
 
     res = seval.eval_args(args[1:])
     seval.group = prev_group
     seval.scope = prev_scope
-    seval.context['CG'] = prev_group
-    seval.context['CS'] = prev_scope
+    seval.global_environment.write('CG', prev_group)
+    seval.global_environment.write('CS', prev_scope)
     return res[-1]
 
 
@@ -611,7 +583,7 @@ def op_resolve_group(seval, args):
     if args[0].name in seval.aliases:
         args[0].name = seval.aliases[args[0].name]
 
-    name = seval.context['CG'] + args[0].name
+    name = seval.group + args[0].name
 
     if seval.traces.contains(name):
         return seval.traces.signal_value(name)
@@ -650,6 +622,11 @@ def op_slice(seval, args):
     return None
 
 
+def op_loaded_traces(seval, args):
+    assert(len(args) == 0), 'loaded-traces: Expects no arguments (loaded-traces)'
+    return list(seval.traces.traces.keys())
+
+
 def op_exit(seval, args):
     assert len(args) < 2, 'exit: expects none or one argument (exit return_code:int)'
     if len(args) == 0:
@@ -677,23 +654,26 @@ core_operators = {
     Operator.AND.value: op_and,
     Operator.OR.value: op_or,
     Operator.LET.value: op_let,
-    Operator.LETRET.value: op_letret,
     Operator.SET.value: op_set,
-    Operator.INC.value: op_inc,
+    # Operator.INC.value: op_inc,
     Operator.PRINT.value: op_print,
     Operator.PRINTF.value: op_printf,
     Operator.IF.value: op_if,
-    Operator.COND.value: op_cond,
-    Operator.WHEN.value: op_when,
-    Operator.UNLESS.value: op_unless,
+    # Operator.COND.value: op_cond,
     Operator.CASE.value: op_case,
     Operator.DO.value: op_do,
     Operator.WHILE.value: op_while,
     Operator.ALIAS.value: op_alias,
     Operator.UNALIAS.value: op_unalias,
     Operator.QUOTE.value: op_quote,
+    Operator.QUASIQUOTE.value: op_quasiquote,
+    Operator.UNQUOTE.value: op_unquote,
     Operator.EVAL.value: op_eval,
+    Operator.PARSE.value: op_parse,
     Operator.DEFUN.value: op_defun,
+    Operator.DEFMACRO.value: op_defmacro,
+    Operator.MACROEXPAND.value: op_macroexpand,
+    Operator.GENSYM.value: op_gensym,
     Operator.LAMBDA.value: op_lambda,
     Operator.FN.value: op_lambda,
     Operator.GET.value: op_get,
@@ -711,5 +691,6 @@ core_operators = {
     Operator.IN_GROUPS.value: op_in_groups,
     Operator.RESOLVE_GROUP.value: op_resolve_group,
     Operator.SLICE.value: op_slice,
+    Operator.LOADED_TRACES.value: op_loaded_traces,
     Operator.EXIT.value: op_exit,
 }

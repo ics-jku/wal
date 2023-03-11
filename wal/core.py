@@ -1,11 +1,11 @@
 '''The WAL core module'''
 # pylint: disable=C0103
-
-import pickle
-
 from wal.trace.container import TraceContainer
 from wal.eval import SEval
 from wal.reader import read_wal_sexpr, ParseError
+from wal.ast_defs import Operator as Op
+from wal.ast_defs import Symbol as S
+from wal.passes import expand, optimize
 
 
 class Wal:
@@ -14,6 +14,8 @@ class Wal:
     def __init__(self):  # pylint: disable=C0103
         self.traces = TraceContainer()
         self.eval_context = SEval(self.traces)
+        self.eval_context.eval([Op.REQUIRE, S('std')])
+
 
     def load(self, file, tid='DEFAULT', from_string=False):  # pylint: disable=C0103
         '''Load trace from file and add it using id to WAL'''
@@ -37,31 +39,35 @@ class Wal:
 
         # put passed arguments into context
         for name, val in args.items():
-            self.eval_context.context[name] = val
+            self.eval_context.global_environment.define(name, val)
 
         if sexpr:
-            return self.eval_context.eval(sexpr)
+            expanded = expand(self.eval_context, sexpr, parent=self.eval_context.global_environment)
+            optimized = optimize(expanded)
+            return self.eval_context.eval(optimized)
 
         # remove passed arguments from context
         for name, val in args.items():
-            del self.eval_context.context[name]
+            self.eval_context.global_environment.undefine(name)
 
         return None
 
     def run(self, sexpr, **args):
-        '''Evaluate the WAL expression sexpr from Index 0'''
+        '''Evaluate the WAL expressions sexprs from Index 0'''
         if isinstance(sexpr, str):
-            sexpr = [read_wal_sexpr(sexpr)]
+            sexpr = read_wal_sexpr(sexpr)
 
         res = None
         if sexpr:
             self.eval_context.reset()
+            self.eval_context.eval([Op.REQUIRE, S('std')])
 
             for name, val in args.items():
-                self.eval_context.context[name] = val
+                self.eval_context.global_environment.define(name, val)
 
-            for expr in sexpr:
-                res = self.eval_context.eval(expr)
+            expanded = expand(self.eval_context, sexpr, parent=self.eval_context.global_environment)
+            optimized = optimize(expanded)
+            res = self.eval_context.eval(optimized)
 
         return res
 

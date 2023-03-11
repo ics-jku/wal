@@ -9,9 +9,8 @@ from wal.core import Wal
 from wal.repl import WalRepl
 from wal.util import wal_decode
 from wal.reader import read_wal_sexprs, ParseError
+from wal.passes import expand, optimize
 from wal.version import __version__ as wal_version
-from wal.ast_defs import Operator as Op
-from wal.ast_defs import Symbol as S
 
 
 class Arguments:  # pylint: disable=too-few-public-methods
@@ -54,10 +53,11 @@ def main():  # pylint: disable=R1710
     args = arg_parser.parse()
 
     wal = Wal()
-    wal.eval_context.context['args'] = args.args
+    wal.eval_context.global_environment.write('args', args.args)
+    #wal.eval_context.context['args'] = args.args
 
     # load standard library
-    wal.eval_context.eval([Op.REQUIRE, S('std')])
+    # wal.eval_context.eval([Op.REQUIRE, S('std')])
 
     if args.load is not None:
         for i, path in enumerate(args.load):
@@ -76,20 +76,28 @@ def main():  # pylint: disable=R1710
         else:
             with open(filename, 'r', encoding='utf8') as file:
                 try:
+                    #sexprs = read_wal_sexprs(file.read())
                     sexprs = read_wal_sexprs(file.read())
                 except ParseError as e:
                     e.show()
                     sys.exit(os.EX_DATAERR)
 
-        try:
-            for sexpr in sexprs:
-                wal.eval(sexpr)
-        except Exception as e: # pylint: disable=W0703
-            print()
-            print('>>>>> Runtime error! <<<<<')
-            print(e)
-            if args.repl_on_failure:
-                WalRepl(wal, intro=WalRepl.dyn_intro).cmdloop()
-            return os.EX_SOFTWARE
+
+        for sexpr in sexprs:
+            expanded = expand(wal.eval_context, sexpr, parent=wal.eval_context.global_environment)
+            optimized = optimize(expanded)
+            wal.eval(optimized)
+        # try:
+        #     for sexpr in sexprs:
+        #         expanded = expand(wal.eval_context, sexpr)
+        #         evaluated = wal.eval(expanded)
+        #         # expand(wal, wal.eval(sexpr))
+        # except Exception as e: # pylint: disable=W0703
+        #     print()
+        #     print('>>>>> Runtime error! <<<<<')
+        #     print(e)
+        #     if args.repl_on_failure:
+        #         WalRepl(wal, intro=WalRepl.dyn_intro).cmdloop()
+        #     return os.EX_SOFTWARE
 
     return os.EX_OK

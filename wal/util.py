@@ -1,13 +1,20 @@
 ''' Utility functions for WAL'''
-from wal.ast_defs import Symbol, Operator
+# pylint: disable=R0912
+
 import pickle
+from wal.ast_defs import Symbol, Operator, Closure, Macro, Unquote, UnquoteSplice
+
 
 def wal_str(sexpr):
     '''Returns a string representation of a WAL expression'''
     if isinstance(sexpr, list):
         if len(sexpr) == 2 and sexpr[0] == Operator.QUOTE:
             txt = f"'{wal_str(sexpr[1])}"
-        elif len(sexpr) == 3 and sexpr[0] == Operator.REL_EVAL:
+        elif len(sexpr) == 2 and sexpr[0] == Operator.QUASIQUOTE:
+            txt = f"`{wal_str(sexpr[1])}"
+        elif len(sexpr) == 2 and sexpr[0] == Operator.UNQUOTE:
+            txt = f",{wal_str(sexpr[1])}"
+        elif len(sexpr) == 3 and sexpr[0] == Symbol('reval'):
             txt = f'{wal_str(sexpr[1])}@{sexpr[2]}'
         elif len(sexpr) > 0 and sexpr[0] == Operator.ARRAY:
             txt = '{' + ' '.join(map(wal_str, sexpr)) + '}'
@@ -15,6 +22,14 @@ def wal_str(sexpr):
             txt = '(' + ' '.join(map(wal_str, sexpr)) + ')'
     elif isinstance(sexpr, Symbol):
         txt = sexpr.name
+    elif isinstance(sexpr, Macro):
+        txt = f'Macro: {sexpr.name}\nArgs: {wal_str(sexpr.args)}\n' + wal_str(sexpr.expression)
+    elif isinstance(sexpr, Closure):
+        txt = f'Function: {sexpr.name}\nArgs: {wal_str(sexpr.args)}\n' + wal_str(sexpr.expression)
+    elif isinstance(sexpr, Unquote):
+        txt = f',{wal_str(sexpr.content)}'
+    elif isinstance(sexpr, UnquoteSplice):
+        txt = f',@{wal_str(sexpr.content)}'
     elif isinstance(sexpr, Operator):
         txt = sexpr.value
     elif isinstance(sexpr, str):

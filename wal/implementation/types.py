@@ -2,6 +2,14 @@
 from wal.ast_defs import Operator, Symbol
 
 
+def op_is_defined(seval, args):
+    '''Returns true if the argument is a defined symbol'''
+    assert len(args) == 1, 'defined?: expects exactly one argument'
+    evaluated = seval.eval(args[0])
+    assert isinstance(evaluated, Symbol), 'defined?: argument must evaluate to symbol'
+    return seval.environment.is_defined(evaluated.name)
+
+
 def op_is_atom(seval, args):
     '''Returns true if all arguments evaluate to atoms'''
     evaluated = seval.eval_args(args)
@@ -64,6 +72,14 @@ def op_symbol_to_string(seval, args):
     return evaluated.name
 
 
+def op_string_to_symbol(seval, args):
+    '''Converts a string to a symbol'''
+    assert len(args) == 1, 'string->symbol: expects exactly one argument (string->symbol expr:symbol)'
+    evaluated = seval.eval(args[0])
+    assert isinstance(evaluated, str), 'symbol->string: argument must evaluate to symbol'
+    return Symbol(evaluated)
+
+
 def op_int_to_string(seval, args):
     '''Converts an integer to its string representation'''
     assert len(args) == 1, 'int->string: expects exactly one argument (symbol->string expr:symbol)'
@@ -73,6 +89,7 @@ def op_int_to_string(seval, args):
 
 
 type_operators = {
+    Operator.IS_DEFINED.value: op_is_defined,
     Operator.IS_ATOM.value: op_is_atom,
     Operator.IS_SYMBOL.value: op_is_symbol,
     Operator.IS_STRING.value: op_is_string,
@@ -80,6 +97,7 @@ type_operators = {
     Operator.IS_LIST.value: op_is_list,
     Operator.CONVERT_BINARY.value: op_convert_binary,
     Operator.STRING_TO_INT.value: op_string_to_int,
+    Operator.STRING_TO_SYMBOL.value: op_string_to_symbol,
     Operator.SYMBOL_TO_STRING.value: op_symbol_to_string,
     Operator.INT_TO_STRING.value: op_int_to_string,
 }

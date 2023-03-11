@@ -1,11 +1,138 @@
-(defun ALL-INDICES []
-  (map (fn [t] (list t (in-group (+ t ":") #INDEX))) (loaded-traces)))
+;; core functions
 
-(defun mytimeframe [body]
-  (let ([TIMEFRAME-START (ALL-INDICES)])
-    (eval body)
-    (for [trace TIMEFRAME-START]
-	 (in-group (first trace) (step (- (second trace) INDEX))))))
+(defmacro append [xs x]
+  (let ([tmp (gensym)])
+    `(+ ,xs (let ([,tmp ,x])
+	      (if (list? ,tmp) (list ,tmp) ,tmp)))))
+
+(defun reverse [lst]
+  (if lst (append (reverse (rest lst)) (first lst)) '()))
+
+(defmacro for/list args
+	  (let [(sym args[0][0])
+	        (body (rest args))
+		(data args[0][1])]
+	    `(map (lambda [,sym] (do ,@body)) ,data)))
+
+(defmacro for args
+	  (let [(sym args[0][0])
+	        (body (rest args))
+		(data args[0][1])]
+	    `(last (map (lambda [,sym] (do ,@body)) ,data))))
+
+(defmacro when args
+  (let ([condition args[0]]
+	[body (rest args)])
+    `(if ,condition (do ,@body))))
+
+(defmacro unless args
+  (let ([condition args[0]]
+	[body (rest args)])
+    `(if (! ,condition) (do ,@body))))
+
+(defmacro dowhile args
+  (let ([body (slice args 0 (- (length args) 1))]
+	[condition (last args)])
+    `(do ,@body
+	 (while ,condition ,@body))))
+
+(defmacro until args
+  (let ([condition (first args)]
+	[body (rest args)])
+    `(while (! ,condition) ,@body)))
+
+(defmacro step-until [condition]
+    `(while (&& (! ,condition) (step)) INDEX))
+
+(defmacro cond args
+  (fold (fn [acc branch]
+	    (do
+		(unless (&& (list? branch) (> (length branch) 1))
+		  (print "cond: arguments must be valid [condition action ...] pairs but was " branch)
+		  (exit 1))
+		(let ([condition (if (= branch[0] 'else) #t branch[0])]
+		      [then (rest branch)])
+		  (if acc
+		      `(if ,condition (do ,@then) ,acc)
+		       `(if ,condition (do ,@then))))))
+	'()
+	 (reverse args)))
+       
+(defmacro defunm args
+  `(set [,(first args) (lambda ,(second args) (do ,@(rest (rest args))))]))
+
+(defmacro car [xs]
+  `(first ,xs))
+
+(defmacro cdr [xs]
+  `(rest ,xs))
+
+(defmacro cadr [xs]
+  `(car (cdr ,xs)))
+
+(defmacro partition [pred xs]
+  `(fold (fn [acc x] (if (,pred x)
+			 (list (append acc[0] x) acc[1])
+			 (list acc[0] (append acc[1] x))))
+	 '(() ())
+	  ,xs))
+
+;; Increment the value of a variable by one
+;; if variable is not defined bind it with value 1
+(defmacro inc symbols
+  (let ([assignments
+	 (for/list [symbol symbols]
+	      (cond [(symbol? symbol) `(,symbol (if (defined? ',symbol) (+ ,symbol 1) 1))]
+		    [else (print "inc: expected symbol but got " (type symbol)) (exit 1)]))])
+    `(set ,@ assignments)))
+
+(defmacro inc-safe symbols
+  (let ([assignments
+	 (for/list [symbol symbols]
+	      (cond [(symbol? symbol) `(,symbol (+ ,symbol 1))]
+		    [else (print "inc: expected symbol but got " (type symbol)) (exit 1)]))])
+    `(set ,@ assignments)))
+
+;; Decrement the value of a variable by one
+;; if variable is not defined bind it with value -1
+(defmacro dec symbols
+  (let ([assignments
+	 (for [symbol symbols]
+	      (cond [(symbol? symbol) `(,symbol (if (defined? ',symbol) (- ,symbol 1) -1))]
+		    [else (print "dec: expected symbol but got " (type symbol)) (exit 1)]))])
+    `(set ,@ assignments)))
+
+(defmacro sum [xs]
+  `(fold + 0 ,xs))
+
+;; trace functions
+;;  (in-group (+ t ":") #INDEX)
+(defun ALL-INDICES []
+  (map (fn [t] (list t (get (+ t ":INDEX")))) (loaded-traces)))
+
+(defmacro timeframe body
+  (let ([TIMEFRAME-START (gensym)]
+	[RES (gensym)])
+    `(let ([TIMEFRAME-START (ALL-INDICES)]
+	   [,RES (do ,@body)])
+       (for [trace TIMEFRAME-START]
+	    (in-group (first trace) (step (- (second trace) INDEX))))
+       ,RES)))
+
+(defmacro rising [expr]
+  `(&& (! ,expr)@-1 ,expr))
+
+(defmacro falling [expr]
+  `(&& ,expr@-1 (! ,expr)))
+
+(defmacro stable [expr]
+  `(= ,expr@-1 ,expr))
+
+;; (defmacro reval [expr offset]
+;;   `(timeframe (step ,offset) ,expr))
+
+(defmacro count [condition]
+  `(length (find ,condition)))
 
 (defun trace-index [trace]
    (in-group (+ trace ":") #INDEX))
@@ -13,23 +140,13 @@
 (defun set-index [i]
   (cond [(< i 0) #f]
 	[(> i MAX-INDEX) #f]
-	[#t (step (- i INDEX))]))
+	[else (step (- i INDEX))]))
 
 (defun set-index/all [i]
   (cond [(< i 0) #f]
 	[(> i MAX-INDEX) #f]
-	[#t (for [trace (loaded-traces)]
+	[else (for [trace (loaded-traces)]
 		 (step (- i (trace-index trace))))]))
-
-(defun mysum [xs]
-  (set [acc 0])
-  (for [x xs] (set [acc (+ acc x)]))
-  acc)
-
-(defun mymap [f xs]
-  (set [acc '()])
-  (for [x xs] (print x) (set [acc (+ acc (f x))]))
-  acc)
 
 ;; Scopes
 (defun myin-scope [scope body] 0)

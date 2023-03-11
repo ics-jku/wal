@@ -1,10 +1,9 @@
 '''Implementations for WAL related functions such as loading and unloading traces.'''
 import os
-import pickle
-from pathlib import Path
 from wal.ast_defs import Operator, Symbol
 from wal.util import wal_decode
 from wal.reader import read_wal_sexprs
+from wal.passes import expand, optimize
 from wal.repl import WalRepl
 
 
@@ -65,16 +64,11 @@ def op_require(seval, args):
     assert len(args) > 0, 'require: expects at least one argument (require module:symbol+)'
     assert all(isinstance(s, Symbol) for s in args), 'require: all argument must be symbols'
     for module in args:
-        old_context = seval.context
-
-        seval.context = {'CS': old_context['CS'],
-                         'CG': old_context['CG'],
-                         'args': old_context['args']}
 
         def wal_file_exists(name):
             if os.path.isfile(name):
                 return name
-            elif os.path.isfile(os.path.expanduser(f'~/.wal/libs/{name}')):
+            if os.path.isfile(os.path.expanduser(f'~/.wal/libs/{name}')):
                 return os.path.expanduser(f'~/.wal/libs/{name}')
 
             return False
@@ -85,22 +79,15 @@ def op_require(seval, args):
         elif name := wal_file_exists(module.name + '.wal'):
             with open(name, 'r', encoding='utf-8') as file:
                 sexprs = read_wal_sexprs(file.read())
-                # save compiled sexprs to file
-                path = Path(name).with_suffix('.wo')
-                with open(path, 'wb') as fout:
-                    pickle.dump(sexprs, fout)
         else:
             print(f'require: cant find file {module.name}.wal')
             raise FileNotFoundError
 
         if sexprs:
             for sexpr in sexprs:
-                if sexpr:
-                    seval.eval(sexpr)
-
-            old_context.update(seval.context)
-            seval.context = old_context
-
+                expanded = expand(seval, sexpr, parent=seval.global_environment)
+                optimized = optimize(expanded)
+                seval.eval(optimized)
 
 
 def op_repl(seval, args): # pylint: disable=W0613

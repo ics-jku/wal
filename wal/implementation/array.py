@@ -1,6 +1,6 @@
 '''Implementations for all array related functions'''
 
-from wal.ast_defs import Symbol, Operator
+from wal.ast_defs import Symbol, Operator, Closure
 
 
 def op_array(seval, args):
@@ -90,13 +90,13 @@ def op_mapa(seval, args):
     '''Applies function to every key value pair in array'''
     assert len(args) == 2, 'mapa: requires two arguments. (mapa function array)'
     func = seval.eval(args[0])
-    assert isinstance(func, list) and func[0] == Operator.LAMBDA, 'mapa: first argument must be a function'
+    assert isinstance(func, Closure), 'mapa: first argument must be a function'
     arg = seval.eval(args[1])
     assert isinstance(arg, dict), 'mapa: second argument must be an array'
     res = []
     for key, val in arg.items():
         # set current element
-        res.append(seval.eval_lambda(func, [[Operator.QUOTE, key], [Operator.QUOTE, val]]))
+        res.append(seval.eval_closure(func, [[Operator.QUOTE, key], [Operator.QUOTE, val]]))
     return res
 
 

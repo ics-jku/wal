@@ -1,5 +1,5 @@
 '''WALC'''
 
 if __name__ == "__main__":
-    from walc.walc import run
+    from wal.walc import run
     run()

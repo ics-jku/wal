@@ -101,43 +101,43 @@ def op_fold_signal(seval, args):
     return acc
 
 
-def op_count(seval, args):
-    '''Count
-       Returns the number of indices at which the condition in argument 1
-       is true. Steps each trace individually.
-    '''
-    indices = op_find(seval, args)
-    return len(indices)
+# def op_count(seval, args):
+#     '''Count
+#        Returns the number of indices at which the condition in argument 1
+#        is true. Steps each trace individually.
+#     '''
+#     indices = op_find(seval, args)
+#     return len(indices)
 
 
-def op_timeframe(seval, args):
-    '''Creates a new timeframe in which all INDEX manipulating operations
-    have no effect on the indices of the calling context'''
-    # store indices at start
-    prev_indices = seval.traces.indices()
-    # store previous timeframe-start value
-    prev_timeframe = seval.context['TIMEFRAME-START'] if 'TIMEFRAME-START' in seval.context else None
+# def op_timeframe(seval, args):
+#     '''Creates a new timeframe in which all INDEX manipulating operations
+#     have no effect on the indices of the calling context'''
+#     # store indices at start
+#     prev_indices = seval.traces.indices()
+#     # store previous timeframe-start value
+#     prev_timeframe = seval.context['TIMEFRAME-START'] if 'TIMEFRAME-START' in seval.context else None
 
-    if len(seval.traces.traces) == 1:
-        seval.context['TIMEFRAME-START'] = list(prev_indices.values())[0]
-    else:
-        seval.context['TIMEFRAME-START'] = prev_indices
+#     if len(seval.traces.traces) == 1:
+#         seval.context['TIMEFRAME-START'] = list(prev_indices.values())[0]
+#     else:
+#         seval.context['TIMEFRAME-START'] = prev_indices
 
-    res = list(map(seval.eval, args))
+#     res = list(map(seval.eval, args))
 
-    if prev_timeframe:
-        seval.context['TIMEFRAME-START'] = prev_timeframe
-    else:
-        del seval.context['TIMEFRAME-START']
+#     if prev_timeframe:
+#         seval.context['TIMEFRAME-START'] = prev_timeframe
+#     else:
+#         del seval.context['TIMEFRAME-START']
 
-    # restore indices to start values
-    for trace in seval.traces.traces.values():
-        trace.index = prev_indices[trace.tid]
+#     # restore indices to start values
+#     for trace in seval.traces.traces.values():
+#         trace.index = prev_indices[trace.tid]
 
-    if res:
-        return res[-1]
+#     if res:
+#         return res[-1]
 
-    return None
+#     return None
 
 
 def op_signal_width(seval, args):
@@ -150,12 +150,29 @@ def op_signal_width(seval, args):
     return seval.traces.signal_width(name)
 
 
+def op_sample_at(seval, args):
+    '''Sets the timestamps of trace t to list xs'''
+    assert len(args) == 1 or len(args) == 2, 'sample-at: expects one or two arguments (sample-at timestamps:list? trace:symbol?)'
+    timestamps = seval.eval(args[0])
+    assert isinstance(timestamps, list), 'sample-at: first argument must be a list of integers'
+    assert all(map(lambda x: isinstance(x, int), timestamps)), 'sample-at: second argument must be a list of integers'
+
+    if len(args) == 2:
+        tid = args[1]
+        assert isinstance(tid, Symbol), 'sample-at: second argument must be a symbol'
+        seval.traces.traces[tid.name].set_sampling_points(timestamps)
+    else:
+        for trace in seval.traces.traces.values():
+            trace.set_sampling_points(timestamps)
+
+
 special_operators = {
     Operator.FIND.value: op_find,
     Operator.FIND_G.value: op_find_g,
     Operator.WHENEVER.value: op_whenever,
     Operator.FOLD_SIGNAL.value: op_fold_signal,
-    Operator.COUNT.value: op_count,
-    Operator.TIMEFRAME.value: op_timeframe,
+    # Operator.COUNT.value: op_count,
+    # Operator.TIMEFRAME.value: op_timeframe,
     Operator.SIGNAL_WIDTH.value: op_signal_width,
+    Operator.SAMPLE_AT.value: op_sample_at,
 }

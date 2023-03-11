@@ -1,10 +1,13 @@
+'''Installation routine, creates a .wal dir if none exists and copies the stdlib into .wal '''
 import os
-import wal
+import shutil
 from importlib.resources import files
-from distutils.dir_util import copy_tree
+
+import wal
 from wal.walc import wal_compile
 
 def run():
+    '''Entry point for wal_setup script'''
     wal_path = os.path.expanduser('~/.wal')
     wal_libs = wal_path + '/libs'
 
@@ -12,7 +15,7 @@ def run():
         os.mkdir(wal_path)
         os.mkdir(wal_libs)
 
-    copy_tree(files(wal).joinpath('libs/std'), wal_libs)
+    shutil.copytree(files(wal).joinpath('libs/std'), wal_libs, dirs_exist_ok=True)
 
     # compile wal std lib file
     wal_compile(wal_libs + '/std.wal', wal_libs + '/std.wo')
