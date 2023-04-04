@@ -39,7 +39,10 @@ class Wal:
 
         # put passed arguments into context
         for name, val in args.items():
-            self.eval_context.global_environment.define(name, val)
+            if self.eval_context.global_environment.is_defined(name):
+                self.eval_context.global_environment.write(name, val)
+            else:
+                self.eval_context.global_environment.define(name, val)
 
         if sexpr:
             expanded = expand(self.eval_context, sexpr, parent=self.eval_context.global_environment)

@@ -171,8 +171,6 @@ special_operators = {
     Operator.FIND_G.value: op_find_g,
     Operator.WHENEVER.value: op_whenever,
     Operator.FOLD_SIGNAL.value: op_fold_signal,
-    # Operator.COUNT.value: op_count,
-    # Operator.TIMEFRAME.value: op_timeframe,
     Operator.SIGNAL_WIDTH.value: op_signal_width,
     Operator.SAMPLE_AT.value: op_sample_at,
 }
