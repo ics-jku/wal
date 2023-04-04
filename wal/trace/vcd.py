@@ -3,6 +3,7 @@
 import bisect
 import os
 import sys
+import re
 from pyDigitalWaveTools.vcd.parser import VcdParser, VcdVarScope, VcdVarParsingInfo
 from wal.trace.trace import Trace
 
@@ -10,10 +11,8 @@ class TraceVcd(Trace):
     '''Holds data for one vcd trace.'''
 
     def __init__(self, filename, tid, from_string=False):
-        self.tid = tid
+        super().__init__(tid, filename)
         self.timestamps = []
-        self.filename = filename
-        self.index = 0
         self.scopes = []
         self.rawsignals = []
         self.name_to_id = {}
@@ -22,8 +21,6 @@ class TraceVcd(Trace):
 
         if from_string:
             raise ValueError("FST traces do not support the from_string argument")
-
-
 
         if os.path.getsize(self.filename) > 10000000:
             print('''\033[93mYou opened a VCD file of more than 10mb.
@@ -62,7 +59,10 @@ Maybe you should convert it to the FST format. Try "vcd2fst" from GTKWave.\033[0
             for child in data.children.values():
                 self.walk(child, newscope)
         elif isinstance(data, VcdVarParsingInfo):
-            name = scope + data.name
+            name = re.sub(r' *\[\d+:\d+\]', '', data.name)
+            name = re.sub(r'\(([0-9]+)\)', r'_\1', name)
+            name = scope + name
+            
             self.all_timestamps = self.all_timestamps.union(set(map(lambda x: x[0], data.data)))
             self.rawsignals.append(name)
 
@@ -79,7 +79,7 @@ Maybe you should convert it to the FST format. Try "vcd2fst" from GTKWave.\033[0
 
     def access_signal_data(self, name, index):
         '''Backend specific function for accessing signals in the waveform'''
-        index = self.all_timestamps[index]
+        index = self.timestamps[index]
         keys = self.data[name]['indices']
 
         if index not in keys:

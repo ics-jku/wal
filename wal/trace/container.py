@@ -3,6 +3,7 @@
 from functools import lru_cache
 import pathlib
 
+from wal.ast_defs import VirtualSignal
 from wal.trace.trace import Trace
 from wal.trace.vcd import TraceVcd
 from wal.trace.fst import TraceFst
@@ -27,7 +28,7 @@ class TraceContainer:
             print(f'File extension "{file_extension}" not supported.')
 
         self.n_traces += 1
-        self.contains.cache_clear()
+        #self.contains.cache_clear()
 
 
     def unload(self, tid='DEFAULT'):
@@ -40,16 +41,15 @@ class TraceContainer:
 
     def signal_value(self, name, offset=0, scope=''):
         '''Get the value of signal name at current index + offset.'''
-
         if self.n_traces == 1 and Trace.SCOPE_SEPERATOR not in name:
             trace = list(self.traces.values())[0]
             return trace.signal_value(name, offset, scope)
 
         if Trace.SCOPE_SEPERATOR in name:
             # extract tid of vcd
-            seperator = name.index(Trace.SCOPE_SEPERATOR)
-            trace_tid = name[:seperator]
-            signal_name = name[seperator+1:]
+            separator = name.index(Trace.SCOPE_SEPERATOR)
+            trace_tid = name[:separator]
+            signal_name = name[separator+1:]
             assert trace_tid in self.traces, f'No trace with tid {trace_tid}'
             return self.traces[trace_tid].signal_value(signal_name, offset, scope)
 
@@ -65,26 +65,27 @@ class TraceContainer:
 
         if Trace.SCOPE_SEPERATOR in name:
             # extract tid of vcd
-            seperator = name.index(Trace.SCOPE_SEPERATOR)
-            trace_tid = name[:seperator]
-            signal_name = name[seperator+1:]
+            separator = name.index(Trace.SCOPE_SEPERATOR)
+            trace_tid = name[:separator]
+            signal_name = name[separator+1:]
             assert trace_tid in self.traces, f'No trace with tid {trace_tid}'
             return self.traces[trace_tid].signal_width(signal_name)
 
         raise RuntimeError('No traces loaded')
 
-    @lru_cache(maxsize=128)
+    #@lru_cache(maxsize=128)
     def contains(self, name):
         '''Return true if a signal with name exists in any trace.'''
+        
         if self.n_traces == 1 and Trace.SCOPE_SEPERATOR not in name:
-            return name in (list(self.traces.values())[0]).signals
+            return name in (list(self.traces.values())[0]).signals or name in Trace.SPECIAL_SIGNALS
 
         if Trace.SCOPE_SEPERATOR in name:
-            seperator = name.index(Trace.SCOPE_SEPERATOR)
-            trace_tid = name[:seperator]
-            signal_name = name[seperator+1:]
+            separator = name.index(Trace.SCOPE_SEPERATOR)
+            trace_tid = name[:separator]
+            signal_name = name[separator+1:]
             assert trace_tid in self.traces, f'No trace with tid {trace_tid}'
-            return signal_name in self.traces[trace_tid].signals
+            return signal_name in self.traces[trace_tid].signals or signal_name in Trace.SPECIAL_SIGNALS
 
         return False
 
@@ -157,3 +158,23 @@ class TraceContainer:
             indices = self.index_stack.pop()
             for tid, index in indices.items():
                 self.traces[tid].set(index)
+
+
+    def add_virtual_signal(self, name, expr, seval):
+        '''Add a virtual signal to the trace'''
+
+        if self.n_traces == 1:
+            trace = list(self.traces.values())[0]
+            signal = VirtualSignal(name, expr, trace, seval)
+            return trace.add_virtual_signal(signal)
+
+        if self.n_traces > 1 or Trace.SCOPE_SEPERATOR in name:
+            # extract tid of vcd
+            separator = name.index(Trace.SCOPE_SEPERATOR)
+            trace_tid = name[:separator]
+            signal_name = name[separator+1:]
+            assert trace_tid in self.traces, f'No trace with tid {trace_tid}'
+            signal = VirtualSignal(name, expr, self.traces[trace_tid], seval)
+            return self.traces[trace_tid].add_virtual_signal(signal)
+
+        raise RuntimeError('No traces loaded')

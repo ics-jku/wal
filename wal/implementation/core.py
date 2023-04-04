@@ -294,7 +294,9 @@ def op_unquote(seval, args):
 def op_eval(seval, args):
     assert len(args) == 1, 'eval: expects exactly one argument'
     evaluated = seval.eval(args[0])
-    return seval.eval(evaluated)
+    expanded = expand(seval, evaluated, parent=seval.global_environment)
+    optimized = optimize(expanded)
+    return seval.eval(optimized)
 
 
 def op_parse(seval, args):

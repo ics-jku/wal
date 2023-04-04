@@ -67,4 +67,8 @@ class CounterEqualTest(TraceEqTest, unittest.TestCase):
         self.eval_eq("(in-scope 'tb LOCAL-SCOPES)")
 
     def test_local_signals(self):
-        self.eval_eq("(in-scope 'tb LOCAL-SIGNALS)")
+        wal = "(in-scope 'tb LOCAL-SIGNALS)"
+        res = list(map(lambda t: self.wal_eval([t, wal]), self.traces))
+
+        for pair in combinations(res, 2):
+            self.assertEqual(sorted(pair[0]), sorted(pair[1]))

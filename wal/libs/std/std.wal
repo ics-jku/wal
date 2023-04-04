@@ -5,6 +5,12 @@
     `(+ ,xs (let ([,tmp ,x])
 	      (if (list? ,tmp) (list ,tmp) ,tmp)))))
 
+(defun symbol-add args
+       (string->symbol (fold + "" (for/list [arg args]
+       		       	       	  	    (if (symbol? arg)
+					    	(symbol->string arg)
+						arg)))))
+
 (defun reverse [lst]
   (if lst (append (reverse (rest lst)) (first lst)) '()))
 

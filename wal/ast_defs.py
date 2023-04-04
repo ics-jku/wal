@@ -113,6 +113,10 @@ class Operator(Enum):
     SAMPLE_AT = 'sample-at'
     # system
     EXIT = 'exit'
+    # virtual signals
+    DEFSIG = 'defsig'
+    NEWTRACE = 'new-trace'
+    DUMPTRACE = 'dump-trace'
 
 
 @dataclass
@@ -214,3 +218,30 @@ class Unquote:
 class UnquoteSplice:
     '''Utility class for unquote splice syntax'''
     content: any
+
+
+class VirtualSignal:
+    name: str
+
+    def __init__(self, name, expr, trace, seval, width=32):
+        self.name = name
+        self.expr = expr
+        self.width = width
+        self.trace = trace
+        self.seval = seval
+        self.dependencies = []
+        self.cache = {}
+
+
+    @property
+    def value(self):
+        index = self.trace.index
+        if index in self.cache:
+            res = self.cache[index]
+        else:
+            res = self.seval.eval_args(self.expr)[-1]
+            self.cache[index] = res
+
+
+        return res
+
