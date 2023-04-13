@@ -99,6 +99,7 @@ class Operator(Enum):
     IS_LIST = 'list?'
     CONVERT_BINARY = 'convert/bin'
     STRING_TO_INT = 'string->int'
+    BITS_TO_SINT = 'bits->sint'
     STRING_TO_SYMBOL = 'string->symbol'
     SYMBOL_TO_STRING = 'symbol->string'
     INT_TO_STRING = 'int->string'

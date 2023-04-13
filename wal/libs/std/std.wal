@@ -134,6 +134,9 @@
 (defmacro stable [expr]
   `(= ,expr@-1 ,expr))
 
+(defmacro signed [signal]
+  `(bits->sint (convert/bin ,signal (signal-width ',signal))))
+
 ;; (defmacro reval [expr offset]
 ;;   `(timeframe (step ,offset) ,expr))
 

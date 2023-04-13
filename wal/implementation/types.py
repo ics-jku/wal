@@ -64,6 +64,19 @@ def op_string_to_int(seval, args):
     return int(evaluated, args[1])
 
 
+def op_bits_to_sint(seval, args):
+    '''Converts a string to a signed integer '''
+    assert len(args) == 1, 'bits->sint: expects exactly one argument (bits->sint expr:str)'
+    evaluated = seval.eval(args[0])
+    assert isinstance(evaluated, str), 'bits->sint: argument must evaluate to srting'
+    
+    if evaluated[0] == '1':
+        u_res = int(''.join('1' if x == '0' else '0' for x in evaluated), 2) + 1
+        return -u_res
+    
+    return int(evaluated, 2)
+
+
 def op_symbol_to_string(seval, args):
     '''Converts a symbol a to a string "a" '''
     assert len(args) == 1, 'symbol->string: expects exactly one argument (symbol->string expr:symbol)'
@@ -97,6 +110,7 @@ type_operators = {
     Operator.IS_LIST.value: op_is_list,
     Operator.CONVERT_BINARY.value: op_convert_binary,
     Operator.STRING_TO_INT.value: op_string_to_int,
+    Operator.BITS_TO_SINT.value: op_bits_to_sint,
     Operator.STRING_TO_SYMBOL.value: op_string_to_symbol,
     Operator.SYMBOL_TO_STRING.value: op_symbol_to_string,
     Operator.INT_TO_STRING.value: op_int_to_string,
