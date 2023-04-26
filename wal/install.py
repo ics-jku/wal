@@ -13,8 +13,7 @@ def run():
     wal_libs = wal_path + f'/libs/{wal_version}'
 
     if not os.path.exists(wal_path):
-        os.mkdir(wal_path)
-        os.mkdir(wal_libs)
+        os.makedirs(wal_libs)
 
     shutil.copytree(files(wal).joinpath('libs/std'), wal_libs, dirs_exist_ok=True)
 
