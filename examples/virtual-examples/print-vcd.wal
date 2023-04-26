@@ -1,11 +1,7 @@
 #!wal
 
-;; run like ./print-vcd.wal ../basics/counter.fst
-;; or wal print-vcd.wal ../basics/counter.fst
-
-;; compile first to reduce startup speed
-;; walc print-vcd.wal
-;; wal print-vcd.wo ../basics/counter.fst
+(define max-signal 0)
+(define types (array))
 
 (defun is-bin [signal start i]
   (cond [(! (in (get signal)@i '(0 1 "x"))) (seta types signal #f)]
@@ -59,6 +55,10 @@
        (step -20))
 
 (defun render [signals]
+       ;; init
+       (set (max-signal (max (map (fn [x] (length x)) signals))))
+       (map (fn [x] (is-bin x INDEX 0)) signals)
+       
        (printf (+ "%" max-signal "s: %s\n") "Waveform" TRACE-FILE)
        (printf (+ "%" max-signal "s: %s\n") "Scope" CS)
        (print-header)
@@ -66,27 +66,3 @@
        	    	    (if (geta types signal)
 		    	(print-bin signal 10)
 			(print-signal signal 10))) signals))
-      
-;--------------------------------------------------------------------------------
-; Main Program
-;--------------------------------------------------------------------------------
-(when (< (length args) 1)
-      (print "No vcd or fst file specified")
-      (print "usage: print-vcd filename scope")
-      (exit 1))
-
-(load args[0] t)
-
-; init types array
-(set [types (array)])
-
-; get type of each signal in next 20 cycles
-(map (fn [x] (is-bin x INDEX 0)) SIGNALS)
-
-;(step 2) ; (step args[3])
-(set (max-signal (max (map (fn [x] (length x)) SIGNALS))))
-
-;; Set current scope
-(if (> (length args) 1)
-    (in-scope args[1] (render SIGNALS))
-    (render SIGNALS))

@@ -1,10 +1,10 @@
 '''Implementations for type related functions such as type checking'''
-from wal.ast_defs import Operator, Symbol, VirtualSignal
+from wal.ast_defs import Operator, Symbol
 from wal.trace.virtual import TraceVirtual
 
 
 def op_defsig(seval, args):
-    '''Creates a new signal whose value is calculated by evaluating 
+    '''Creates a new signal whose value is calculated by evaluating
     the body expressions. '''
     assert len(args) > 1, 'virtual: expects at least two arguments (virtual name body+)'
     name = seval.global_environment.read('CG') + args[0].name
@@ -24,6 +24,7 @@ def op_new_trace(seval, args):
 
 
 def op_dump_trace(seval, args):
+    '''Dumps the given trace as in vcd format.'''
     seval.traces.traces[args[0].name].dump_vcd()
 
 

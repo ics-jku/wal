@@ -1,0 +1,15 @@
+;; In this example we are adding some virtual signals to the counter trace.
+;; Inspired by https://www.tessla.io/intro/
+
+(load "../basics/counter.fst" t)
+
+;; indicates when the temperature is dangerously low
+(defsig low (< tb.dut.counter 3))
+;; indicates when the temperature is dangerously high
+(defsig high (> tb.dut.counter 8))
+;; indicates when the temperature is either too high or too low
+(defsig unsafe (|| low high))
+
+(whenever #t (printf "%d: low = %d high = %d unsafe = %d\n" INDEX low high unsafe))
+
+(print (find unsafe))

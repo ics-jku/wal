@@ -27,10 +27,12 @@ WAL_GRAMMAR = r"""
     sexpr_list : _BASH_LINE? (_INTER* | sexpr*)
 
     atom : string
+         | float
          | int
          | symbol
 
     int : dec_int | bin_int | hex_int
+    float : /[+-]?[0-9]+\.[0-9]*/
     dec_int : INT | SIGNED_INT
     //dec_int : /[+-]?[0-9]+/
     bin_int : /0b[0-1]+/
@@ -103,6 +105,7 @@ class TreeToWal(Transformer):
     sliced_symbol = lambda self, s: [Operator.SLICE, s[0], s[1], s[2]]
 
     int = lambda self, i: i[0]
+    float = lambda self, f: float(f[0])
     bin_int = lambda self, i: int(i[0], 2)
     dec_int = lambda self, i: int(i[0])
     hex_int = lambda self, i: int(i[0], 16)

@@ -54,10 +54,6 @@ def main():  # pylint: disable=R1710
 
     wal = Wal()
     wal.eval_context.global_environment.write('args', args.args)
-    #wal.eval_context.context['args'] = args.args
-
-    # load standard library
-    # wal.eval_context.eval([Op.REQUIRE, S('std')])
 
     if args.load is not None:
         for i, path in enumerate(args.load):
@@ -76,7 +72,6 @@ def main():  # pylint: disable=R1710
         else:
             with open(filename, 'r', encoding='utf8') as file:
                 try:
-                    #sexprs = read_wal_sexprs(file.read())
                     sexprs = read_wal_sexprs(file.read())
                 except ParseError as e:
                     e.show()

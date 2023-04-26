@@ -1,4 +1,4 @@
-PYTHON=python3
+PYTHON=python
 
 test:
 	$(PYTHON) -m pytest -v tests

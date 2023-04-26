@@ -3,6 +3,7 @@
 import cmd
 import readline
 import os
+
 from wal.util import wal_str
 from wal.reader import read_wal_sexpr, ParseError
 from wal.passes import expand, optimize
@@ -16,10 +17,13 @@ histfile_size = 1000
 class WalRepl(cmd.Cmd):
     '''WalRepl class implements basic read-eval-print-loop'''
 
-    std_intro = f'WAL {__version__}\n'
-    dyn_intro = '''Started interactive WAL REPL.
-Exit to calling script with CTRL-C
-Exit to OS with (exit)'''
+
+    std_intro = f'''WAL {__version__}
+Exit to OS or terminate running evaluations with CTRL-C'''
+    dyn_intro = f'''WAL {__version__}
+Started interactive WAL REPL.
+Exit to calling script or terminate running evaluations with CTRL-C'''
+
     terminator = ['(', ')']
     complete_list = [op.value for op in Operator]
     file = None
@@ -28,7 +32,6 @@ Exit to OS with (exit)'''
         super().__init__()
         self.wal = wal
         self.intro = intro
-
 
     @property
     def prompt(self):
@@ -43,6 +46,7 @@ Exit to OS with (exit)'''
         try:
             expanded = expand(self.wal.eval_context, line, parent=self.wal.eval_context.global_environment)
             optimized = optimize(expanded)
+
             evaluated = self.wal.eval(optimized)
 
             if evaluated is not None:
@@ -51,6 +55,9 @@ Exit to OS with (exit)'''
             if readline: # pylint: disable=W0125
                 readline.set_history_length(histfile_size)
                 readline.write_history_file(histfile)
+
+        except KeyboardInterrupt:
+            print('Keyboard Interrupt')
         except Exception as e:
             print(e)
             print(wal_str(line))

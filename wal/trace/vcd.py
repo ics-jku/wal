@@ -62,7 +62,7 @@ Maybe you should convert it to the FST format. Try "vcd2fst" from GTKWave.\033[0
             name = re.sub(r' *\[\d+:\d+\]', '', data.name)
             name = re.sub(r'\(([0-9]+)\)', r'_\1', name)
             name = scope + name
-            
+
             self.all_timestamps = self.all_timestamps.union(set(map(lambda x: x[0], data.data)))
             self.rawsignals.append(name)
 

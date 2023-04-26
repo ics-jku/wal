@@ -3,75 +3,12 @@
 import re
 import os
 import sys
-import math
-import operator
 import importlib
 
-from functools import reduce
 from wal.ast_defs import Operator, Symbol, Closure, Environment, Macro, Unquote, UnquoteSplice
 from wal.reader import read_wal_sexpr
 from wal.passes import expand, optimize
 from wal.util import wal_str
-
-
-def op_add(seval, args):
-    evaluated = seval.eval_args(args)
-    if any(map(lambda x: isinstance(x, list), evaluated)):
-        res = []
-        for item in evaluated:
-            if isinstance(item, list):
-                res += item
-            else:
-                res.append(item)
-    elif any(map(lambda x: isinstance(x, str), evaluated)):
-        res = ''.join(map(str, evaluated))
-    else:
-        res = sum(evaluated)
-    return res
-
-
-def op_sub(seval, args):
-    evaluated = seval.eval_args(args)
-    assert all(map(lambda x: isinstance(x, int), evaluated))
-    if len(evaluated) == 1:
-        res = -evaluated[0]
-    else:
-        res = reduce(operator.__sub__, evaluated)
-    return res
-
-
-def op_mul(seval, args):
-    evaluated = seval.eval_args(args)
-    assert all(map(lambda x: isinstance(x, int), evaluated))
-    assert len(evaluated) > 1
-    return reduce(operator.__mul__, evaluated)
-
-
-def op_div(seval, args):
-    evaluated = seval.eval_args(args)
-    assert all(map(lambda x: isinstance(x, (int, float)), evaluated))
-    assert len(evaluated) == 2
-    assert evaluated[1] != 0, 'div: division by zero'
-
-    return evaluated[0] / evaluated[1]
-
-
-def op_fdiv(seval, args):
-    evaluated = seval.eval_args(args)
-    # assert all(map(lambda x: isinstance(x, int), evaluated))
-    assert len(evaluated) == 2
-    if evaluated[1] == 0:
-        print('WARNING: division by zero. Is this intended?')
-        return None
-
-    return evaluated[0] / evaluated[1]
-
-
-def op_exp(seval, args):
-    evaluated = seval.eval_args(args)
-    assert all(map(lambda x: isinstance(x, int), evaluated))
-    assert len(evaluated) == 2
-    return int(math.pow(evaluated[0], evaluated[1]))
 
 
 def op_not(seval, args):
@@ -168,6 +105,15 @@ def op_set(seval, args):
         else:
             seval.environment.define(key.name, res)
 
+    return res
+
+
+def op_define(seval, args):
+    assert len(args) == 2, 'define: expects exactly two arguments (define key:symbol expr)'
+    key = args[0]
+    assert isinstance(key, Symbol), 'define: key must be a symbol'
+    res = seval.eval(args[1])
+    seval.environment.define(key.name, res)
     return res
 
 
@@ -640,12 +586,6 @@ def op_exit(seval, args):
 
 
 core_operators = {
-    Operator.ADD.value: op_add,
-    Operator.SUB.value: op_sub,
-    Operator.MUL.value: op_mul,
-    Operator.DIV.value: op_div,
-    Operator.FDIV.value: op_fdiv,
-    Operator.EXP.value: op_exp,
     Operator.NOT.value: op_not,
     Operator.EQ.value: op_eq,
     Operator.NEQ.value: op_neq,
@@ -656,6 +596,7 @@ core_operators = {
     Operator.AND.value: op_and,
     Operator.OR.value: op_or,
     Operator.LET.value: op_let,
+    Operator.DEFINE.value: op_define,
     Operator.SET.value: op_set,
     # Operator.INC.value: op_inc,
     Operator.PRINT.value: op_print,

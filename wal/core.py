@@ -6,6 +6,7 @@ from wal.reader import read_wal_sexpr, ParseError
 from wal.ast_defs import Operator as Op
 from wal.ast_defs import Symbol as S
 from wal.passes import expand, optimize
+from wal.version import __version__ as wal_version
 
 
 class Wal:
@@ -14,7 +15,8 @@ class Wal:
     def __init__(self):  # pylint: disable=C0103
         self.traces = TraceContainer()
         self.eval_context = SEval(self.traces)
-        self.eval_context.eval([Op.REQUIRE, S('std')])
+        self.eval_context.wal = self
+        self.eval_context.eval([Op.REQUIRE, S(f'{wal_version}/std')])
 
 
     def load(self, file, tid='DEFAULT', from_string=False):  # pylint: disable=C0103
@@ -63,7 +65,7 @@ class Wal:
         res = None
         if sexpr:
             self.eval_context.reset()
-            self.eval_context.eval([Op.REQUIRE, S('std')])
+            self.eval_context.eval([Op.REQUIRE, S(f'{wal_version}/std')])
 
             for name, val in args.items():
                 self.eval_context.global_environment.define(name, val)

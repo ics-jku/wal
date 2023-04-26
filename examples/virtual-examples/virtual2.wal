@@ -1,0 +1,10 @@
+;; In this example we count how long the reset is high
+
+(load "../basics/counter.fst" t)
+
+(defsig count-reset (if tb.dut.reset (+ count-reset@-1 tb.dut.reset) 0))
+
+(defsig safe (< count-reset 4))
+
+(whenever #t
+    (printf "%d: reset = %d count = %d safe = %d\n" INDEX tb.reset count-reset safe))

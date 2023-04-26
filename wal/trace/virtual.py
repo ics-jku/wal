@@ -1,12 +1,9 @@
 '''Trace implementation for the FST file format '''
 
-import re
-import pylibfst as fst
-
 from wal.trace.trace import Trace
 
 class TraceVirtual(Trace):
-    '''Holds data for one fst trace.'''
+    '''Holds data for one virtual trace.'''
 
     def __init__(self, tid, max_index):
         super().__init__(tid, 'virtual')
@@ -16,13 +13,10 @@ class TraceVirtual(Trace):
         self.timestamps = range(max_index)
         self.scopes = []
 
-
-    #def signal_value(self, name, offset, scope=''):
-    #    return self.virtual_signals[name].value
-
-
     def dump_vcd(self):
-        with open(self.tid + '.vcd', 'w') as f:
+        '''Dumps this trace in vcd format'''
+         # pylint: disable=C0103
+        with open(self.tid + '.vcd', 'w', encoding='utf-8') as f:
             f.write('$version\n    WAL\n$end\n')
             f.write('$timescale\n    1ps\n$end\n')
             for signal in self.signals:
@@ -36,7 +30,7 @@ class TraceVirtual(Trace):
                 f.write(f'#{index}\n')
                 if index == 0:
                     f.write('$dumpvars\n')
-                
+
                 for signal in self.signals:
                     value = self.signal_value(signal, index)
                     if (signal not in last_values) or (value != last_values[signal]):
@@ -44,13 +38,8 @@ class TraceVirtual(Trace):
                         last_values[signal] = value
                         txt = f'{value:0{width}b}'.format(value=value, width=width)
                         f.write(f'b{txt} {signal}\n')
-            
+
             self.index = old_index
-        '''
-$scope module Top $end
-$upscope $end
-$enddefinitions $end
-#0
-$dumpvars
-0E
-'''
+
+    def signal_width(self, name):
+        return 32

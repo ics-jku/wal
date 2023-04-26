@@ -13,12 +13,17 @@ class Operator(Enum):
     LOADED_TRACES = 'loaded-traces'
     # basic
     REQUIRE = 'require'
+    # maths
     ADD = '+'
     SUB = '-'
     MUL = '*'
     DIV = '/'
-    FDIV = 'fdiv'
     EXP = '**'
+    FLOOR = 'floor'
+    CEIL = 'ceil'
+    ROUND = 'round'
+    MOD = 'mod'
+    # logic
     NOT = '!'
     EQ = '='
     NEQ = '!='
@@ -31,6 +36,7 @@ class Operator(Enum):
     PRINT = 'print'
     PRINTF = 'printf'
     SET = 'set'
+    DEFINE = 'define'
     LET = 'let'
     # INC = 'inc'
     IF = 'if'
@@ -222,9 +228,11 @@ class UnquoteSplice:
 
 
 class VirtualSignal:
+    '''Holds information about a virtual signal'''
     name: str
 
-    def __init__(self, name, expr, trace, seval, width=32):
+
+    def __init__(self, name, expr, trace, seval, width=32): # pylint: disable=R0913
         self.name = name
         self.expr = expr
         self.width = width
@@ -236,6 +244,7 @@ class VirtualSignal:
 
     @property
     def value(self):
+        '''Returns the value of this virtual signal'''
         index = self.trace.index
         if index in self.cache:
             res = self.cache[index]
@@ -245,4 +254,3 @@ class VirtualSignal:
 
 
         return res
-

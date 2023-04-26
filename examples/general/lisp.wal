@@ -6,10 +6,10 @@
         (#t (cond ((= x (first (first y))) (second (first y)))
                   (#t (assoc x (rest y)))))))
 
-(defun append (xs x)
+(defun lisp-append (xs x)
   (if (= xs '())
       x
-      (list (first xs) (append (rest xs) x))))
+      (list (first xs) (lisp-append (rest xs) x))))
 
 (defun leval (e a)
   (cond ((atom? e) (assoc e a))
@@ -26,7 +26,7 @@
 	                    (rest e))
 		      a))))
 	((= (first (first a)) 'lambda)
-	    (leval (second (rest (first a))) (append a '(second (first e)))))
+	    (leval (second (rest (first a))) (lisp-append a '(second (first e)))))
 	(#t "noimpl")))
 
 (defun evcon (c a)

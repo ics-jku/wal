@@ -1,7 +1,8 @@
 '''S-Exprssion eval functions'''
 from wal.util import wal_str
-from wal.ast_defs import Operator, Symbol, ExpandGroup, Environment, Closure, Macro, VirtualSignal
+from wal.ast_defs import Operator, Symbol, ExpandGroup, Environment, Closure, Macro
 from wal.implementation.types import type_operators
+from wal.implementation.math import math_operators
 from wal.implementation.list import list_operators
 from wal.implementation.array import array_operators
 from wal.implementation.wal import wal_operators
@@ -27,7 +28,7 @@ class SEval:
         self.group = None
         self.context = None
         self.reset()
-        self.dispatch = {**core_operators, **type_operators, \
+        self.dispatch = {**core_operators, **math_operators, **type_operators, \
             **list_operators, **array_operators, **wal_operators, \
             **special_operators, **virtual_operators}
 
@@ -114,7 +115,7 @@ class SEval:
             else:
                 func = self.eval(head)
                 res = self.eval([func] + tail)
-        elif isinstance(expr, (int, str, Closure)):
+        elif isinstance(expr, (int, str, float, Closure)):
             res = expr
         elif isinstance(expr, ExpandGroup):
             res = list(map(self.eval, expr.elements))

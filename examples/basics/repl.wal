@@ -1,0 +1,11 @@
+;; This example shows how an interactive REPL can be started
+;; when an error is detected. This allows to inspect signal
+;; values in the context in which the error occurred.
+
+(load "counter.fst" t)
+
+(whenever tb.clk
+	  (print (|| (! (&& tb.dut.counter (! tb.dut.counter@2))) tb.dut.overflow))
+	  (unless (|| (! tb.overflow) (&& tb.dut.counter (! tb.dut.counter@2)))
+  	    (repl)))
+

@@ -102,5 +102,6 @@ class Trace:
         self.max_index = len(self.timestamps.keys()) - 1
 
     def add_virtual_signal(self, signal):
+        '''Adds a virtual signal to this trace'''
         self.signals.add(signal.name)
         self.virtual_signals[signal.name] = signal

@@ -69,11 +69,11 @@ def op_bits_to_sint(seval, args):
     assert len(args) == 1, 'bits->sint: expects exactly one argument (bits->sint expr:str)'
     evaluated = seval.eval(args[0])
     assert isinstance(evaluated, str), 'bits->sint: argument must evaluate to srting'
-    
+
     if evaluated[0] == '1':
         u_res = int(''.join('1' if x == '0' else '0' for x in evaluated), 2) + 1
         return -u_res
-    
+
     return int(evaluated, 2)
 
 

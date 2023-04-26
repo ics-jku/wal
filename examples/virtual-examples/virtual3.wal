@@ -1,0 +1,7 @@
+(load "../basics/counter.fst" t)
+
+(defsig last-overflow (if (&& tb.dut.overflow (! tb.dut.overflow@-1)) INDEX last-overflow@-1))
+(defsig diff (if (!= last-overflow@-1 last-overflow) (- last-overflow last-overflow@-1) 0))
+(defsig error (if (> diff 5) (- diff 5) " "))
+
+(whenever #t (print last-overflow " " diff " " error))

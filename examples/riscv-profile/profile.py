@@ -1,5 +1,6 @@
 #!/bin/python
-'''Implements a basic function profiling from RISC-V processor waveforms'''
+# Implements a basic function profiling from RISC-V processor waveforms
+# start with: python profile.py gcd.elf ../wawk/basic-blocks/gcd.fst
 # pylint: disable=W0702,R1732
 import sys
 import os
@@ -55,7 +56,7 @@ if __name__ == '__main__':
     wal.eval('''(defun count-function [addr]
                   (for [f funcs]
                     (when (&& (>= addr f[1]) (<= addr f[2]))
-                        (seta dist f[0] (+ (geta dist f[0]) 1)))))''')
+                        (seta dist f[0] (+ (geta/default dist 0 f[0]) 1)))))''')
 
     # calculate the time spent in each function, does not take subcalls into account
     dist = {}

@@ -137,9 +137,6 @@
 (defmacro signed [signal]
   `(bits->sint (convert/bin ,signal (signal-width ',signal))))
 
-;; (defmacro reval [expr offset]
-;;   `(timeframe (step ,offset) ,expr))
-
 (defmacro count [condition]
   `(length (find ,condition)))
 
@@ -156,9 +153,3 @@
 	[(> i MAX-INDEX) #f]
 	[else (for [trace (loaded-traces)]
 		 (step (- i (trace-index trace))))]))
-
-;; Scopes
-(defun myin-scope [scope body] 0)
-
-(defun myresolve-scope [signal]
-  (get (+ CS signal)))

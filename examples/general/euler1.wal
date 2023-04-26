@@ -3,13 +3,22 @@
 ; If we list all the natural numbers below 10 that are multiples of 3 or 5, we get 3, 5, 6 and 9. The sum of these multiples is 23.
 ; Find the sum of all the multiples of 3 or 5 below 1000.
 
-(defun div-by (x y) (= x (* y (/ x y))))
-(defun div-by-3-or-5 (x) (if (|| (div-by x 3) (div-by x 5)) x 0))
+;; First using the build-in functions from WAL
+
+(defmacro x-div-by-y [x y] `(= (mod ,x ,y) 0))
+
+(defun div-by-3-or-5 (x) (if (|| (x-div-by-y x 3) (x-div-by-y x 5)) x 0))
+
+(print "Using WAL's functions " (sum (map div-by-3-or-5 (range 10))))
+
+;; Now let's define some functions on our own
 
 (defun range2 (low high)
-  (while (<= low high)
-	 (set (low (+ low 1))
-	      (tmp (+ '() tmp (- low 1))))))
+  (define tmp '())
+  (while (< low high)
+	 (set [tmp (+ tmp low)]
+	      [low (+ low 1)]))
+  tmp)
 
 
 (defun foldl (f acc xs)
@@ -19,4 +28,4 @@
 
 (defun sum2 (xs) (foldl (lambda (a x) (+ a x)) 0 xs))
 
-(print (sum2 (map div-by-3-or-5 (range 1 999))))
+(print "Using custom functions " (sum (map div-by-3-or-5 (range 10))))

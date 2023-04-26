@@ -5,11 +5,12 @@ from importlib.resources import files
 
 import wal
 from wal.walc import wal_compile
+from wal.version import __version__ as wal_version
 
 def run():
     '''Entry point for wal_setup script'''
     wal_path = os.path.expanduser('~/.wal')
-    wal_libs = wal_path + '/libs'
+    wal_libs = wal_path + f'/libs/{wal_version}'
 
     if not os.path.exists(wal_path):
         os.mkdir(wal_path)

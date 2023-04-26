@@ -1,6 +1,5 @@
 '''Wrapper class for trace data'''
 
-from functools import lru_cache
 import pathlib
 
 from wal.ast_defs import VirtualSignal
@@ -28,7 +27,6 @@ class TraceContainer:
             print(f'File extension "{file_extension}" not supported.')
 
         self.n_traces += 1
-        #self.contains.cache_clear()
 
 
     def unload(self, tid='DEFAULT'):
@@ -36,7 +34,6 @@ class TraceContainer:
         if tid in self.traces:
             del self.traces[tid]
             self.n_traces -= 1
-            self.contains.cache_clear()
 
 
     def signal_value(self, name, offset=0, scope=''):
@@ -76,7 +73,7 @@ class TraceContainer:
     #@lru_cache(maxsize=128)
     def contains(self, name):
         '''Return true if a signal with name exists in any trace.'''
-        
+
         if self.n_traces == 1 and Trace.SCOPE_SEPERATOR not in name:
             return name in (list(self.traces.values())[0]).signals or name in Trace.SPECIAL_SIGNALS
 
@@ -172,7 +169,6 @@ class TraceContainer:
             # extract tid of vcd
             separator = name.index(Trace.SCOPE_SEPERATOR)
             trace_tid = name[:separator]
-            signal_name = name[separator+1:]
             assert trace_tid in self.traces, f'No trace with tid {trace_tid}'
             signal = VirtualSignal(name, expr, self.traces[trace_tid], seval)
             return self.traces[trace_tid].add_virtual_signal(signal)

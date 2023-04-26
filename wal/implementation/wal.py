@@ -1,5 +1,6 @@
 '''Implementations for WAL related functions such as loading and unloading traces.'''
 import os
+
 from wal.ast_defs import Operator, Symbol
 from wal.util import wal_decode
 from wal.reader import read_wal_sexprs
@@ -93,7 +94,7 @@ def op_require(seval, args):
 def op_repl(seval, args): # pylint: disable=W0613
     '''Starts a REPL in the current context'''
     try:
-        WalRepl(seval, intro=WalRepl.dyn_intro).cmdloop()
+        WalRepl(seval.wal, intro=WalRepl.dyn_intro).cmdloop()
     except KeyboardInterrupt:
         pass
 
