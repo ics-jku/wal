@@ -1,3 +1,5 @@
+'''Implementations of math functions'''
+# pylint: disable=C0116
 import math
 import operator
 

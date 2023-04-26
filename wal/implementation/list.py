@@ -101,14 +101,6 @@ def op_min(seval, args):
     return min(evaluated)
 
 
-# def op_sum(seval, args):
-#     '''Returns the sum of all numbers in the list'''
-#     assert len(args) == 1, 'sum: expects one argument (min list)'
-#     evaluated = seval.eval(args[0])
-#     assert isinstance(evaluated, list), 'sum: argument must be a list'
-#     return sum(evaluated)
-
-
 def op_average(seval, args):
     '''Returns the average from the list'''
     assert len(args) == 1, 'average: expects one argument (min list)'
@@ -177,11 +169,9 @@ list_operators = {
     Operator.MAP.value: op_map,
     Operator.MAX.value: op_max,
     Operator.MIN.value: op_min,
-    # Operator.SUM.value: op_sum,
     Operator.AVERAGE.value: op_average,
     Operator.ZIP.value: op_zip,
     Operator.LENGTH.value: op_length,
     Operator.FOLD.value: op_fold,
     Operator.RANGE.value: op_range,
-    # Operator.FOR.value: op_for
 }

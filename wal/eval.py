@@ -81,7 +81,7 @@ class SEval:
 
     def eval(self, expr):
         '''Main s-expression eval function'''
-        res = NotImplementedError() # NotImplementedError(str(expr))
+        res = NotImplementedError()
 
         if isinstance(expr, Symbol):
             name = expr.name

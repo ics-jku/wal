@@ -1,7 +1,7 @@
 #!/bin/python
 # Implements a basic function profiling from RISC-V processor waveforms
 # start with: python profile.py gcd.elf ../wawk/basic-blocks/gcd.fst
-# pylint: disable=W0702,R1732
+# pylint: disable=W0702,R1732,C0114
 import sys
 import os
 import subprocess

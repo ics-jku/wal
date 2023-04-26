@@ -1,5 +1,5 @@
 '''Main wal command line tool entry point'''
-# pylint: disable=C0103
+# pylint: disable=C0103,R0912
 
 import argparse
 import os
@@ -60,7 +60,16 @@ def main():  # pylint: disable=R1710
             wal.load(path, f't{i}')
 
     if args.c:
-        wal.eval(args.c)
+        try:
+            wal.eval(args.c)
+        except Exception as e: # pylint: disable=W0703
+            print()
+            print('>>>>> Runtime error! <<<<<')
+            print(e)
+            if args.repl_on_failure:
+                WalRepl(wal, intro=WalRepl.dyn_intro).cmdloop()
+            return os.EX_SOFTWARE
+
     else:
         if not args.program_path: # if no arguments where given start REPL
             return WalRepl(wal).cmdloop()
@@ -77,22 +86,17 @@ def main():  # pylint: disable=R1710
                     e.show()
                     sys.exit(os.EX_DATAERR)
 
-
-        for sexpr in sexprs:
-            expanded = expand(wal.eval_context, sexpr, parent=wal.eval_context.global_environment)
-            optimized = optimize(expanded)
-            wal.eval(optimized)
-        # try:
-        #     for sexpr in sexprs:
-        #         expanded = expand(wal.eval_context, sexpr)
-        #         evaluated = wal.eval(expanded)
-        #         # expand(wal, wal.eval(sexpr))
-        # except Exception as e: # pylint: disable=W0703
-        #     print()
-        #     print('>>>>> Runtime error! <<<<<')
-        #     print(e)
-        #     if args.repl_on_failure:
-        #         WalRepl(wal, intro=WalRepl.dyn_intro).cmdloop()
-        #     return os.EX_SOFTWARE
+        try:
+            for sexpr in sexprs:
+                expanded = expand(wal.eval_context, sexpr, parent=wal.eval_context.global_environment)
+                optimized = optimize(expanded)
+                wal.eval(optimized)
+        except Exception as e: # pylint: disable=W0703
+            print()
+            print('>>>>> Runtime error! <<<<<')
+            print(e)
+            if args.repl_on_failure:
+                WalRepl(wal, intro=WalRepl.dyn_intro).cmdloop()
+            return os.EX_SOFTWARE
 
     return os.EX_OK
