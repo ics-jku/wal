@@ -30,15 +30,18 @@ class Wal:
         '''
         return self.traces.step(steps, tid)
 
+    def eval_str(self, txt, **args):
+        '''Parses and evaluates the txt argument'''
+        assert isinstance(txt, str)
+        try:
+            sexpr = read_wal_sexpr(txt)
+            return self.eval(sexpr, **args)
+        except ParseError as e:
+            e.show()
+            return None
+
     def eval(self, sexpr, **args):
         '''Evaluate the WAL expression sexpr'''
-        if isinstance(sexpr, str):
-            try:
-                sexpr = read_wal_sexpr(sexpr)
-            except ParseError as e:
-                e.show()
-                return None
-
         # put passed arguments into context
         for name, val in args.items():
             if self.eval_context.global_environment.is_defined(name):

@@ -90,6 +90,7 @@ def main():  # pylint: disable=R1710
             for sexpr in sexprs:
                 expanded = expand(wal.eval_context, sexpr, parent=wal.eval_context.global_environment)
                 optimized = optimize(expanded)
+                print(optimized)
                 wal.eval(optimized)
         except Exception as e: # pylint: disable=W0703
             print()

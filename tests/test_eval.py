@@ -5,6 +5,7 @@ from unittest.mock import patch
 from io import StringIO
 
 from wal.core import Wal
+from wal.reader import read
 from wal.ast_defs import Symbol as S
 from wal.ast_defs import Operator
 
@@ -33,8 +34,9 @@ class OpTest(unittest.TestCase):
     def z(self):  # pylint: disable=C0116
         return self.w.eval_context.environment.read('z')
 
-    def checkEqual(self, sexpr, res):
+    def checkEqual(self, txt, res):
         '''eval first argument and check if result matches second argument '''
+        sexpr = read(txt)
         self.assertEqual(self.w.eval(sexpr), res)
 
 
@@ -74,7 +76,7 @@ class BasicOpTest(OpTest):
         self.checkEqual('(- y x)', self.y - self.x)
         # test mixed int string
         with self.assertRaises(AssertionError):
-            self.w.eval('(- x 1 "test")')
+            self.w.eval_str('(- x 1 "test")')
 
         # test nested additions
         self.checkEqual('(- 10 (- 4 2))', 8)
@@ -97,10 +99,10 @@ class BasicOpTest(OpTest):
         #     self.w.eval('(/ 5 0)')
 
         with self.assertRaises(AssertionError):
-            self.w.eval('(/ 1)')
+            self.w.eval_str('(/ 1)')
 
         with self.assertRaises(AssertionError):
-            self.w.eval('(/ 1 "a")')
+            self.w.eval_str('(/ 1 "a")')
 
     def test_exp(self):
         '''Test exp evaluation'''
@@ -108,13 +110,13 @@ class BasicOpTest(OpTest):
         self.checkEqual('(** x y)', math.pow(self.x, self.y))
 
         with self.assertRaises(AssertionError):
-            self.w.eval('(** 1)')
+            self.w.eval_str('(** 1)')
 
         with self.assertRaises(AssertionError):
-            self.w.eval('(** 1 "a")')
+            self.w.eval_str('(** 1 "a")')
 
         with self.assertRaises(AssertionError):
-            self.w.eval('(** 1 2 3)')
+            self.w.eval_str('(** 1 2 3)')
 
     def test_eq(self):
         '''Test eq operator'''
@@ -150,17 +152,17 @@ class BasicOpTest(OpTest):
 
         # compare only on two elements
         with self.assertRaises(AssertionError):
-            self.w.eval("(> 3)")
+            self.w.eval_str("(> 3)")
         with self.assertRaises(AssertionError):
-            self.w.eval("(> 3 4 5)")
+            self.w.eval_str("(> 3 4 5)")
 
         # compare only on ints
         with self.assertRaises(AssertionError):
-            self.w.eval("(> '(1 2) 3)")
+            self.w.eval_str("(> '(1 2) 3)")
         with self.assertRaises(AssertionError):
-            self.w.eval("(> '(1 2) '(3))")
+            self.w.eval_str("(> '(1 2) '(3))")
         with self.assertRaises(AssertionError):
-            self.w.eval("(> 3 '(3))")
+            self.w.eval_str("(> 3 '(3))")
 
 
     def test_smaller(self):
@@ -176,17 +178,17 @@ class BasicOpTest(OpTest):
 
         # compare only on two elements
         with self.assertRaises(AssertionError):
-            self.w.eval("(< 3)")
+            self.w.eval_str("(< 3)")
         with self.assertRaises(AssertionError):
-            self.w.eval("(< 3 4 5)")
+            self.w.eval_str("(< 3 4 5)")
 
         # compare only on ints
         with self.assertRaises(AssertionError):
-            self.w.eval("(< '(1 2) 3)")
+            self.w.eval_str("(< '(1 2) 3)")
         with self.assertRaises(AssertionError):
-            self.w.eval("(< '(1 2) '(3))")
+            self.w.eval_str("(< '(1 2) '(3))")
         with self.assertRaises(AssertionError):
-            self.w.eval("(< 3 '(3))")
+            self.w.eval_str("(< 3 '(3))")
 
     def test_larger_equal(self):
         '''Test larger equals operator'''
@@ -201,17 +203,17 @@ class BasicOpTest(OpTest):
 
         # compare only on two elements
         with self.assertRaises(AssertionError):
-            self.w.eval("(>= 3)")
+            self.w.eval_str("(>= 3)")
         with self.assertRaises(AssertionError):
-            self.w.eval("(>= 3 4 5)")
+            self.w.eval_str("(>= 3 4 5)")
 
         # compare only on ints
         with self.assertRaises(AssertionError):
-            self.w.eval("(>= '(1 2) 3)")
+            self.w.eval_str("(>= '(1 2) 3)")
         with self.assertRaises(AssertionError):
-            self.w.eval("(>= '(1 2) '(3))")
+            self.w.eval_str("(>= '(1 2) '(3))")
         with self.assertRaises(AssertionError):
-            self.w.eval("(>= 3 '(3))")
+            self.w.eval_str("(>= 3 '(3))")
 
     def test_smaller_equal(self):
         '''Test smaller equals operator'''
@@ -226,17 +228,17 @@ class BasicOpTest(OpTest):
 
         # compare only on two elements
         with self.assertRaises(AssertionError):
-            self.w.eval("(<= 3)")
+            self.w.eval_str("(<= 3)")
         with self.assertRaises(AssertionError):
-            self.w.eval("(<= 3 4 5)")
+            self.w.eval_str("(<= 3 4 5)")
 
         # compare only on ints
         with self.assertRaises(AssertionError):
-            self.w.eval("(<= '(1 2) 3)")
+            self.w.eval_str("(<= '(1 2) 3)")
         with self.assertRaises(AssertionError):
-            self.w.eval("(<= '(1 2) '(3))")
+            self.w.eval_str("(<= '(1 2) '(3))")
         with self.assertRaises(AssertionError):
-            self.w.eval("(<= 3 '(3))")
+            self.w.eval_str("(<= 3 '(3))")
 
     def test_and(self):
         '''Test logical and operator'''
@@ -248,7 +250,7 @@ class BasicOpTest(OpTest):
         self.checkEqual('(&& 0 0)', False)
 
         with self.assertRaises(AssertionError):
-            self.w.eval("(&&)")
+            self.w.eval_str("(&&)")
 
     def test_or(self):
         '''Test logical and operator'''
@@ -260,7 +262,7 @@ class BasicOpTest(OpTest):
         self.checkEqual('(|| 0 0)', False)
 
         with self.assertRaises(AssertionError):
-            self.w.eval("(||)")
+            self.w.eval_str("(||)")
 
     def test_not(self):
         '''Test not operator'''
@@ -268,24 +270,24 @@ class BasicOpTest(OpTest):
         self.checkEqual('(! 0)', 1)
 
         with self.assertRaises(AssertionError):
-            self.w.eval("(!)")
+            self.w.eval_str("(!)")
 
     def test_set(self):
         '''Test variable set function'''
         self.checkEqual('x', self.x)
-        self.w.eval('(set (x 6))')
+        self.w.eval_str('(set (x 6))')
         self.checkEqual('x', 6)
 
-        self.w.eval('(set (x (+ 1 2)))')
+        self.w.eval_str('(set (x (+ 1 2)))')
         self.checkEqual('x', 3)
 
-        self.w.eval('(set (x (+ x x)))')
+        self.w.eval_str('(set (x (+ x x)))')
         self.checkEqual('x', 6)
 
         # check if set return correct value
         self.checkEqual('(set (x (+ x x)))', 12)
 
-        self.w.eval('(set (a 11) (b 22))')
+        self.w.eval_str('(set (a 11) (b 22))')
         self.checkEqual('a', 11)
         self.checkEqual('b', 22)
 
@@ -293,7 +295,7 @@ class BasicOpTest(OpTest):
 
         # should fail because only symbols can be assigned to
         with self.assertRaises(AssertionError):
-            self.w.eval('(set (5 5))')
+            self.w.eval_str('(set (5 5))')
 
 
 class EvalPrintTest(OpTest):
@@ -302,51 +304,51 @@ class EvalPrintTest(OpTest):
     def test_print(self):
         '''Test simple print function'''
         with patch('sys.stdout', new=StringIO()) as fake_out:
-            self.w.eval('(print "hello, world!")')
+            self.w.eval_str('(print "hello, world!")')
             self.assertEqual(fake_out.getvalue(), 'hello, world!\n')
 
         with patch('sys.stdout', new=StringIO()) as fake_out:
-            self.w.eval('(print "a" "bc")')
+            self.w.eval_str('(print "a" "bc")')
             self.assertEqual(fake_out.getvalue(), 'abc\n')
 
         with patch('sys.stdout', new=StringIO()) as fake_out:
-            self.w.eval('(print "a" "bc" 123)')
+            self.w.eval_str('(print "a" "bc" 123)')
             self.assertEqual(fake_out.getvalue(), 'abc123\n')
 
         with patch('sys.stdout', new=StringIO()) as fake_out:
-            self.w.eval('(print)')
+            self.w.eval_str('(print)')
             self.assertEqual(fake_out.getvalue(), '\n')
 
     def test_printf(self):
         '''Test printf formated output'''
         with patch('sys.stdout', new=StringIO()) as fake_out:
-            self.w.eval('(printf "hello, world!")')
+            self.w.eval_str('(printf "hello, world!")')
             self.assertEqual(fake_out.getvalue(), 'hello, world!')
 
         with patch('sys.stdout', new=StringIO()) as fake_out:
-            self.w.eval('(printf "%s" "hello, world!")')
+            self.w.eval_str('(printf "%s" "hello, world!")')
             self.assertEqual(fake_out.getvalue(), 'hello, world!')
 
         with patch('sys.stdout', new=StringIO()) as fake_out:
-            self.w.eval('(printf "%d" 15)')
+            self.w.eval_str('(printf "%d" 15)')
             self.assertEqual(fake_out.getvalue(), '15')
-            self.w.eval('(printf "%04d" 15)')
+            self.w.eval_str('(printf "%04d" 15)')
             self.assertEqual(fake_out.getvalue(), '150015')
 
         with patch('sys.stdout', new=StringIO()) as fake_out:
-            self.w.eval('(printf "%x" 15)')
+            self.w.eval_str('(printf "%x" 15)')
             self.assertEqual(fake_out.getvalue(), 'f')
 
         with patch('sys.stdout', new=StringIO()) as fake_out:
-            self.w.eval('(printf "%x\\n" 15)')
+            self.w.eval_str('(printf "%x\\n" 15)')
             self.assertEqual(fake_out.getvalue(), 'f\n')
 
         with patch('sys.stdout', new=StringIO()) as fake_out:
-            self.w.eval('(printf "")')
+            self.w.eval_str('(printf "")')
             self.assertEqual(fake_out.getvalue(), '')
 
         with self.assertRaises(ValueError):
-            self.w.eval('(printf 5 5)')
+            self.w.eval_str('(printf 5 5)')
 
 
 class EvalControlFlowTest(OpTest):
@@ -365,9 +367,9 @@ class EvalControlFlowTest(OpTest):
         self.checkEqual('(if 0 2)', None)
 
         with self.assertRaises(AssertionError):
-            self.w.eval('(if)')
+            self.w.eval_str('(if)')
         with self.assertRaises(AssertionError):
-            self.w.eval('(if 1)')
+            self.w.eval_str('(if 1)')
 
     def test_cond(self):
         '''Test conditional branches'''
@@ -396,30 +398,30 @@ class EvalControlFlowTest(OpTest):
     def test_case(self):
         '''Test case construct'''
         case1 = '(case a (1 "a") (2 "b") (3 "c"))'
-        self.w.eval('(set (a 1))')
+        self.w.eval_str('(set (a 1))')
         self.checkEqual(case1, "a")
-        self.w.eval('(set (a 2))')
+        self.w.eval_str('(set (a 2))')
         self.checkEqual(case1, "b")
-        self.w.eval('(set (a 3))')
+        self.w.eval_str('(set (a 3))')
         self.checkEqual(case1, "c")
 
-        self.w.eval('(set (a 4))')
+        self.w.eval_str('(set (a 4))')
         self.checkEqual(case1, None)
 
         # match complex data
         case2 = '(case a ("x" "a") ("y" "b") ("z" "c"))'
-        self.w.eval('(set (a "x"))')
+        self.w.eval_str('(set (a "x"))')
         self.checkEqual(case2, "a")
 
         case3 = '(case a ((1 1) "a") ((1 2) "b"))'
-        self.w.eval("(set (a '(1 1)))")
+        self.w.eval_str("(set (a '(1 1)))")
         self.checkEqual(case3, "a")
 
         with self.assertRaises(ValueError):
-            self.w.eval('(case 1 (1 a) (2 b) (1 c))')
+            self.w.eval_str('(case 1 (1 a) (2 b) (1 c))')
 
         with self.assertRaises(AssertionError):
-            self.w.eval('(case)')
+            self.w.eval_str('(case)')
 
     def test_do(self):
         '''Test sequential program execution'''
@@ -427,49 +429,49 @@ class EvalControlFlowTest(OpTest):
         self.checkEqual('(do (+ 1 2) (+ 2 2))', 4)
 
         with self.assertRaises(AssertionError):
-            self.w.eval('(do)')
+            self.w.eval_str('(do)')
 
     def test_while(self):
         '''Test while loop'''
-        self.w.eval('(set (x 0))')
+        self.w.eval_str('(set (x 0))')
         self.checkEqual('(while (< x 5) (set (x (+ x 1))))', 5)
 
         # should fail since while expects 2 args
         with self.assertRaises(AssertionError):
-            self.w.eval('(while (< x 5))')
+            self.w.eval_str('(while (< x 5))')
 
     def test_alias(self):
         '''Test symbol renaming using aliases'''
-        self.w.eval('(alias abc x)')
+        self.w.eval_str('(alias abc x)')
         self.checkEqual('abc', self.x)
 
-        self.w.eval('(alias abc x def y)')
+        self.w.eval_str('(alias abc x def y)')
         self.checkEqual('def', self.y)
 
         # alias expects only an even number of arguments
         with self.assertRaises(AssertionError):
-            self.w.eval('(alias)')
+            self.w.eval_str('(alias)')
 
         with self.assertRaises(AssertionError):
-            self.w.eval('(alias a 1 b)')
+            self.w.eval_str('(alias a 1 b)')
 
     def test_unalias(self):
         '''Test deleting aliases using unalias'''
-        self.w.eval('(alias abc x)')
+        self.w.eval_str('(alias abc x)')
         self.checkEqual('abc', self.x)
 
         with self.assertRaises(AssertionError):
-            self.w.eval('(unalias abc)')
-            self.w.eval('abc')
+            self.w.eval_str('(unalias abc)')
+            self.w.eval_str('abc')
 
         with self.assertRaises(AssertionError):
-            self.w.eval('(unalias)')
+            self.w.eval_str('(unalias)')
 
         with self.assertRaises(AssertionError):
-            self.w.eval('(unalias 1)')
+            self.w.eval_str('(unalias 1)')
 
         with self.assertRaises(AssertionError):
-            self.w.eval('(unalias x y)')
+            self.w.eval_str('(unalias x y)')
 
     def test_quote(self):
         '''Test quoting'''
@@ -478,10 +480,10 @@ class EvalControlFlowTest(OpTest):
         self.checkEqual("'(+ 1 2)", [Operator.ADD, 1, 2])
 
         with self.assertRaises(AssertionError):
-            self.w.eval('(quote)')
+            self.w.eval_str('(quote)')
 
         with self.assertRaises(AssertionError):
-            self.w.eval('(quote a b)')
+            self.w.eval_str('(quote a b)')
 
 #     def test_inc(self):
 #         '''Test incrementing'''
@@ -512,10 +514,10 @@ class EvalFunctionTest(OpTest):
     def test_lambda_args(self):
         '''Lambdas should raise errors for wrong arguments'''
         with self.assertRaises(AssertionError):
-            self.w.eval('(lambda (x))')
+            self.w.eval_str('(lambda (x))')
 
         with self.assertRaises(AssertionError):
-            self.w.eval('(lambda (x 1) x)')
+            self.w.eval_str('(lambda (x 1) x)')
 
     def test_lambda_apply(self):
         '''Lambdas should perform correct action if applied'''
@@ -525,8 +527,8 @@ class EvalFunctionTest(OpTest):
 
         # correct number of args must be supplied
         with self.assertRaises(AssertionError):
-            self.w.eval('(lambda (x) (+ x 1) 1 2)')
+            self.w.eval_str('(lambda (x) (+ x 1) 1 2)')
 
         # Apply named lambda
-        self.w.eval('(set (foo (lambda (y) (* y 2))))')
+        self.w.eval_str('(set (foo (lambda (y) (* y 2))))')
         self.checkEqual('(foo 5)', 10)

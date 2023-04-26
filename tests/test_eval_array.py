@@ -30,9 +30,9 @@ class BasicaArrayTest(OpTest):
         self.checkEqual('(array ("a" 1))', {'a': 1})
 
         with self.assertRaises(AssertionError):
-            self.w.eval('(array (1))')
+            self.w.eval_str('(array (1))')
         with self.assertRaises(AssertionError):
-            self.w.eval('(array (1 2 3))')
+            self.w.eval_str('(array (1 2 3))')
 
     def test_geta(self):
         '''Test accessing arrays'''
@@ -49,12 +49,12 @@ class BasicaArrayTest(OpTest):
 
         # should fail since geta requires at least 2 arguments
         with self.assertRaises(AssertionError):
-            self.w.eval('(geta)')
+            self.w.eval_str('(geta)')
         with self.assertRaises(AssertionError):
-            self.w.eval('(geta x)')
+            self.w.eval_str('(geta x)')
         # should fail since geta requires first argument to be a symbol
         with self.assertRaises(AssertionError):
-            self.w.eval('(geta 5 "a")')
+            self.w.eval_str('(geta 5 "a")')
 
     def test_seta(self):
         '''Test modifying arrays'''
@@ -65,15 +65,15 @@ class BasicaArrayTest(OpTest):
 
         # should fail since first argument must be a symbol or array
         with self.assertRaises(AssertionError):
-            self.w.eval('(seta 0 0)')
+            self.w.eval_str('(seta 0 0)')
         with self.assertRaises(AssertionError):
-            self.w.eval('(seta "a" 0)')
+            self.w.eval_str('(seta "a" 0)')
         with self.assertRaises(AssertionError):
-            self.w.eval("(seta '(1 2) 0)")
+            self.w.eval_str("(seta '(1 2) 0)")
         # should fail since keys must be either string or int
         with self.assertRaises(AssertionError):
-            self.w.eval("(seta (array) '(1 2) 2)")
+            self.w.eval_str("(seta (array) '(1 2) 2)")
         with self.assertRaises(AssertionError):
-            self.w.eval("(seta (array) (array) 2)")
+            self.w.eval_str("(seta (array) (array) 2)")
         with self.assertRaises(AssertionError):
-            self.w.eval("(seta (array) '+ 2)")
+            self.w.eval_str("(seta (array) '+ 2)")

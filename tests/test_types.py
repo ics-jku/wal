@@ -13,9 +13,9 @@ class BasicOpTest(unittest.TestCase):
     def setUp(self):
         self.wal = Wal()
 
-    def checkEqual(self, sexpr, res):
+    def checkEqual(self, txt, res):
         '''eval first argument and check if result matches second argument '''
-        self.assertEqual(self.wal.eval(sexpr), res)
+        self.assertEqual(self.wal.eval_str(txt), res)
 
     def test_is_atom(self):
         '''Test atom?'''
@@ -31,7 +31,7 @@ class BasicOpTest(unittest.TestCase):
 
         self.checkEqual("(symbol? 'a)", True)
         self.checkEqual("(symbol? 'TOP.sub.sig)", True)
-        self.wal.eval("(set [x 'a])")
+        self.wal.eval_str("(set [x 'a])")
         self.checkEqual("(symbol? x)", True)
         self.checkEqual('(symbol? "symbol")', False)
         self.checkEqual('(symbol? (let ([a 5]) a))', False)
@@ -91,14 +91,14 @@ class BasicOpTest(unittest.TestCase):
         for _ in range(50):
             random_int = random.randint(-99999999, 9999999)
             random_width = random.randint(1, 100)
-            int_str = self.wal.eval(f"(convert/bin {random_int} {random_width})")
+            int_str = self.wal.eval_str(f"(convert/bin {random_int} {random_width})")
             self.assertEqual(random_int, int(int_str, 2))
 
         with self.assertRaises(AssertionError):
-            self.wal.eval('(convert/bin "hi")')
+            self.wal.eval_str('(convert/bin "hi")')
 
         with self.assertRaises(AssertionError):
-            self.wal.eval('(convert/bin (quote a))')
+            self.wal.eval_str('(convert/bin (quote a))')
 
     def test_string_to_int(self):
         '''Test string->int'''
@@ -115,13 +115,13 @@ class BasicOpTest(unittest.TestCase):
             self.checkEqual(f'(string->int "{random_int}")', random_int)
 
         with self.assertRaises(AssertionError):
-            self.wal.eval('(string->int (quote a))')
+            self.wal.eval_str('(string->int (quote a))')
 
         with self.assertRaises(AssertionError):
-            self.wal.eval('(string->int 1)')
+            self.wal.eval_str('(string->int 1)')
 
         with self.assertRaises(AssertionError):
-            self.wal.eval('(string->int (array))')
+            self.wal.eval_str('(string->int (array))')
 
     def test_int_to_string(self):
         '''Test int->string'''
@@ -138,7 +138,7 @@ class BasicOpTest(unittest.TestCase):
             self.checkEqual(f'(int->string {random_int})', str(random_int))
 
         with self.assertRaises(AssertionError):
-            self.wal.eval('(int->string (quote a))')
+            self.wal.eval_str('(int->string (quote a))')
 
         with self.assertRaises(AssertionError):
-            self.wal.eval('(int->string (array))')
+            self.wal.eval_str('(int->string (array))')

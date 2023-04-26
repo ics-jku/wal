@@ -28,17 +28,17 @@ class BasicListTest(OpTest):
         self.checkEqual(f'(last {l1})', 3)
         self.checkEqual(f'(last {l2})', 3)
 
-        self.checkEqual("(first '(1))", self.w.eval("(last '(1))"))
-        self.checkEqual("(second '(1 2))", self.w.eval("(last '(1 2))"))
+        self.checkEqual("(first '(1))", self.w.eval_str("(last '(1))"))
+        self.checkEqual("(second '(1 2))", self.w.eval_str("(last '(1 2))"))
 
         for op in [Op.FIRST, Op.SECOND, Op.LAST]:
             with self.assertRaises(AssertionError):
-                self.w.eval(f'({op.value})')
+                self.w.eval_str(f'({op.value})')
             with self.assertRaises(AssertionError):
-                self.w.eval(f'({op.value} 1 2)')
+                self.w.eval_str(f'({op.value} 1 2)')
 
         with self.assertRaises(AssertionError):
-            self.w.eval("(second '(1))")
+            self.w.eval_str("(second '(1))")
 
     def test_rest(self):
         '''test rest operator'''
@@ -48,7 +48,7 @@ class BasicListTest(OpTest):
         self.checkEqual("(rest '())", [])
 
         with self.assertRaises(AssertionError):
-            self.w.eval('(rest)')
+            self.w.eval_str('(rest)')
 
     def test_in(self):
         '''test in operator'''
@@ -61,13 +61,13 @@ class BasicListTest(OpTest):
         self.checkEqual(f'(in "a" {l1})', False)
 
         with self.assertRaises(AssertionError):
-            self.w.eval('(in)')
+            self.w.eval_str('(in)')
 
         with self.assertRaises(AssertionError):
-            self.w.eval('(in 1)')
+            self.w.eval_str('(in 1)')
 
         with self.assertRaises(AssertionError):
-            self.w.eval('(in 1 2)')
+            self.w.eval_str('(in 1 2)')
 
     def test_map(self):
         '''test map operator'''
@@ -78,14 +78,14 @@ class BasicListTest(OpTest):
         self.checkEqual(f'(map {f} {l2})', ['a1', 'b1'])
 
         with self.assertRaises(AssertionError):
-            self.w.eval('(map)')
+            self.w.eval_str('(map)')
         with self.assertRaises(AssertionError):
-            self.w.eval('(map f)')
+            self.w.eval_str('(map f)')
         with self.assertRaises(AssertionError):
-            self.w.eval(f'(map {l1})')
+            self.w.eval_str(f'(map {l1})')
         with self.assertRaises(AssertionError):
-            self.w.eval(f'(map {l1} {f})')
+            self.w.eval_str(f'(map {l1} {f})')
         with self.assertRaises(AssertionError):
-            self.w.eval(f'(map {l1} {l2})')
+            self.w.eval_str(f'(map {l1} {l2})')
         with self.assertRaises(AssertionError):
-            self.w.eval(f'(map {f} {l1} {l2})')
+            self.w.eval_str(f'(map {f} {l1} {l2})')
