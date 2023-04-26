@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10"]
+        python-version: ["3.8", "3.9", "3.10"]
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
@@ -21,10 +21,11 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install pytest build lark-parser pyDigitalWaveTools coverage dataclasses pylibfst
-    - name: Test with pytest
-      run: |
-        py.test -v tests
     - name: Build package using build
       run: |
-        python -m build
+        make install
+    - name: Test with pytest
+      run: |
+        make install
+        py.test -v tests	
     
