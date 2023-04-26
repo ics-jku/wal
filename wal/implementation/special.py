@@ -101,45 +101,6 @@ def op_fold_signal(seval, args):
     return acc
 
 
-# def op_count(seval, args):
-#     '''Count
-#        Returns the number of indices at which the condition in argument 1
-#        is true. Steps each trace individually.
-#     '''
-#     indices = op_find(seval, args)
-#     return len(indices)
-
-
-# def op_timeframe(seval, args):
-#     '''Creates a new timeframe in which all INDEX manipulating operations
-#     have no effect on the indices of the calling context'''
-#     # store indices at start
-#     prev_indices = seval.traces.indices()
-#     # store previous timeframe-start value
-#     prev_timeframe = seval.context['TIMEFRAME-START'] if 'TIMEFRAME-START' in seval.context else None
-
-#     if len(seval.traces.traces) == 1:
-#         seval.context['TIMEFRAME-START'] = list(prev_indices.values())[0]
-#     else:
-#         seval.context['TIMEFRAME-START'] = prev_indices
-
-#     res = list(map(seval.eval, args))
-
-#     if prev_timeframe:
-#         seval.context['TIMEFRAME-START'] = prev_timeframe
-#     else:
-#         del seval.context['TIMEFRAME-START']
-
-#     # restore indices to start values
-#     for trace in seval.traces.traces.values():
-#         trace.index = prev_indices[trace.tid]
-
-#     if res:
-#         return res[-1]
-
-#     return None
-
-
 def op_signal_width(seval, args):
     '''Returns the width of a signal'''
     assert len(args) == 1, 'signal-width: expects exactly one argument (signal-width signal:str?)'
