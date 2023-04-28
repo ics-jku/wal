@@ -7,7 +7,6 @@ from wal.reader import read_wal_sexpr, ParseError
 from wal.ast_defs import Operator as Op
 from wal.ast_defs import Symbol as S
 from wal.passes import expand, optimize
-from wal.version import __version__ as wal_version
 from wal.install import compile_stdlib
 
 class Wal:

@@ -1,6 +1,12 @@
 '''Installation routine, creates a .wal dir if none exists and copies the stdlib into .wal '''
 import os
-from importlib.resources import files
+
+try:
+    from importlib.resources import files
+except ImportError:
+    # for python < 3.9
+    from importlib_resources import files
+
 
 import wal
 
