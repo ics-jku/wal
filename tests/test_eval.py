@@ -5,7 +5,7 @@ from unittest.mock import patch
 from io import StringIO
 
 from wal.core import Wal
-from wal.reader import read
+from wal.reader import read_wal_sexpr
 from wal.ast_defs import Symbol as S
 from wal.ast_defs import Operator
 
@@ -36,7 +36,7 @@ class OpTest(unittest.TestCase):
 
     def checkEqual(self, txt, res):
         '''eval first argument and check if result matches second argument '''
-        sexpr = read(txt)
+        sexpr = read_wal_sexpr(txt)
         self.assertEqual(self.w.eval(sexpr), res)
 
 
