@@ -4,6 +4,7 @@ from lark import Lark, Transformer
 from wawk.ast_defs import Statement
 from wal.ast_defs import S
 from wal.ast_defs import Operator as Op
+from wal.reader import operators
 
 WAWK_GRAMMAR = r"""
     ?expr: symbol
@@ -112,13 +113,13 @@ class TreeToWal(Transformer):
 
     function = lambda self, f: Statement([S('BEGIN')], [Op.DEFUN, f[0], f[1:-1], f[-1]])
     statement = lambda self, s: Statement(s[:-1], s[-1])
-    line = lambda self, l: l[0]
+    line = lambda self, line: line[0]
     program = lambda self, p: p
 
     substatement = lambda self, s: s[0]
-    subline = lambda self, l: l[0]
+    subline = lambda self, line: line[0]
     block_expr = lambda self, b: b[0]
-    line_expr = lambda self, l: l[0]
+    line_expr = lambda self, line: line[0]
 
     string = lambda self, s: s[0][1:-1].encode('utf-8').decode('unicode_escape')
     number = lambda self, n: int(n[0])
@@ -158,7 +159,7 @@ class TreeToWal(Transformer):
     in_scope = lambda self, s: [Op.SCOPED, s[0], s[1]]
     in_group = lambda self, g: [Op.IN_GROUPS, g[0], g[1]]
 
-    list = lambda self, l: [Op.LIST] + l
+    list = lambda self, ls: [Op.LIST] + ls
     #pair = tuple
     #dict = dict
     forstmt = lambda self, f: f[0]
@@ -167,10 +168,11 @@ class TreeToWal(Transformer):
     false = lambda self, _: False
 
     def fcall(self, f):
-        try:
+        if f[0].name in operators:
             expr = [Op(f[0].name)] + f[1:]
-        except: # pylint: disable=W0702
+        else:
             expr = [f[0]] + f[1:]
+
         return expr
 
     def a_comp(self, x):

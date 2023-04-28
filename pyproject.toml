@@ -1,6 +1,12 @@
 [build-system]
 requires = [
 	 "setuptools>=42",
-	 "wheel"
+	 "wheel",
+	 "build",
+	 "ruff"
 ]
 build-backend = "setuptools.build_meta"
+
+[tool.ruff]
+select = ["E", "F"]
+ignore = ["E731", "E501"]

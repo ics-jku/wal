@@ -1,6 +1,6 @@
 PYTHON=python
 
-test:
+test: lint
 	$(PYTHON) -m pytest -v tests
 
 coverage:
@@ -9,7 +9,7 @@ coverage:
 	$(PYTHON) -m coverage html
 
 lint:
-	$(PYTHON) -m pylint -d C0301 -d C3001 $(shell git ls-files '*.py')
+	ruff .
 
 package:
 	rm -f dist/*

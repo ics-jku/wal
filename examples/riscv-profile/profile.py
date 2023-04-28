@@ -18,8 +18,9 @@ def ranges(binary_file):
         print('Now trying to fall back to the regular "nm"..\n')
         try:
             proc = subprocess.Popen( [ 'nm' , '-S', binary_file], stdout=subprocess.PIPE )
-        except:
+        except Exception as e:
             print('"nm" not found on system')
+            print(e)
             sys.exit(1)
 
     stdout, _ = proc.communicate()

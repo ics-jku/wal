@@ -2,12 +2,18 @@
 # pylint: disable=C0103, W0611, C0116, W0201
 import unittest
 
-from lark import Lark, Transformer
-from lark import UnexpectedInput, UnexpectedToken, UnexpectedEOF, UnexpectedCharacters
+from lark import Lark
 
-from wal.reader import read, ParseError, read_wal_sexpr, read_wal_sexprs
-from wal.ast_defs import S, ExpandGroup
+from wal.reader import read, WAL_GRAMMAR, ParseError, read_wal_sexpr, read_wal_sexprs
+from wal.ast_defs import S
 from wal.ast_defs import Operator as Op
+
+test_readers = {}
+def read_test(code, start):
+    if start not in test_readers:
+        test_readers[start] = Lark(WAL_GRAMMAR, start=start, parser='lalr')
+
+    return read(code, test_readers[start])
 
 
 class BasicParserTest(unittest.TestCase):
@@ -20,7 +26,7 @@ class BasicParserTest(unittest.TestCase):
 
     def test_binary(self):
         '''Test bin int parser'''
-        reader = lambda c: read(c, 'bin_int')
+        reader = lambda c: read_test(c, 'bin_int')
         self.assertEqual(reader('0b0'), 0)
         self.assertEqual(reader('0b1'), 1)
         self.assertEqual(reader('0b11'), 3)
@@ -32,7 +38,7 @@ class BasicParserTest(unittest.TestCase):
 
     def test_decimal_int(self):
         '''Test dec int parser'''
-        reader = lambda c: read(c, 'int')
+        reader = lambda c: read_test(c, 'int')
         self.assertEqual(reader('4'), 4)
         self.assertEqual(reader('46'), 46)
         self.assertEqual(reader('-4'), -4)
@@ -43,7 +49,7 @@ class BasicParserTest(unittest.TestCase):
 
     def test_hexadecimal_int(self):
         '''Test hex int parser'''
-        reader = lambda c: read(c, 'hex_int')
+        reader = lambda c: read_test(c, 'hex_int')
         self.assertEqual(reader('0x4'), 4)
         self.assertEqual(reader('0x46'), 70)
         self.assertEqual(reader('0x4ffaf6'), 0x4ffaf6)
@@ -51,9 +57,18 @@ class BasicParserTest(unittest.TestCase):
         self.assertRaises(ParseError, reader, 'a')
         self.assertRaises(ParseError, reader, '0xh')
 
+    def test_float(self):
+        '''Test parsing floats'''
+        reader_float = lambda c: read_test(c, 'float')
+        reader_sexpr = lambda c: read_test(c, 'sexpr')
+        pass_cases = [x / 3.2 for x in range(-500, 500, 15)]
+        for case in pass_cases:
+            self.assertEqual(reader_float(str(case)), case)
+            self.assertEqual(reader_sexpr(str(case)), case)
+
     def test_text(self):
         '''Test text parser'''
-        reader = lambda c: read(c, 'string')
+        reader = lambda c: read_test(c, 'string')
         self.assertEqual(reader('"foo"'), 'foo')
         self.assertEqual(reader('"1234"'), '1234')
         self.assertEqual(reader('"\'bar\'"'), '\'bar\'')
@@ -61,19 +76,21 @@ class BasicParserTest(unittest.TestCase):
 
     def test_base_symbol(self):
         '''Test symbol parser'''
-        reader = lambda c: read(c, 'base_symbol')
-        pass_cases = ['valid', '_valid', 'Valid', 'v123lid', 'va$lid']
+        reader_base = lambda c: read_test(c, 'base_symbol')
+        reader_symbol = lambda c: read_test(c, 'symbol')
+        pass_cases = ['valid', '_valid', 'Valid', 'v123lid', 'va$lid', 'state::bla=>x', 'x2']
         for case in pass_cases:
-            self.assertEqual(reader(case), S(case))
+            self.assertEqual(reader_base(case), S(case))
+            self.assertEqual(reader_symbol(case), S(case))
 
-        fail_cases = ['1valid', 'valid%', '  ', '\t', '1list', '-d21']
+        fail_cases = ['1valid', '%valid%', '\t', '1list', '-d21']
         for case in fail_cases:
-            print(case)
-            self.assertRaises(ParseError, reader, case)
+            self.assertRaises(ParseError, reader_base, case)
+            self.assertRaises(ParseError, reader_symbol, case)
 
     def test_scoped_symbol(self):
         '''Test symbol parser'''
-        reader = lambda c: read(c, 'scoped_symbol')
+        reader = lambda c: read_test(c, 'scoped_symbol')
         pass_cases = ['~valid', '~_valid', '~Valid', '~v123li/d', '~va$lid']
         for case in pass_cases:
             self.assertEqual(reader(case), [Op.RESOLVE_SCOPE, S(case[1:])])
@@ -85,7 +102,7 @@ class BasicParserTest(unittest.TestCase):
 
     def test_grouped_symbol(self):
         '''Test symbol parser'''
-        reader = lambda c: read(c, 'grouped_symbol')
+        reader = lambda c: read_test(c, 'grouped_symbol')
         pass_cases = ['#valid', '#_valid', '#Valid', '#v123li/d', '#va$lid']
         for case in pass_cases:
             self.assertEqual(reader(case), [Op.RESOLVE_GROUP, S(case[1:])])
@@ -95,24 +112,9 @@ class BasicParserTest(unittest.TestCase):
         for case in fail_cases:
             self.assertRaises(ParseError, reader, case)
 
-    # def test_timed_symbol(self):
-    #     '''Test relative expression evaluation'''
-    #     reader = lambda c: read(c, 'timed_symbol')
-    #     self.assertEqual(reader('valid@5'), [Op.REL_EVAL, S('valid'), 5])
-    #     self.assertEqual(reader('valid@-5'), [Op.REL_EVAL, S('valid'), -5])
-    #     self.assertRaises(ParseError, reader, 'valid @5')
-    #     self.assertRaises(ParseError, reader, 'valid@ 5')
-
-    #     self.assertEqual(reader('(+ x y)@-1'), [Op.REL_EVAL, [Op.ADD, S('x'), S('y')], -1])
-
-    # def test_multi_timed_symbol(self):
-    #     '''Test relative expression evaluation'''
-    #     reader = lambda c: read(c, 'timed_list')
-    #     self.assertEqual(reader('valid@<1 2>').elements, [[Op.REL_EVAL, S('valid'), 1], [Op.REL_EVAL, S('valid'), 2]])
-
     def test_operators(self):
         '''Test built-in operators'''
-        reader = lambda c: read(c, 'atom')
+        reader = lambda c: read_test(c, 'atom')
         for builtin in Op:
             self.assertEqual(reader(builtin.value),
                              Op(builtin.value))
@@ -123,7 +125,7 @@ class SexprParserTest(unittest.TestCase):
 
     def test_sexpr(self):
         '''Test simple s-expressions'''
-        reader = lambda c: read(c, 'sexpr')
+        reader = lambda c: read_test(c, 'sexpr')
         self.assertEqual(reader('5'), 5)
         self.assertEqual(reader('"foo"'), 'foo')
         self.assertEqual(reader('valid'), S('valid'))
@@ -134,14 +136,14 @@ class SexprParserTest(unittest.TestCase):
 
     def test_quoting(self):
         '''Test qouted sexprs'''
-        reader = lambda c: read(c, 'sexpr')
+        reader = lambda c: read_test(c, 'sexpr')
         self.assertEqual(reader('\'5'), [Op.QUOTE, 5])
         self.assertEqual(reader('\'valid'),
                          [Op.QUOTE, S('valid')])
 
     def test_sexpr_whtitespace(self):
         '''Test parsing of simple statements'''
-        reader = lambda c: read(c, 'sexpr')
+        reader = lambda c: read_test(c, 'sexpr')
         golden = [Op.ADD, 1, 2]
         self.assertEqual(reader('(+ 1 2)'), golden)
         self.assertEqual(reader(' (+ 1 2)'), golden)
@@ -149,14 +151,28 @@ class SexprParserTest(unittest.TestCase):
         self.assertEqual(reader('\n (+ 1 2) \n '), golden)
 
     def test_sexpr_simple_nested(self):
-        reader = lambda c: read(c, 'sexpr')
+        reader = lambda c: read_test(c, 'sexpr')
         golden = [Op.SUB, [Op.ADD, 1, 2]]
         self.assertEqual(reader('(- (+ 1 2))'), golden)
 
     def test_sexpr_quoted(self):
-        reader = lambda c: read(c, 'sexpr')
+        reader = lambda c: read_test(c, 'sexpr')
         golden = [Op.QUOTE, [Op.ADD, 1, 2]]
         self.assertEqual(reader("'(+ 1 2)"), golden)
+
+    def test_timed_sexpr(self):
+        '''Test relative expression evaluation'''
+        reader = lambda c: read_test(c, 'sexpr')
+        self.assertEqual(reader('valid@5'), [Op.REL_EVAL, S('valid'), 5])
+        self.assertEqual(reader('valid@-5'), [Op.REL_EVAL, S('valid'), -5])
+        self.assertEqual(reader('valid@(+ 1 2)'), [Op.REL_EVAL, S('valid'), [Op.ADD, 1, 2]])
+        self.assertEqual(reader('(+ valid 2)@5'), [Op.REL_EVAL, [Op.ADD, S('valid'), 2], 5])
+        self.assertEqual(reader('(+ valid 2)@x'), [Op.REL_EVAL, [Op.ADD, S('valid'), 2], S('x')])
+        self.assertEqual(reader('(+ valid 2)@(* x 2)'), [Op.REL_EVAL, [Op.ADD, S('valid'), 2], [Op.MUL, S('x'), 2]])
+        self.assertRaises(ParseError, reader, 'valid @5')
+        self.assertRaises(ParseError, reader, 'valid@ 5')
+
+        self.assertEqual(reader('(+ x y)@-1'), [Op.REL_EVAL, [Op.ADD, S('x'), S('y')], -1])        
 
 
 class SimpleProgramTest(unittest.TestCase):
