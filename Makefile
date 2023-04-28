@@ -13,6 +13,8 @@ lint:
 
 package:
 	rm -f dist/*
+	$(PYTHON) -m pip install .
+	$(PYTHON) -m pip install build virtualenv
 	$(PYTHON) -m walc wal/libs/std/std.wal
 	$(PYTHON) -m build
 
