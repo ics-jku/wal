@@ -53,17 +53,17 @@ if __name__ == '__main__':
 
     wal = Wal()
     wal.load(VCD)
-    wal.eval('(require config)') # require config script to get concrete signal names
-    wal.eval('''(defun count-function [addr]
+    wal.eval_str('(require config)') # require config script to get concrete signal names
+    wal.eval_str('''(defun count-function [addr]
                   (for [f funcs]
                     (when (&& (>= addr f[1]) (<= addr f[2]))
                         (seta dist f[0] (+ (geta/default dist 0 f[0]) 1)))))''')
 
     # calculate the time spent in each function, does not take subcalls into account
     dist = {}
-    wal.eval('(whenever (&& (> INDEX 0) clk fire) (count-function pc))', funcs=functions, dist=dist)
+    wal.eval_str('(whenever (&& (> INDEX 0) clk fire) (count-function pc))', funcs=functions, dist=dist)
     # get number of executed instructions
-    instructions_executed = wal.eval('(length (find (&& (> INDEX 0) clk fire)))')
+    instructions_executed = wal.eval_str('(length (find (&& (> INDEX 0) clk fire)))')
 
     # print results
     IN_KNOWN_FUNCTION = 0

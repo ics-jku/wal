@@ -114,7 +114,7 @@
 ;; trace functions
 ;;  (in-group (+ t ":") #INDEX)
 (defun ALL-INDICES []
-  (map (fn [t] (list t (get (+ t ":INDEX")))) (loaded-traces)))
+  (map (fn [t] (list t (get (+ t "§INDEX")))) (loaded-traces)))
 
 (defmacro timeframe body
   (let ([TIMEFRAME-START (gensym)]
@@ -141,7 +141,7 @@
   `(length (find ,condition)))
 
 (defun trace-index [trace]
-   (in-group (+ trace ":") #INDEX))
+   (in-group (+ trace "§") #INDEX))
 
 (defun set-index [i]
   (cond [(< i 0) #f]

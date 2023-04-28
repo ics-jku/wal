@@ -13,6 +13,7 @@ lint:
 
 package:
 	rm -f dist/*
+	$(PYTHON) -m walc wal/libs/std/std.wal
 	$(PYTHON) -m build
 
 uninstall:

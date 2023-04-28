@@ -41,7 +41,7 @@ setup(
         'test': ['ruff', 'coverage'],
     },
     package_data={
-        'wal': ['libs/std/std.wal']
+        'wal': ['libs/std/std.wal', 'libs/std/std.wo']
     },
 
     entry_points={
@@ -49,7 +49,6 @@ setup(
             'wal=wal.wal:run',
             'walc=wal.walc:run',
             'wawk=wawk.wawk:run',
-            'wal_setup=wal.install:run'
         ],
     },
 )

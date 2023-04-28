@@ -7,7 +7,6 @@ from wal.reader import read_wal_sexpr, ParseError
 from wal.ast_defs import Operator as Op
 from wal.ast_defs import Symbol as S
 from wal.passes import expand, optimize
-from wal.install import compile_stdlib
 
 class Wal:
     '''Main Wal class to be imported into other applications'''
@@ -17,7 +16,6 @@ class Wal:
         self.eval_context = SEval(self.traces)
         self.eval_context.wal = self
         self.eval_context.eval([Op.REQUIRE, S('std/std')])
-        compile_stdlib(self)
 
     def load(self, file, tid='DEFAULT', from_string=False):  # pylint: disable=C0103
         '''Load trace from file and add it using id to WAL'''
