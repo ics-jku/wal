@@ -1,4 +1,4 @@
-PYTHON=python
+PYTHON ?= python
 
 test: lint
 	$(PYTHON) -m pytest -v tests
