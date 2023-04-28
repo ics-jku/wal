@@ -1,12 +1,7 @@
 '''Implementations for WAL related functions such as loading and unloading traces.'''
 import os
 
-try:
-    from importlib.resources import files
-except ImportError:
-    # for python < 3.9
-    from importlib_resources import files
-
+from importlib_resources import files
 
 import wal
 from wal.ast_defs import Operator, Symbol
