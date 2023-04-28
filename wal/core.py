@@ -1,5 +1,6 @@
 '''The WAL core module'''
 # pylint: disable=C0103
+
 from wal.trace.container import TraceContainer
 from wal.eval import SEval
 from wal.reader import read_wal_sexpr, ParseError
@@ -7,7 +8,7 @@ from wal.ast_defs import Operator as Op
 from wal.ast_defs import Symbol as S
 from wal.passes import expand, optimize
 from wal.version import __version__ as wal_version
-
+from wal.install import compile_stdlib
 
 class Wal:
     '''Main Wal class to be imported into other applications'''
@@ -16,8 +17,8 @@ class Wal:
         self.traces = TraceContainer()
         self.eval_context = SEval(self.traces)
         self.eval_context.wal = self
-        self.eval_context.eval([Op.REQUIRE, S(f'{wal_version}/std')])
-
+        self.eval_context.eval([Op.REQUIRE, S('std/std')])
+        compile_stdlib(self)
 
     def load(self, file, tid='DEFAULT', from_string=False):  # pylint: disable=C0103
         '''Load trace from file and add it using id to WAL'''
@@ -68,7 +69,7 @@ class Wal:
         res = None
         if sexpr:
             self.eval_context.reset()
-            self.eval_context.eval([Op.REQUIRE, S(f'{wal_version}/std')])
+            self.eval_context.eval([Op.REQUIRE, S('std/std')])
 
             for name, val in args.items():
                 self.eval_context.global_environment.define(name, val)

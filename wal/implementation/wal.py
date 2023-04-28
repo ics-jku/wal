@@ -1,6 +1,9 @@
 '''Implementations for WAL related functions such as loading and unloading traces.'''
 import os
 
+from importlib.resources import files
+
+import wal
 from wal.ast_defs import Operator, Symbol
 from wal.util import wal_decode
 from wal.reader import read_wal_sexprs
@@ -69,6 +72,8 @@ def op_require(seval, args):
         def wal_file_exists(name):
             if os.path.isfile(name):
                 return name
+            if os.path.isfile(files(wal).joinpath(f'libs/{name}')):
+                return files(wal).joinpath(f'libs/{name}')
             if os.path.isfile(os.path.expanduser(f'~/.wal/libs/{name}')):
                 return os.path.expanduser(f'~/.wal/libs/{name}')
 

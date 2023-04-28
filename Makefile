@@ -23,7 +23,6 @@ install-user: clean package uninstall
 
 install: clean package uninstall
 	$(PYTHON) -m pip install dist/wal_lang-*-py3-none-any.whl
-	wal_setup
 
 clean:
 	rm -rf build dist

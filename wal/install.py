@@ -1,21 +1,17 @@
 '''Installation routine, creates a .wal dir if none exists and copies the stdlib into .wal '''
 import os
-import shutil
 from importlib.resources import files
 
 import wal
-from wal.walc import wal_compile
-from wal.version import __version__ as wal_version
 
-def run():
-    '''Entry point for wal_setup script'''
-    wal_path = os.path.expanduser('~/.wal')
-    wal_libs = wal_path + f'/libs/{wal_version}'
+def compile_stdlib(wal_obj):
+    'compile wal std lib file'
+    wal_path = files(wal).joinpath('libs/std/std.wal')
+    wo_path = files(wal).joinpath('libs/std/std.wo')
 
-    if not os.path.exists(wal_path):
-        os.makedirs(wal_libs)
+    from wal.walc import wal_compile # pylint: disable=C0415
 
-    shutil.copytree(files(wal).joinpath('libs/std'), wal_libs, dirs_exist_ok=True)
-
-    # compile wal std lib file
-    wal_compile(wal_libs + '/std.wal', wal_libs + '/std.wo')
+    if not os.path.isfile(wo_path):
+        print('Preparing stdlib...', end=' ', flush = True)
+        wal_compile(wal_path, wo_path, wal=wal_obj)
+        print('🐳')

@@ -4,7 +4,6 @@ import pickle
 from pathlib import Path
 from wal.version import __version__
 
-from wal.core import Wal
 from wal.reader import read_wal_sexprs
 from wal.passes import expand, optimize
 
@@ -31,13 +30,10 @@ class Arguments:  # pylint: disable=too-few-public-methods
         return args
 
 
-def wal_compile(inname, outname):
+def wal_compile(inname, outname, wal):
     '''Compiles the file inname to outname'''
     with open(inname, 'r', encoding='utf8') as fin:
         code = fin.read()
-
-        wal = Wal()
-
         compiled = []
 
         for sexpr in read_wal_sexprs(code):
@@ -60,4 +56,5 @@ def run():  # pylint: disable=R1710
     arg_parser = Arguments()
     args = arg_parser.parse()
 
-    wal_compile(args.input_name, args.output_name)
+    from wal.core import Wal
+    wal_compile(args.input_name, args.output_name, Wal())
