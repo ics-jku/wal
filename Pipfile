@@ -7,7 +7,7 @@ verify_ssl = true
 build = "*"
 coverage = "*"
 coverage-badge = "*"
-pylint = "*"
+ruff = "*"
 
 [packages]
 pyDigitalWaveTools = "*"
@@ -15,4 +15,4 @@ pylibfst = "*"
 lark-parser = "*"
 
 [requires]
-python_version = "3.7"
+python_version = "3.9"
