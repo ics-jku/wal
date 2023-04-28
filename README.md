@@ -19,20 +19,18 @@ After that, follow the instructions for your OS below inside the cloned director
 ## Installation from Source
 For Ubuntu (22.04 LTS):
 ```
-sudo apt install git cmake python3-cffi python3.10-venv python3-pip build-essential
+sudo apt install git cmake python3-cffi python3.10-venv python3-pip build-essential -y
 git clone https://github.com/ics-jku/wal.git
 cd wal
-pip install build virtualenv
-make install
+PYTHON=python3 make install
 echo "export PATH=\$PATH:$HOME/.local/bin" >> ~/.bashrc
 ```
 
 For Fedora (36):
 ```
-sudo dnf install git cmake g++ zlib-devel python3-devel
+sudo dnf install git cmake g++ zlib-devel python3-devel -y
 git clone https://github.com/ics-jku/wal.git
 cd wal
-pip install build virtualenv
 make install
 ```
 
@@ -41,7 +39,6 @@ For OpenSuse Tumbleweed:
 sudo zypper install git cmake gcc-c++ zlib-devel python3-devel
 git clone https://github.com/ics-jku/wal.git
 cd wal
-pip install build virtualenv
 make install
 ```
 
