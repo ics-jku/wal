@@ -34,8 +34,8 @@ setup(
     ],
     keywords=['verilog', 'VHDL', 'vcd', 'fst', 'development', 'hardware', 'rtl', 'simulation', 'verification', 'FPGA'],
     packages=find_packages(),
-    python_requires='>=3.9, <4',
-    install_requires=['pyDigitalWaveTools', 'lark-parser', 'dataclasses', 'pylibfst'],
+    python_requires='>=3.8, <4',
+    install_requires=['pyDigitalWaveTools', 'lark-parser', 'dataclasses', 'pylibfst','importlib-resources;python_version<"3.9"'],
     extras_require={
         'dev': [],
         'test': ['ruff', 'coverage'],
