@@ -7,7 +7,7 @@ import wal
 from wal.ast_defs import Operator, Symbol
 from wal.util import wal_decode
 from wal.reader import read_wal_sexprs
-from wal.passes import expand, optimize
+from wal.passes import expand, optimize, resolve
 from wal.repl import WalRepl
 
 
@@ -93,7 +93,8 @@ def op_require(seval, args):
             for sexpr in sexprs:
                 expanded = expand(seval, sexpr, parent=seval.global_environment)
                 optimized = optimize(expanded)
-                seval.eval(optimized)
+                resolved = resolve(optimized, start=seval.global_environment.environment)
+                seval.eval(resolved)
 
 
 def op_repl(seval, args): # pylint: disable=W0613

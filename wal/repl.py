@@ -6,8 +6,8 @@ import os
 
 from wal.util import wal_str
 from wal.reader import read_wal_sexpr, ParseError
-from wal.passes import expand, optimize
-from wal.ast_defs import Operator
+from wal.passes import expand, optimize, resolve
+from wal.ast_defs import Operator, Symbol
 from wal.trace.trace import Trace
 from wal.version import __version__
 
@@ -46,8 +46,8 @@ Exit to calling script or terminate running evaluations with CTRL-C'''
         try:
             expanded = expand(self.wal.eval_context, line, parent=self.wal.eval_context.global_environment)
             optimized = optimize(expanded)
-
-            evaluated = self.wal.eval(optimized)
+            resolved = resolve(optimized, start=self.wal.eval_context.global_environment.environment)
+            evaluated = self.wal.eval(resolved)
 
             if evaluated is not None:
                 print(wal_str(evaluated))
@@ -68,7 +68,7 @@ Exit to calling script or terminate running evaluations with CTRL-C'''
             sexpr = read_wal_sexpr(line)
             # intercept defuns to include them in completion
             if isinstance(sexpr, list):
-                if sexpr[0] == Operator.DEFUN:
+                if sexpr[0] == Symbol('defun'):
                     self.complete_list.append(sexpr[1].name)
 
             return sexpr

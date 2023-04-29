@@ -9,7 +9,7 @@ from wal.core import Wal
 from wal.repl import WalRepl
 from wal.util import wal_decode
 from wal.reader import read_wal_sexprs, ParseError
-from wal.passes import expand, optimize
+from wal.passes import expand, optimize, resolve
 from wal.version import __version__ as wal_version
 
 
@@ -90,7 +90,8 @@ def main():  # pylint: disable=R1710
             for sexpr in sexprs:
                 expanded = expand(wal.eval_context, sexpr, parent=wal.eval_context.global_environment)
                 optimized = optimize(expanded)
-                wal.eval(optimized)
+                resolved = resolve(optimized, start=wal.eval_context.global_environment.environment)
+                wal.eval(resolved)
         except Exception as e: # pylint: disable=W0703
             print()
             print('>>>>> Runtime error! <<<<<')

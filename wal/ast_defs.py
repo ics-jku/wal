@@ -38,11 +38,7 @@ class Operator(Enum):
     SET = 'set'
     DEFINE = 'define'
     LET = 'let'
-    # INC = 'inc'
     IF = 'if'
-    # COND = 'cond'
-    # WHEN = 'when'
-    # UNLESS = 'unless'
     CASE = 'case'
     WHILE = 'while'
     DO = 'do'
@@ -53,7 +49,6 @@ class Operator(Enum):
     UNQUOTE = 'unquote'
     EVAL = 'eval'
     PARSE = 'parse'
-    DEFUN = 'defun'
     DEFMACRO = 'defmacro'
     MACROEXPAND = 'macroexpand'
     GENSYM = 'gensym'
@@ -72,7 +67,6 @@ class Operator(Enum):
     MAP = 'map'
     MAX = 'max'
     MIN = 'min'
-    # SUM = 'sum'
     FOLD = 'fold'
     LENGTH = 'length'
     AVERAGE = 'average'
@@ -114,8 +108,6 @@ class Operator(Enum):
     FIND_G = 'find/g'
     WHENEVER = 'whenever'
     FOLD_SIGNAL = 'fold/signal'
-    # COUNT = 'count'
-    # TIMEFRAME = 'timeframe'
     SIGNAL_WIDTH = 'signal-width'
     SAMPLE_AT = 'sample-at'
     # system
@@ -126,18 +118,26 @@ class Operator(Enum):
     DUMPTRACE = 'dump-trace'
 
 
-@dataclass
 class Symbol:
     '''Symbol class'''
-    name: str
 
-    def __init__(self, name):
+    def __init__(self, name, steps=0):
         self.name = name
+        self.steps = steps
+
+    def __repr__(self):
+        return self.name
+
+    def __eq__(self, other):
+        if isinstance(self, other.__class__):
+            return self.name == other.name and self.steps == other.steps
+
+        return False
 
 
-def S(name):  # pylint: disable=C0103
+def S(name, steps=0):  # pylint: disable=C0103
     '''Helper function to create Symbols'''
-    return Symbol(name)
+    return Symbol(name, steps)
 
 
 # pylint: disable=R0903

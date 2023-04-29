@@ -7,7 +7,7 @@ import importlib
 
 from wal.ast_defs import Operator, Symbol, Closure, Environment, Macro, Unquote, UnquoteSplice
 from wal.reader import read_wal_sexpr
-from wal.passes import expand, optimize
+from wal.passes import expand, optimize, resolve
 from wal.util import wal_str
 
 
@@ -242,7 +242,8 @@ def op_eval(seval, args):
     evaluated = seval.eval(args[0])
     expanded = expand(seval, evaluated, parent=seval.global_environment)
     optimized = optimize(expanded)
-    return seval.eval(optimized)
+    resolved = resolve(optimized)
+    return seval.eval(resolved)
 
 
 def op_parse(seval, args):
@@ -256,16 +257,16 @@ def op_parse(seval, args):
     return [Operator.DO] + sexprs
 
 
-def op_defun(seval, args):
-    assert len(args) >= 3, 'defun: '
-    assert isinstance(args[0], Symbol), f'defun: first argument must be a symbol not {args[0]}'
-    assert isinstance(args[1], (list, Symbol)), 'defun: second argument must be a list of symbols'
-    assert isinstance(args[2], (Symbol, int, str, list)), 'defun: third argument must be a valid expression'
+# def op_defun(seval, args):
+#     assert len(args) >= 3, 'defun: '
+#     assert isinstance(args[0], Symbol), f'defun: first argument must be a symbol not {args[0]}'
+#     assert isinstance(args[1], (list, Symbol)), 'defun: second argument must be a list of symbols'
+#     assert isinstance(args[2], (Symbol, int, str, list)), 'defun: third argument must be a valid expression'
 
-    if isinstance(args[0], list):
-        assert all(isinstance(arg, Symbol) for arg in args[0])
+#     if isinstance(args[0], list):
+#         assert all(isinstance(arg, Symbol) for arg in args[0])
 
-    seval.environment.define(args[0].name, Closure(seval.environment, args[1], [Operator.DO, *args[2:]], name=args[0].name))
+#     seval.environment.define(args[0].name, Closure(seval.environment, args[1], [Operator.DO, *args[2:]], name=args[0].name))
 
 
 def op_lambda(seval, args):  # pylint: disable=W0613
@@ -293,13 +294,12 @@ def op_macroexpand(seval, args):
     assert len(args) == 1, 'macroexpand: expects exactly one argument'
     expanded = expand(seval, args[0])
     optimized = optimize(expanded)
-    return optimized
+    return resolve(optimized)
 
 
-# pylint: disable=W0613
 def op_gensym(seval, args):
     seval.gensymi += 1
-    return Symbol(f'${seval.gensymi}')
+    return Symbol(f'${seval.gensymi}', 0)
 
 
 def op_get(seval, args):
@@ -611,7 +611,7 @@ core_operators = {
     Operator.UNQUOTE.value: op_unquote,
     Operator.EVAL.value: op_eval,
     Operator.PARSE.value: op_parse,
-    Operator.DEFUN.value: op_defun,
+    # Operator.DEFUN.value: op_defun,
     Operator.DEFMACRO.value: op_defmacro,
     Operator.MACROEXPAND.value: op_macroexpand,
     Operator.GENSYM.value: op_gensym,

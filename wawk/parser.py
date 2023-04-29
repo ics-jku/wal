@@ -111,7 +111,7 @@ WAWK_GRAMMAR = r"""
 class TreeToWal(Transformer):
     '''Transforms a parsed tree into WAL data structures'''
 
-    function = lambda self, f: Statement([S('BEGIN')], [Op.DEFUN, f[0], f[1:-1], f[-1]])
+    function = lambda self, f: Statement([S('BEGIN')], [S('defun'), f[0], f[1:-1], f[-1]])
     statement = lambda self, s: Statement(s[:-1], s[-1])
     line = lambda self, line: line[0]
     program = lambda self, p: p

@@ -3,10 +3,10 @@
 
 from wal.trace.container import TraceContainer
 from wal.eval import SEval
-from wal.reader import read_wal_sexpr, ParseError
+from wal.reader import read_wal_sexpr, read_wal_sexprs, ParseError
 from wal.ast_defs import Operator as Op
 from wal.ast_defs import Symbol as S
-from wal.passes import expand, optimize
+from wal.passes import expand, optimize, resolve
 
 class Wal:
     '''Main Wal class to be imported into other applications'''
@@ -50,7 +50,8 @@ class Wal:
         if sexpr:
             expanded = expand(self.eval_context, sexpr, parent=self.eval_context.global_environment)
             optimized = optimize(expanded)
-            return self.eval_context.eval(optimized)
+            resolved = resolve(optimized, start=self.eval_context.global_environment.environment)
+            return self.eval_context.eval(resolved)
 
         # remove passed arguments from context
         for name, val in args.items():
@@ -58,11 +59,18 @@ class Wal:
 
         return None
 
+    def run_str(self, txt, **args):
+        '''Parses and runs the txt argument'''
+        assert isinstance(txt, str)
+        try:
+            sexpr = read_wal_sexpr(txt)
+            return self.run(sexpr, **args)
+        except ParseError as e:
+            e.show()
+            return None
+
     def run(self, sexpr, **args):
         '''Evaluate the WAL expressions sexprs from Index 0'''
-        if isinstance(sexpr, str):
-            sexpr = read_wal_sexpr(sexpr)
-
         res = None
         if sexpr:
             self.eval_context.reset()
@@ -73,11 +81,12 @@ class Wal:
 
             expanded = expand(self.eval_context, sexpr, parent=self.eval_context.global_environment)
             optimized = optimize(expanded)
-            res = self.eval_context.eval(optimized)
+            resolved = resolve(optimized, start=self.eval_context.global_environment.environment)
+            res = self.eval_context.eval(resolved)
 
         return res
 
     def run_file(self, filename):
         '''Executes a WAL program from a file'''
         with open(filename, 'r', encoding='utf-8') as fin:
-            self.eval_context.eval(fin.read())
+            return self.eval([Op.DO, *read_wal_sexprs(fin.read())])

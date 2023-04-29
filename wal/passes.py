@@ -1,5 +1,4 @@
 '''WAL Interpreter Passes '''
-# pylint: disable=C0103,R0912,W0150
 from math import prod
 
 from wal.ast_defs import Operator, Symbol, Macro, Environment
@@ -82,3 +81,70 @@ def optimize(expr):
 
     finally:
         return expr
+
+
+def resolve(expr, start={}):
+    '''Variable environment resolution pass '''
+    scopes=[None, dict(start)]    
+    def resolve_vars(expr):
+        if isinstance(expr, list):
+            op = expr[0]
+            if op == Operator.DEFINE:
+                id = expr[1]
+                assert id.name not in scopes[-1], f'symbol {id} already defined'
+                body = resolve_vars(expr[2])
+                scopes[-1][expr[1].name] = True
+                return [Operator.DEFINE, id, body]
+            elif op == Operator.LET:
+                env = {}
+                scopes.append(env)
+                for binding in expr[1]:
+                    env[binding[0].name] = True
+
+                body = [resolve_vars(sub) for sub in expr[2:]]
+                scopes.pop()
+                return [Operator.LET, expr[1], *body]
+            elif op == Operator.LAMBDA:
+                args = expr[1]
+                env = {}
+                scopes.append(env)
+                if isinstance(args, list):
+                    for arg in expr[1]:
+                        assert isinstance(arg, Symbol), 'lambda: parameters must be symbols'
+                        env[arg.name] = True
+                elif isinstance(args, Symbol):
+                    env[args.name] = True
+                else:
+                    assert False, 'lambda: first argument must be a list or a symbol'
+
+                body = [resolve_vars(sub) for sub in expr[2:]]
+                scopes.pop()
+                return [Operator.LAMBDA, expr[1], *body]
+            elif op == Operator.DEFMACRO:
+                scopes[-1][expr[1].name] = True
+                return expr
+            elif op in [Operator.QUOTE, Operator.QUASIQUOTE, Operator.ALIAS]:
+                return expr
+            else:
+                return [expr[0], *[resolve_vars(sub) for sub in expr[1:]]]
+        elif isinstance(expr, Symbol):
+            id = expr.name
+            steps = 0
+            while scopes[-steps-1] is not None and id not in scopes[-steps-1]:
+                steps += 1
+
+            if scopes[-steps-1]:
+                return Symbol(expr.name, steps)
+            else:
+                # if the symbol is not defined it still can be a signal
+                # in this case just use regular slow resolution
+                return expr
+
+        # all other expression can just be returned as they are
+        return expr
+
+    return(resolve_vars(expr))
+
+
+
+            

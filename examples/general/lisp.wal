@@ -38,10 +38,9 @@
 (print "McCarthy LISP implemented in WAL")
 (print "Based on http://www.paulgraham.com/rootsoflisp.html by Paul Graham")
 
-(defun test (name eut goal)
-  (do
-    (set (res (leval eut '())))
-    (printf "\t%-10s: %s\n" name (if (= res goal) "PASS" (+ "FAIL/ " res " is not " goal)))))
+(defmacro test (name eut goal)
+  `(let ([res (leval ,eut '())])
+     (printf "\t%-10s: %s\n" ,name (if (= res ,goal) "PASS" (+ "FAIL/ " res " is not " ,goal)))))
 
 
 (test "Quote"  '(quote v) 'v)
@@ -55,4 +54,3 @@
       	       	      ((eq 'a 'a) '2)) '1)
 (test "Cond2"  '(cond ((eq 'a 'b) '1)
   		      ((eq 'a 'a) '2)) '2)
-

@@ -85,11 +85,23 @@ class SEval:
 
         if isinstance(expr, Symbol):
             name = expr.name
-            if expr.name in self.aliases: # if an alias exists
+            if expr.name in self.aliases: # if an alias exists                
                 name = self.aliases[expr.name]
+
+            # this symbol was already resolved
+            if expr.steps:
+                env = self.environment
+                steps = expr.steps
+                while steps > 0:
+                    env = self.environment.parent
+                    steps -= 1
+
+                res = env.read(expr.name)
+                    
             if self.traces.contains(name):  # if symbol is a signal from wavefile
                 res = self.traces.signal_value(name, scope=self.scope) # env[symbol_id]
             else:
+                # this symbol has not been resolved
                 res = self.environment.read(name)
         elif isinstance(expr, list):
             head = expr[0]
