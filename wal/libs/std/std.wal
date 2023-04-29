@@ -134,10 +134,10 @@
   `(&& (! ,expr)@-1 ,expr))
 
 (defmacro falling [expr]
-  `(&& ,expr@-1 (! ,expr)))
+  `(&& (reval ,expr -1) (! ,expr)))
 
 (defmacro stable [expr]
-  `(= ,expr@-1 ,expr))
+  `(= (reval ,expr -1) ,expr))
 
 (defmacro signed [signal]
   `(bits->sint (convert/bin ,signal (signal-width ',signal))))
