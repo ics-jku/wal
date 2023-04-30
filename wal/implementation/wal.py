@@ -65,8 +65,10 @@ def op_step(seval, args):
 
 def op_require(seval, args):
     '''Executes WAL module and adds definitions to WAL context'''
-    assert len(args) > 0, 'require: expects at least one argument (require module:symbol+)'
-    assert all(isinstance(s, Symbol) for s in args), 'require: all argument must be symbols'
+    assert len(args) > 0, 'require: expects at least one argument (require module:str|symbol+)'
+    assert all(isinstance(s, (str, Symbol)) for s in args), 'require: arguments must be symbols or strings'
+    args = [arg.name if isinstance(arg, Symbol) else arg for arg in args]
+
     for module in args:
 
         def wal_file_exists(name):
@@ -80,13 +82,13 @@ def op_require(seval, args):
             return False
 
         sexprs = None
-        if name := wal_file_exists(module.name + '.wo'):
+        if name := wal_file_exists(module + '.wo'):
             sexprs = wal_decode(name)
-        elif name := wal_file_exists(module.name + '.wal'):
+        elif name := wal_file_exists(module + '.wal'):
             with open(name, 'r', encoding='utf-8') as file:
                 sexprs = read_wal_sexprs(file.read())
         else:
-            print(f'require: cant find file {module.name}.wal')
+            print(f'require: cant find file {module}.wal')
             raise FileNotFoundError
 
         if sexprs:
