@@ -4,9 +4,8 @@ import ast
 from lark import Lark, Transformer
 from lark import UnexpectedToken, UnexpectedEOF, UnexpectedCharacters
 from lark.exceptions import VisitError
-from wal.ast_defs import Symbol, S, Operator, Unquote, UnquoteSplice
+from wal.ast_defs import Symbol, S, Operator, Unquote, UnquoteSplice, operators
 
-operators = set([op.value for op in Operator])
 
 WAL_GRAMMAR = r"""
     _NL: /(\r?\n)+/

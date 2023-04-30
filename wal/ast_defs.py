@@ -118,10 +118,13 @@ class Operator(Enum):
     DUMPTRACE = 'dump-trace'
 
 
+operators = set([op.value for op in Operator])
+
+    
 class Symbol:
     '''Symbol class'''
 
-    def __init__(self, name, steps=0):
+    def __init__(self, name, steps=None):
         self.name = name
         self.steps = steps
 
@@ -135,16 +138,17 @@ class Symbol:
         return False
 
 
-def S(name, steps=0):  # pylint: disable=C0103
+def S(name, steps=None):  # pylint: disable=C0103
     '''Helper function to create Symbols'''
     return Symbol(name, steps)
 
 
-# pylint: disable=R0903
-class ExpandGroup:
-    '''Wrapper for expand groups'''
-    def __init__(self, elements):
-        self.elements = elements
+class UserOperator:
+    '''Class that wraps a user specified operator'''
+
+    def __init__(self, name):
+        assert name not in operators, f'redefining {name} is not allowed'
+        self.name = name
 
 
 class Environment:

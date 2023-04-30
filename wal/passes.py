@@ -125,8 +125,10 @@ def resolve(expr, start={}):
                 return expr
             elif op in [Operator.QUOTE, Operator.QUASIQUOTE, Operator.ALIAS]:
                 return expr
+            # elif isinstance(op, (Operatorop, S.name in operators:
+            #     return [expr[0], *[resolve_vars(sub) for sub in expr[1:]]]
             else:
-                return [expr[0], *[resolve_vars(sub) for sub in expr[1:]]]
+                return [resolve_vars(sub) for sub in expr]
         elif isinstance(expr, Symbol):
             id = expr.name
             steps = 0

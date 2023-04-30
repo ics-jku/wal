@@ -1,6 +1,6 @@
 '''S-Exprssion eval functions'''
 from wal.util import wal_str
-from wal.ast_defs import Operator, Symbol, ExpandGroup, Environment, Closure, Macro
+from wal.ast_defs import Operator, UserOperator, Symbol, Environment, Closure, Macro
 from wal.implementation.types import type_operators
 from wal.implementation.math import math_operators
 from wal.implementation.list import list_operators
@@ -31,6 +31,7 @@ class SEval:
         self.dispatch = {**core_operators, **math_operators, **type_operators, \
             **list_operators, **array_operators, **wal_operators, \
             **special_operators, **virtual_operators}
+        self.user_dispatch = {}
 
     def reset(self):
         '''Resets all traces back to time 0 and resets all WAL elements (e.g. aliases, imports, ...) '''
@@ -57,8 +58,12 @@ class SEval:
         return list(map(self.eval, args))
 
     def eval_dispatch(self, oprtr, args):
-        '''Evaluate all functions dealing with lists'''
+        '''Dispatch operators'''
         return self.dispatch.get(oprtr.value, lambda a, b: NotImplementedError())(self, args)
+
+    def eval_user_dispatch(self, oprtr, args):
+        '''Dispatch operators added by the user'''
+        return self.user_dispatch.get(oprtr.name, lambda a, b: NotImplementedError())(self, args)
 
     def eval_closure(self, closure, args):
         '''Evaluate a closure.'''
@@ -89,7 +94,7 @@ class SEval:
                 name = self.aliases[expr.name]
 
             # this symbol was already resolved
-            if expr.steps:
+            if expr.steps is not None:
                 env = self.environment
                 steps = expr.steps
                 while steps > 0:
@@ -105,23 +110,22 @@ class SEval:
                 res = self.environment.read(name)
         elif isinstance(expr, list):
             head = expr[0]
-            tail = []
-            for element in expr[1:]:
-                if isinstance(element, ExpandGroup):
-                    tail += element.elements
-                else:
-                    tail.append(element)
+            tail = expr[1:]
 
             if isinstance(head, Operator):
                 res = self.eval_dispatch(head, tail)
             elif isinstance(head, Closure):
                 res = self.eval_closure(head, tail)
+            elif isinstance(head, UserOperator):
+                res = self.eval_user_dispatch(head, tail)
             elif isinstance(head, Macro):
                 expanded = self.eval(head.expression)
                 expr.clear()
                 for expression in expanded:
                     expr.append(expression)
                 res = self.eval(expr)
+            elif callable(expr[0]):
+                res = expr[0](*expr[1:])                
             elif isinstance(head, (int, str)):
                 assert False, f'{wal_str(expr)} is not a valid function call'
             else:
@@ -129,8 +133,6 @@ class SEval:
                 res = self.eval([func] + tail)
         elif isinstance(expr, (int, str, float, Closure)):
             res = expr
-        elif isinstance(expr, ExpandGroup):
-            res = list(map(self.eval, expr.elements))
 
         if not isinstance(res, Exception):
             return res

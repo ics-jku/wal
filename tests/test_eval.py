@@ -284,18 +284,22 @@ class BasicOpTest(OpTest):
         self.w.eval_str('(set (x (+ x x)))')
         self.checkEqual('x', 6)
 
-        # check if set return correct value
+        # check if set returns correct value
         self.checkEqual('(set (x (+ x x)))', 12)
 
-        self.w.eval_str('(set (a 11) (b 22))')
+        self.w.eval_str('(do (define a 0) (set (a 11)))')
         self.checkEqual('a', 11)
+        self.w.eval_str('(do (define b 1) (set (a 11) (b 22)))')
         self.checkEqual('b', 22)
 
-        self.checkEqual('(set (a 11) (b 22))', 22)
+        self.checkEqual('(let ([b 0]) (set (a 11) (b 22)))', 22)
 
-        # should fail because only symbols can be assigned to
         with self.assertRaises(AssertionError):
+            # should fail because only symbols can be assigned to
             self.w.eval_str('(set (5 5))')
+
+            # should fail because xx is not defined
+            self.w.eval_str('(set (xx 5))')
 
 
 class EvalPrintTest(OpTest):
@@ -398,6 +402,7 @@ class EvalControlFlowTest(OpTest):
     def test_case(self):
         '''Test case construct'''
         case1 = '(case a (1 "a") (2 "b") (3 "c"))'
+        self.w.eval_str('(define a 0)')
         self.w.eval_str('(set (a 1))')
         self.checkEqual(case1, "a")
         self.w.eval_str('(set (a 2))')
@@ -485,28 +490,6 @@ class EvalControlFlowTest(OpTest):
         with self.assertRaises(AssertionError):
             self.w.eval_str('(quote a b)')
 
-#     def test_inc(self):
-#         '''Test incrementing'''
-#         self.eval(Operator.SET, [S('x'), 1, S('y'), 2])
-#         self.assertEqual(self.eval(Operator.INC, [S('x')]), 1 + 1)
-#         self.assertEqual(self.se.eval({}, S('x')), 1 + 1)
-#         self.assertEqual(self.eval(Operator.INC, [S('x'), S('y')]), 2 + 1)
-#         self.assertEqual(self.eval(Operator.INC, [S('foobar')]), 1)
-
-#         # should fail since inc requires at least 1 argument
-#         with self.assertRaises(AssertionError):
-#             self.eval(Operator.INC, [])
-#         # should fail since inc arg must be symbols
-#         with self.assertRaises(AssertionError):
-#             self.eval(Operator.INC, [1])
-#         # should fail since inc args must be initialized
-#         # with self.assertRaises(AssertionError):
-#         #    self.eval(Operator.INC, [S('foo')])
-#         # should fail since dereferenced inc args must be ints
-#         with self.assertRaises(AssertionError):
-#             self.eval(Operator.SET, [S('foo'), 'bar'])
-#             self.eval(Operator.INC, [S('foo')])
-
 
 class EvalFunctionTest(OpTest):
     '''Test control flow functions'''
@@ -530,5 +513,5 @@ class EvalFunctionTest(OpTest):
             self.w.eval_str('(lambda (x) (+ x 1) 1 2)')
 
         # Apply named lambda
-        self.w.eval_str('(set (foo (lambda (y) (* y 2))))')
+        self.w.eval_str('(define foo (lambda (y) (* y 2)))')
         self.checkEqual('(foo 5)', 10)

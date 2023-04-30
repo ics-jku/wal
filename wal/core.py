@@ -6,6 +6,7 @@ from wal.eval import SEval
 from wal.reader import read_wal_sexpr, read_wal_sexprs, ParseError
 from wal.ast_defs import Operator as Op
 from wal.ast_defs import Symbol as S
+from wal.ast_defs import UserOperator
 from wal.passes import expand, optimize, resolve
 
 class Wal:
@@ -90,3 +91,8 @@ class Wal:
         '''Executes a WAL program from a file'''
         with open(filename, 'r', encoding='utf-8') as fin:
             return self.eval([Op.DO, *read_wal_sexprs(fin.read())])
+
+
+    def register_operator(self, name, function):
+        self.eval_context.global_environment.define(name, UserOperator(name))
+        self.eval_context.user_dispatch[name] = function

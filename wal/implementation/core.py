@@ -99,11 +99,22 @@ def op_set(seval, args):
         key = arg[0]
         assert isinstance(key, Symbol), 'set: key must be a symbol'
         res = seval.eval(arg[1])
-        defined_at = seval.environment.is_defined(key.name)
-        if defined_at:
-            defined_at[key.name] = res
+
+        # this signal was already resolved
+        if key.steps is not None:
+            defined_at = seval.environment
+            steps = key.steps
+            while steps > 0:
+                defined_at = seval.environment.parent
+                steps -= 1
         else:
-            seval.environment.define(key.name, res)
+            defined_at = seval.environment.is_defined(key.name)
+
+        if defined_at:
+            defined_at.environment[key.name] = res
+        else:
+            assert f'Write to undefined symbol {key.name}'
+        #    seval.environment.define(key.name, res)
 
     return res
 

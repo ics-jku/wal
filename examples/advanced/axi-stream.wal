@@ -6,9 +6,10 @@
 (alias valid uut_rx.m_axis_tvalid)
 (alias data uut_rx.m_axis_tdata)
 
-(set [byte-arrived 0]
-     [bytes-dropped 0]
-     [byte-delay '()])
+(define byte-arrived 0)
+(define bytes-dropped 0)
+(define byte-delay '())
+(define ack-delay 0)
 
 ;; Iterate over the complete trace and print all arrived,  read, and delayed byes.
 ;; Also calculate the average delay between the time a byte

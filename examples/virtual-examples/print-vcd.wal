@@ -1,18 +1,10 @@
-#!wal
-
-(define max-signal 0)
-(define types (array))
-
-(defun is-bin [signal start i]
-  (cond [(! (in (get signal)@i '(0 1 "x"))) (seta types signal #f)]
-        [(> i (+ start 20)) (seta types signal #t)]
-	[#t (is-bin signal start (+ i 1))]))	
+(define max-signal 10)
 
 (defun print-header ()
-       (set (start INDEX))
+       (define start INDEX)
        (printf (+ "%" max-signal "s: ") "Index")
        (when (>= INDEX 4) (step -4))
-       (set [run #t])
+       (define run #t)
        (while (&& (< INDEX (+ start 20)) run)
        	      (printf "%-4d" INDEX)
 	      (set [run (step)]))
@@ -20,10 +12,11 @@
        (step -20))
 
 (defun print-bin (signal index)
-       (set (start INDEX))
+       (define start INDEX)
        (printf (+ "%" max-signal "s: ") signal)
        (when (>= INDEX 4) (step -4))
-       (set [run #t])
+       (define run #t)
+       (define sym "")
        (while (&& (< INDEX (+ start 20)) run)
        	      (when (= INDEX start) (printf "|"))
 	      (set (sym (case (get signal) (0 "⎽") (1 "⎻") ("x" "X"))))
@@ -36,33 +29,28 @@
 
 (defun print-signal (signal index)
        (printf (+ "%" max-signal "s: ") signal)
-       (set (start INDEX))
+       (define start INDEX)
        (when (>= INDEX 4) (step -4))
-       (set [run #t])
+       (define run #t)
        (while (&& (< INDEX (+ start 20)) run)       
        	      (when (= INDEX start) (printf "|"))
-	      (set (v (get signal))
-		   (p (get signal)@-1)
-		   (n (get signal)@1))
-	      (cond [(= v 0) (printf "────")]
-	      	    [(= v "x") (printf "XXXX")]
-		    [(!= p v) (printf "┤%3x" v)]
-		    [(&& (!= p v) (!= v n)) (printf "┤%2x├" v)]
-		    [(!= v n) (printf "   ├")]
-	      	    [#t (printf "    ")])
+	      (let ([v (get signal)]
+		    [p (get signal)@-1]
+		    [n (get signal)@1])
+		(cond [(= v 0) (printf "────")]
+	      	      [(= v "x") (printf "XXXX")]
+		      [(!= p v) (printf "┤%3x" v)]
+		      [(&& (!= p v) (!= v n)) (printf "┤%2x├" v)]
+		      [(!= v n) (printf "   ├")]
+	      	      [#t (printf "    ")]))
 	      (set [run (step)]))
        (print)
        (step -20))
 
 (defun render [signals]
-       ;; init
-       (set (max-signal (max (map (fn [x] (length x)) signals))))
-       (map (fn [x] (is-bin x INDEX 0)) signals)
-       
        (printf (+ "%" max-signal "s: %s\n") "Waveform" TRACE-FILE)
-       (printf (+ "%" max-signal "s: %s\n") "Scope" CS)
        (print-header)
        (map (fn (signal)
-       	    	    (if (geta types signal)
+       	    	    (if (= (signal-width signal) 1)
 		    	(print-bin signal 10)
 			(print-signal signal 10))) signals))

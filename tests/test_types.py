@@ -31,7 +31,7 @@ class BasicOpTest(unittest.TestCase):
 
         self.checkEqual("(symbol? 'a)", True)
         self.checkEqual("(symbol? 'TOP.sub.sig)", True)
-        self.wal.eval_str("(set [x 'a])")
+        self.wal.eval_str("(define x 'a)")
         self.checkEqual("(symbol? x)", True)
         self.checkEqual('(symbol? "symbol")', False)
         self.checkEqual('(symbol? (let ([a 5]) a))', False)

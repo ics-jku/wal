@@ -63,6 +63,11 @@ class BasicResolveTest(unittest.TestCase):
         self.checkEqual('(lambda [x y] (lambda [y] y))', [Op.LAMBDA, [S('x'), S('y')], [Op.LAMBDA, [S('y')], S('y', 0)]])
         self.checkEqual('(lambda [x y] (lambda [z] y))', [Op.LAMBDA, [S('x'), S('y')], [Op.LAMBDA, [S('z')], S('y', 1)]])
 
+    def test_resolution_in_set(self):
+        self.checkEqual('(set [x 5])', [Op.SET, [S('x'), 5]])
+        self.checkEqual('(do (define x 0) (set [x 5]))', [Op.DO, [Op.DEFINE, S('x'), 0], [Op.SET, [S('x', 0), 5]]])
+        self.checkEqual('(do (define x 0) (set [x x]))', [Op.DO, [Op.DEFINE, S('x'), 0], [Op.SET, [S('x', 0), S('x', 0)]]])
+        self.checkEqual('(do (define x 0) (set [x y]))', [Op.DO, [Op.DEFINE, S('x'), 0], [Op.SET, [S('x', 0), S('y')]]])
 
 class ResolveEvalTest(unittest.TestCase):
     '''Test built-in functions'''
@@ -118,3 +123,9 @@ class ResolveEvalTest(unittest.TestCase):
         self.checkEqual('((lambda [x] ((lambda [y] y) x)) 11)', 11)
         self.checkEqual('((lambda [x y] ((lambda [y] y) (+ x y))) 22 33)', 55)
         self.checkEqual('((lambda [x y] ((lambda [z] y) 0)) 22 33)', 33)
+
+    def test_resolution_in_set(self):
+        self.checkEqual('(set [x 5])', 5)
+        self.checkEqual('(do (define x 0) (set [x 5]))', 5)
+        self.checkEqual('(do (define x 0) (set [x x]))', 0)
+        self.checkRaises('(do (define x 0) (set [x y]))')

@@ -18,7 +18,7 @@ BEGIN: {
 
 // returns true when new valid data is available
 function new_data() {
-    res = (!valid@-2 && valid) || ((data@-2 != data) && valid);
+    res = rising(valid) || (valid && !stable(data));
 }
 
 clk, new_data(): {
