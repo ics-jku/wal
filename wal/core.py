@@ -98,7 +98,7 @@ class Wal:
 
 
     def append_walpath(self, path):
-        if path not in self.seval.walpath:
+        if path not in self.eval_context.walpath:
             self.eval_context.walpath.append(path)
             return True
 
