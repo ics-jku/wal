@@ -1,3 +1,7 @@
+from spade import Spade
+from pathlib import Path
+from wal.core import Wal
+
 class WalAnalysisPass:
 
     __wal_pass__ = True
