@@ -95,3 +95,11 @@ class Wal:
     def register_operator(self, name, function):
         self.eval_context.global_environment.define(name, UserOperator(name))
         self.eval_context.user_dispatch[name] = function
+
+
+    def append_walpath(self, path):
+        if path not in self.seval.walpath:
+            self.seval.walpath.append(path)
+            return True
+
+        return False

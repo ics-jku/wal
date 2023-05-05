@@ -39,7 +39,6 @@ class SEval:
         self.user_dispatch = {}
         initial_walpath = ['.', os.path.expanduser('~/.wal/libs/'), str(files(wal).joinpath('libs/'))]
         self.walpath = initial_walpath + os.getenv('WALPATH', '').split(';')
-        print(self.walpath)
 
     def reset(self):
         '''Resets all traces back to time 0 and resets all WAL elements (e.g. aliases, imports, ...) '''

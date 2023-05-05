@@ -72,7 +72,6 @@ def op_require(seval, args):
             for path in seval.walpath:
                 fname = f'{path}/{name}'
                 if os.path.isfile(fname):
-                    print('Found', name, 'in', fname)
                     return fname
 
             return False
