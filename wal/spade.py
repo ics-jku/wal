@@ -20,5 +20,17 @@ class WalAnalysisPass:
         self.top = wal.eval_str('top_name')
         self.spade = Spade(self.top, 'build/state.ron')
 
+        # register spade translation functions
+        self.wal.register_operator('spade/translate', lambda seval, args: self.translate(seval, args).split('(')[0])
+        self.wal.register_operator('spade/translate-full', lambda seval, args: self.translate(seval, args))
+
     def run(self):
         pass
+
+    def translate(self, seval, args):
+        signal = seval.eval(args[0])[len(self.top)+1:]
+        value = seval.eval(args[1])
+        if isinstance(value, int):
+            value = f"{value:b}"
+
+        return self.spade.translate_value(signal, value)
