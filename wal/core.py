@@ -1,5 +1,4 @@
 '''The WAL core module'''
-# pylint: disable=C0103
 
 from wal.trace.container import TraceContainer
 from wal.eval import SEval

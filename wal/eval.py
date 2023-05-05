@@ -1,4 +1,10 @@
 '''S-Exprssion eval functions'''
+
+import os
+import wal
+
+from importlib_resources import files
+
 from wal.util import wal_str
 from wal.ast_defs import Operator, UserOperator, Symbol, Environment, Closure, Macro
 from wal.implementation.types import type_operators
@@ -9,7 +15,6 @@ from wal.implementation.wal import wal_operators
 from wal.implementation.core import core_operators
 from wal.implementation.special import special_operators
 from wal.implementation.virtual import virtual_operators
-# pylint: disable=R0912,R0915,R0914,too-many-instance-attributes
 
 
 class SEval:
@@ -32,6 +37,9 @@ class SEval:
             **list_operators, **array_operators, **wal_operators, \
             **special_operators, **virtual_operators}
         self.user_dispatch = {}
+        initial_walpath = ['.', os.path.expanduser('~/.wal/libs/'), str(files(wal).joinpath('libs/'))]
+        self.walpath = initial_walpath + os.getenv('WALPATH', '').split(';')
+        print(self.walpath)
 
     def reset(self):
         '''Resets all traces back to time 0 and resets all WAL elements (e.g. aliases, imports, ...) '''
