@@ -33,28 +33,28 @@ def op_neq(seval, args):
 def op_larger(seval, args):
     assert len(args) == 2
     evaluated = seval.eval_args(args)
-    assert all(isinstance(arg, int) for arg in evaluated)
+    assert all(isinstance(arg, (int, float)) for arg in evaluated)
     return evaluated[0] > evaluated[1]
 
 
 def op_smaller(seval, args):
     assert len(args) == 2
     evaluated = seval.eval_args(args)
-    assert all(isinstance(arg, int) for arg in evaluated)
+    assert all(isinstance(arg, (int, float)) for arg in evaluated)
     return evaluated[0] < evaluated[1]
 
 
 def op_larger_equal(seval, args):
     assert len(args) == 2
     evaluated = seval.eval_args(args)
-    assert all(isinstance(arg, int) for arg in evaluated)
+    assert all(isinstance(arg, (int, float)) for arg in evaluated)
     return evaluated[0] >= evaluated[1]
 
 
 def op_smaller_equal(seval, args):
     assert len(args) == 2
     evaluated = seval.eval_args(args)
-    assert all(isinstance(arg, int) for arg in evaluated)
+    assert all(isinstance(arg, (int, float)) for arg in evaluated)
     return evaluated[0] <= evaluated[1]
 
 
@@ -292,7 +292,7 @@ def op_lambda(seval, args):  # pylint: disable=W0613
 def op_defmacro(seval, args):
     assert len(args) >= 3, 'defmacro: expects at least three arguments'
     assert isinstance(args[0], Symbol), f'defmacro: first argument must be a symbol not {args[0]}'
-    assert isinstance(args[2], (Symbol, int, str, list)), 'defmacro: third argument must be a valid expression'
+    assert isinstance(args[2], (Symbol, int, str, list, float)), 'defmacro: third argument must be a valid expression'
 
     if isinstance(args[0], list):
         assert all(isinstance(arg, Symbol) for arg in args[0])
@@ -371,7 +371,7 @@ def op_type(seval, args):
 def op_rel_eval(seval, args):
     '''Evaluate an expression at a locally modified index. Index is restored after eval is done.'''
     assert len(args) == 2, 'reval: expects two arguments (reval expr:expr offset:expr->int)'
-    assert isinstance(args[0], (Symbol, int, str, list)), 'reval: first argument must be a valid expression'
+    assert isinstance(args[0], (Symbol, int, str, list, float)), 'reval: first argument must be a valid expression'
     offset = seval.eval(args[1])
     assert isinstance(offset, int), 'reval: second argument must evaluate to int'
     # check if any trace becomes oob with offset
