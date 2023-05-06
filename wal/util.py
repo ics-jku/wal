@@ -64,3 +64,27 @@ class Colors:
     END = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
+
+    def red(txt):
+        return f'{Colors.RED}{txt}{Colors.END}'
+
+    def green(txt):
+        return f'{Colors.GREEN}{txt}{Colors.END}'
+
+    def yellow(txt):
+        return f'{Colors.YELLOW}{txt}{Colors.END}'
+
+    def blue(txt):
+        return f'{Colors.BLUE}{txt}{Colors.END}'
+
+    def purple(txt):
+        return f'{Colors.PURPLE}{txt}{Colors.END}'
+
+    def header(txt):
+        return f'{Colors.HEADER}{txt}{Colors.END}'
+
+    def bold(txt):
+        return f'{Colors.BOLD}{txt}{Colors.END}'        
+    
+    def underline(txt):
+        return f'{Colors.UNDERLINE}{txt}{Colors.END}'        
