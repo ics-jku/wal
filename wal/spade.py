@@ -18,7 +18,7 @@ class WalAnalysisPass:
         self.wal = wal
         self.config_file = wavefile.with_suffix('')
         wal.eval_str(f'(require "{self.config_file}")')
-        wal.load(wavefile)
+        wal.load(str(wavefile))
         self.top = wal.eval_str('top_name')
         self.spade = Spade(self.top, 'build/state.ron')
 
