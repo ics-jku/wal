@@ -53,7 +53,7 @@ class WalAnalysisPass:
 
             return wal_str(x)
 
-        txt = ' '.join(map(tostr, seval.eval_args(args)))
+        txt = ''.join(map(tostr, seval.eval_args(args)))
         if severity == 'info':
             print(f'[{Colors.green("INFO")}] {txt}')
         elif severity == 'analysis':
