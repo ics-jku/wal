@@ -107,14 +107,16 @@ def op_set(seval, args):
             while steps > 0:
                 defined_at = seval.environment.parent
                 steps -= 1
+
+            # get the dict out of the environment
+            defined_at = defined_at.environment
         else:
             defined_at = seval.environment.is_defined(key.name)
 
         if defined_at:
-            defined_at.environment[key.name] = res
+            defined_at[key.name] = res
         else:
             assert f'Write to undefined symbol {key.name}'
-        #    seval.environment.define(key.name, res)
 
     return res
 
