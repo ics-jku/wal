@@ -530,7 +530,6 @@ def op_in_groups(seval, args):
     assert len(args) >= 2, 'in-groups: exactly two arguments required (in-group group:(symbol+) expression)'
     groups = seval.eval(args[0])
     assert isinstance(groups, list), 'in-groups: first argument must evaluate to list'
-    assert groups, 'in-groups: no groups specified'
 
     res = None
     for group in groups:
