@@ -136,6 +136,9 @@
 (defmacro falling [expr]
   `(&& (reval ,expr -1) (! ,expr)))
 
+(defmacro unstable [expr]
+  `(= (reval ,expr -1) ,expr))
+
 (defmacro stable [expr]
   `(= (reval ,expr -1) ,expr))
 

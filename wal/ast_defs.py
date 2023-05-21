@@ -250,11 +250,12 @@ class VirtualSignal:
     def value(self):
         '''Returns the value of this virtual signal'''
         index = self.trace.index
-        if index in self.cache:
-            res = self.cache[index]
+        ts = self.trace.timestamps[index]
+        if ts in self.cache:
+            res = self.cache[ts]
         else:
             res = self.seval.eval_args(self.expr)[-1]
-            self.cache[index] = res
+            self.cache[ts] = res
 
 
         return res
