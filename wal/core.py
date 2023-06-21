@@ -97,10 +97,9 @@ class Wal:
         self.eval_context.user_dispatch[name] = function
 
 
-    def append_walpath(self, paths):
-        for path in paths:
-            if path not in self.eval_context.walpath:
-                self.eval_context.walpath.append(path)
+    def append_walpath(self, path):
+        if path not in self.eval_context.walpath:
+            self.eval_context.walpath.append(path)
             return True
 
         return False
