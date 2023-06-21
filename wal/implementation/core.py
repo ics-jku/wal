@@ -139,7 +139,13 @@ def op_printf(seval, args):
     assert args, 'printf: expects at least a format string'
     format_evaluated = seval.eval(args[0])
     if isinstance(format_evaluated, str):
-        evaluated = seval.eval_args(args[1:])
+        def wal_stringify(expr):
+            if isinstance(expr, (list, dict, Operator, Unquote, UnquoteSplice, Macro, Closure, Symbol)):
+                return wal_str(expr)
+
+            return expr
+        
+        evaluated = [wal_stringify(e) for e in seval.eval_args(args[1:])]
         try:
             final_str = format_evaluated % tuple(evaluated)
             print(final_str, sep='', end='')

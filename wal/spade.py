@@ -7,13 +7,13 @@ class WalAnalysisPass:
 
     __wal_pass__ = True
 
-    def __init__(self, pass_dir, wavefile):
-        self.pass_dir = pass_dir
+    def __init__(self, pass_dirs, wavefile):
+        self.pass_dirs = pass_dirs
         self.wavefile = wavefile
         self.testname = Path(wavefile).stem
         self.name = 'WAL Pass'
         wal = Wal()
-        wal.append_walpath(pass_dir)
+        wal.append_walpath(pass_dirs)
         wal.eval_str(f'(define TEST "{self.testname}")')
         self.wal = wal
         self.config_file = wavefile.with_suffix('')
