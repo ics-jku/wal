@@ -4,18 +4,16 @@ from itertools import combinations
 
 from wal.core import Wal
 
-# pylint: disable=C0103,C0115,C0116,E1101
 
 class TraceEqTest():
 
     def setUp(self):
-        #self.traces = []
         self.traces = map(lambda f: f'tests/traces/{f}', self.traces)
 
     def wal_eval(self, data):
         wal = Wal()
         wal.load(data[0])
-        return wal.eval(data[1])
+        return wal.eval_str(data[1])
 
     def eval_eq(self, p):
         res = list(map(lambda t: self.wal_eval([t, p]), self.traces))
@@ -56,7 +54,7 @@ class CounterEqualTest(TraceEqTest, unittest.TestCase):
         self.eval_eq('(groups clk)')
 
     def test_rising_clocks(self):
-        self.eval_eq('(find (&& (! tb.clk) tb.clk)')
+        self.eval_eq('(find (rising tb.clk))')
 
     def test_overflow(self):
         self.eval_eq('(count tb.overflow')

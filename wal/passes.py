@@ -85,7 +85,7 @@ def optimize(expr):
 
 def resolve(expr, start={}):
     '''Variable environment resolution pass '''
-    scopes=[None, dict(start)]    
+    scopes=[None, dict(start)]
     def resolve_vars(expr):
         if isinstance(expr, list):
             op = expr[0]

@@ -88,11 +88,10 @@ class TraceVcd(Trace):
                 # this should not happen
                 i += 1
 
-
         # parse dump section
         time = 0
         n_tokens = len(tokens)
-        
+
         while i < n_tokens:
             if tokens[i][0] == '#':
                 time = int(tokens[i][1:])

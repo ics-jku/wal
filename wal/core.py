@@ -17,9 +17,9 @@ class Wal:
         self.eval_context.wal = self
         self.eval_context.eval([Op.REQUIRE, S('std/std')])
 
-    def load(self, file, tid='DEFAULT', from_string=False):  # pylint: disable=C0103
+    def load(self, file, tid='DEFAULT', from_string=False, keep_signals=None):
         '''Load trace from file and add it using id to WAL'''
-        self.traces.load(file, tid, from_string=from_string)
+        self.traces.load(file, tid, from_string=from_string, keep_signals=keep_signals)
 
     def step(self, steps=1, tid=None):
         '''Step one or all traces.
@@ -37,9 +37,9 @@ class Wal:
         except ParseError as e:
             e.show()
             return None
-
+        
     def eval(self, sexpr, **args):
-        '''Evaluate the WAL expression sexpr'''
+        '''Evaluate the WAL expression sexpr and run passes'''
         # put passed arguments into context
         for name, val in args.items():
             if self.eval_context.global_environment.is_defined(name):
@@ -47,17 +47,18 @@ class Wal:
             else:
                 self.eval_context.global_environment.define(name, val)
 
+        res = None
         if sexpr:
             expanded = expand(self.eval_context, sexpr, parent=self.eval_context.global_environment)
             optimized = optimize(expanded)
             resolved = resolve(optimized, start=self.eval_context.global_environment.environment)
-            return self.eval_context.eval(resolved)
+            res = self.eval_context.eval(resolved)
 
         # remove passed arguments from context
         for name, val in args.items():
             self.eval_context.global_environment.undefine(name)
 
-        return None
+        return res
 
     def run_str(self, txt, **args):
         '''Parses and runs the txt argument'''

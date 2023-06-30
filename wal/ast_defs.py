@@ -150,6 +150,9 @@ class UserOperator:
         assert name not in operators, f'redefining {name} is not allowed'
         self.name = name
 
+    def __repr__(self):
+        return self.name
+
 
 class Environment:
     '''Object that holds a WAL environment '''
