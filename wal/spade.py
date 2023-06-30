@@ -17,7 +17,7 @@ class WalAnalysisPass:
         for pass_dir in pass_dirs:
             wal.append_walpath(pass_dir)
 
-        wal.eval_str(f'(require spade-definitions)')
+        wal.eval_str('(require spade-definitions)')
         wal.eval_str(f'(define TEST "{self.testname}")')
         self.wal = wal
         self.config_file = wavefile.with_suffix('')

@@ -10,7 +10,6 @@ coverage-badge = "*"
 ruff = "*"
 
 [packages]
-pyDigitalWaveTools = "*"
 pylibfst = "*"
 lark-parser = "*"
 importlib-resources = "*"

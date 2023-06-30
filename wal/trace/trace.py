@@ -8,9 +8,10 @@ class Trace:
     SPECIAL_SIGNALS_SET = set(SPECIAL_SIGNALS)
 
 
-    def __init__(self, tid, filename):
+    def __init__(self, tid, filename, container):
         self.tid = tid
         self.filename = filename
+        self.container = container
         self.virtual_signals = {}
         self.index = 0
 
@@ -41,7 +42,9 @@ class Trace:
         if 0 <= rel_index <= self.max_index:
             if name in Trace.SPECIAL_SIGNALS:
                 if name == 'SIGNALS':
-                    res = self.rawsignals
+                    res = self.get_all_signals()
+                    if len(self.container.traces) > 1:
+                        res = [f'{self.tid}{Trace.SCOPE_SEPERATOR}{signal}' for signal in res]
                 elif name == 'LOCAL-SIGNALS':
                     if scope == '':
                         res = [s for s in self.rawsignals if '.' not in s]
@@ -67,7 +70,7 @@ class Trace:
                         scope += '.'
                     res = [s for s in self.scopes if (s.startswith(scope)) and ('.' not in s[len(scope) + 1:])]
                 elif name == 'SCOPES':
-                    res = self.scopes #list(self.data.scopes.keys())
+                    res = self.scopes
             elif name in self.virtual_signals:
                 res = self.virtual_signals[name].value
             else:
@@ -105,3 +108,6 @@ class Trace:
         '''Adds a virtual signal to this trace'''
         self.signals.add(signal.name)
         self.virtual_signals[signal.name] = signal
+
+    def get_all_signals(self):
+        return list(self.rawsignals) + list(self.virtual_signals.keys())

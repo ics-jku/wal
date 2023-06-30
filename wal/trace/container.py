@@ -16,13 +16,13 @@ class TraceContainer:
         self.index_stack = []
 
 
-    def load(self, file, tid='DEFAULT', from_string=False):
+    def load(self, file, tid='DEFAULT', from_string=False, keep_signals=None):
         '''Load a trace from file and add it under trace id tid.'''
         file_extension = pathlib.Path(file).suffix
         if file_extension == '.vcd':
-            self.traces[tid] = TraceVcd(file, tid, from_string=from_string)
+            self.traces[tid] = TraceVcd(file, tid, self, from_string=from_string, keep_signals=keep_signals)
         elif file_extension == '.fst':
-            self.traces[tid] = TraceFst(file, tid, from_string=from_string)
+            self.traces[tid] = TraceFst(file, tid, self, from_string=from_string, keep_signals=keep_signals)
         else:
             print(f'File extension "{file_extension}" not supported.')
 

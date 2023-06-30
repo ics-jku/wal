@@ -8,8 +8,8 @@ from wal.trace.trace import Trace
 class TraceFst(Trace):
     '''Holds data for one fst trace.'''
 
-    def __init__(self, file, tid, from_string=False):
-        super().__init__(tid, file)
+    def __init__(self, file, tid, container, from_string=False, keep_signals=None):
+        super().__init__(tid, file, container)
         self.buf = fst.ffi.new("char[256]")
 
         if from_string:

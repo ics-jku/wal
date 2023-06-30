@@ -43,3 +43,6 @@ class TraceVirtual(Trace):
 
     def signal_width(self, name):
         return 32
+
+    def get_all_signals(self):
+        return list(self.virtual_signals.keys())
