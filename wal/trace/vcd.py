@@ -46,7 +46,11 @@ class TraceVcd(Trace):
                 width = tokens[i + 2]
                 id = tokens[i + 3]
                 name = tokens[i + 4]
-                fullname = '.'.join(scope) + '.' + name
+                # only append scope. if not in root scope
+                if scope:
+                    fullname = '.'.join(scope) + '.' + name
+                else:
+                    fullname = name
                 
                 if not self.keep_signals or (fullname in self.keep_signals):
                     self.all_ids.add(id)
