@@ -7,9 +7,29 @@ def op_defsig(seval, args):
     '''Creates a new signal whose value is calculated by evaluating
     the body expressions. '''
     assert len(args) > 1, 'virtual: expects at least two arguments (virtual name body+)'
-    name = seval.global_environment.read('CG') + args[0].name
-    body = args[1:]
+    scope_name = seval.global_environment.read('CS')
+    scope_sep = '.' if scope_name != '' else ''
+    scope = scope_name + scope_sep
+    group = seval.global_environment.read('CG') 
+    if group != '':
+        # groups already include the scope so reset it
+        scope = ''
 
+    name = f'{scope}{group}{args[0].name}'
+
+    def resolve(expr):
+        if isinstance(expr, list):
+            if len(expr) == 2 and isinstance(expr[1], Symbol):
+                if expr[0] == Operator.RESOLVE_SCOPE:
+                    return Symbol(f'{scope}{expr[1].name}')
+                elif expr[0] == Operator.RESOLVE_GROUP:
+                    return Symbol(f'{group}{expr[1].name}')
+
+            return list(map(resolve, expr))
+
+        return expr
+
+    body = list(map(resolve, args[1:]))
     seval.traces.add_virtual_signal(name, body, seval)
 
 
