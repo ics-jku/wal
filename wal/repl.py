@@ -67,7 +67,7 @@ Exit to calling script or terminate running evaluations with CTRL-C'''
         try:
             sexpr = read_wal_sexpr(line)
             # intercept defuns to include them in completion
-            if isinstance(sexpr, list):
+            if isinstance(sexpr, WList):
                 if sexpr[0] == Symbol('defun'):
                     self.complete_list.append(sexpr[1].name)
 

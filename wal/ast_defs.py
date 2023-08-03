@@ -1,6 +1,17 @@
 '''Module containing the AST definitions'''
 from dataclasses import dataclass
 from enum import Enum, unique
+from collections import UserList
+
+class WList(UserList):
+
+    def __init__(self, data, line_info=('', 0, 0)):
+        super().__init__(data)
+        self.line_info = line_info
+
+    def __str__(self):
+        txt = super().__str__()
+        return f'WList({txt})'
 
 @unique
 class Operator(Enum):

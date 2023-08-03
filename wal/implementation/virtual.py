@@ -1,5 +1,5 @@
 '''Implementations for type related functions such as type checking'''
-from wal.ast_defs import Operator, Symbol
+from wal.ast_defs import Operator, Symbol, WList
 from wal.trace.virtual import TraceVirtual
 
 
@@ -18,18 +18,18 @@ def op_defsig(seval, args):
     name = f'{scope}{group}{args[0].name}'
 
     def resolve(expr):
-        if isinstance(expr, list):
+        if isinstance(expr, WList):
             if len(expr) == 2 and isinstance(expr[1], Symbol):
                 if expr[0] == Operator.RESOLVE_SCOPE:
                     return Symbol(f'{scope}{expr[1].name}')
                 elif expr[0] == Operator.RESOLVE_GROUP:
                     return Symbol(f'{group}{expr[1].name}')
 
-            return list(map(resolve, expr))
+            return WList(list(map(resolve, expr)))
 
         return expr
 
-    body = list(map(resolve, args[1:]))
+    body = WList(list(map(resolve, args[1:])))
     seval.traces.add_virtual_signal(name, body, seval)
 
 

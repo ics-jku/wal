@@ -3,8 +3,9 @@
 import ast
 from lark import Lark, Transformer
 from lark import UnexpectedToken, UnexpectedEOF, UnexpectedCharacters
+from lark.visitors import v_args
 from lark.exceptions import VisitError
-from wal.ast_defs import Symbol, S, Operator, Unquote, UnquoteSplice, operators
+from wal.ast_defs import Symbol, S, Operator, Unquote, UnquoteSplice, operators, WList
 
 
 WAL_GRAMMAR = r"""
@@ -59,6 +60,11 @@ WAL_GRAMMAR = r"""
 
 
 class TreeToWal(Transformer):
+
+    def __init__(self, filename):
+        super().__init__()
+        self.filename = filename
+    
     '''Transformer to create valid WAL expressions form parsed data'''
     string = lambda self, s: ast.literal_eval(s[0])
 
@@ -69,15 +75,15 @@ class TreeToWal(Transformer):
             return Operator(sym.name) if sym.name in operators else sym
         return sym
 
-    quoted = lambda self, q: [Operator.QUOTE, q[0]]
-    quasiquoted = lambda self, q: [Operator.QUASIQUOTE, q[0]]
+    quoted = lambda self, q: WList([Operator.QUOTE, q[0]])
+    quasiquoted = lambda self, q: WList([Operator.QUASIQUOTE, q[0]])
     unquote = lambda self, q: Unquote(q[0])
     unquote_splice = lambda self, q: UnquoteSplice(q[0])
 
     operator = lambda self, o: Operator(o[0].value)
     simple_symbol = lambda self, s: s[0]
     base_symbol = lambda self, s: S(''.join(list(map(lambda x: x.value, s))))
-    scoped_symbol = lambda self, s: [Operator.RESOLVE_SCOPE, s[0]]
+    scoped_symbol = lambda self, s: WList([Operator.RESOLVE_SCOPE, s[0]])
 
     def grouped_symbol(self, s):
         if s[0].name == 't':
@@ -85,12 +91,12 @@ class TreeToWal(Transformer):
         if s[0].name == 'f':
             return False
 
-        return [Operator.RESOLVE_GROUP, s[0]]
+        return WList([Operator.RESOLVE_GROUP, s[0]])
 
     
 
-    bit_symbol = lambda self, s: [Operator.SLICE, s[0], s[1]]
-    sliced_symbol = lambda self, s: [Operator.SLICE, s[0], s[1], s[2]]
+    bit_symbol = lambda self, s: WList([Operator.SLICE, s[0], s[1]])
+    sliced_symbol = lambda self, s: WList([Operator.SLICE, s[0], s[1], s[2]])
 
     int = lambda self, i: i[0]
     float = lambda self, f: float(f[0])
@@ -99,20 +105,26 @@ class TreeToWal(Transformer):
     hex_int = lambda self, i: int(i[0], 16)
 
     atom = lambda self, a: a[0]
-    list = list
+
+    @v_args(meta=True)
+    def list(self, data, meta):
+        return WList(data, (self.filename, meta.line, meta.column))
+
+    
     bool = lambda self, b: b[0]
     true = lambda self, _: True
     false = lambda self, _: False
     sexpr = lambda self, s: s[0] if s else None
-    timed_sexpr = lambda self, s: [Operator.REL_EVAL, s[0], s[1]]
-    sexpr_list = list
+    timed_sexpr = lambda self, s: WList([Operator.REL_EVAL, s[0], s[1]])
+
+    sexpr_list = lambda self, data: WList(list(map(WList, data))) # WList(list(data))
     sexpr_strict = lambda self, s: s[0] if s else None
 
 
-def read(code, reader):
+def read(code, reader, filename):
     try:
         parsed = reader.parse(code.strip())
-        return TreeToWal().transform(parsed)
+        return TreeToWal(filename).transform(parsed)
     except UnexpectedEOF as u:
         context = u.get_context(code)
         msg = f'Unexpected end of file at  at line {u.line}:{u.column}.\nDid you forget a closing )?'
@@ -120,26 +132,26 @@ def read(code, reader):
     except UnexpectedToken as u:
         context = u.get_context(code)
         msg = f'Unexpected "{u.token}" at line {u.line}:{u.column}'
-        print(u)
         raise ParseError(context, msg) from u
     except UnexpectedCharacters as u:
         context = u.get_context(code)
         msg = f'Unexpected "{u.char}" at line {u.line}:{u.column}'
-        print(u)
         raise ParseError(context, msg) from u
     except VisitError as u:
         context = u.__context__
         raise ParseError("", str(context)) from u
 
 
-reader_sexpr = Lark(WAL_GRAMMAR, start='sexpr', parser='lalr')
-def read_wal_sexpr(code):
-    return read(code, reader_sexpr)
+reader_sexpr = Lark(WAL_GRAMMAR, start='sexpr', parser='lalr', propagate_positions=True)
+def read_wal_sexpr(code, filename=''):
+    return read(code, reader_sexpr, filename=filename)
 
 
-reader_sexprs = Lark(WAL_GRAMMAR, start='sexpr_list', parser='lalr')
-def read_wal_sexprs(code):
-    return read(code, reader_sexprs)
+reader_sexprs = Lark(WAL_GRAMMAR, start='sexpr_list', parser='lalr', propagate_positions=True)
+def read_wal_sexprs(code, filename=''):
+    sexprs = read(code, reader_sexprs, filename=filename)
+    print('>>>', sexprs[0][3], sexprs[0][3][2])
+    return sexprs
 
 
 class ParseError(Exception):

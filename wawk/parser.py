@@ -73,8 +73,9 @@ WAWK_GRAMMAR = r"""
     !or_op : "||"
 
     block : "{" (substatement)* "}"
-    assign : assign_arith | assign_std
+    assign : assign_arith | assign_std | define
     assign_std : base_symbol "=" expr
+    define : "var" base_symbol "=" expr
     !assign_arith : base_symbol ("+"| "-" | "*" | "/") "=" expr
 
     function : "function" base_symbol "(" [base_symbol ("," base_symbol)*] ")" block
@@ -135,6 +136,7 @@ class TreeToWal(Transformer):
     block = lambda self, b: [Op.DO] + b
     assign = lambda self, s: s[0]
     assign_std = lambda self, a: [UserOperator('wawk-set'), a[0], a[1]]
+    define = lambda self, a: [Op.DEFINE, a[0], a[1]]
     assign_arith = lambda self, a: [UserOperator('wawk-set'), a[0], [Op(a[1]), a[0], a[3]]]
     forin = lambda self, f: [Op.MAP, [Op.LAMBDA, [f[0]], f[2]], f[1]]
     forinarray = lambda self, f: [Op.MAPA, [Op.LAMBDA, [f[0], f[1]], f[3]], f[2]]

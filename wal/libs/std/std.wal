@@ -10,15 +10,6 @@
     `(+ ,xs (let ([,tmp ,x])
 	      (if (list? ,tmp) (list ,tmp) ,tmp)))))
 
-(defun symbol-add args
-       (string->symbol (fold + "" (for/list [arg args]
-       		       	       	  	    (if (symbol? arg)
-					    	(symbol->string arg)
-						arg)))))
-
-(defun reverse [lst]
-  (if lst (append (reverse (rest lst)) (first lst)) '()))
-
 (defmacro for/list args
 	  (let [(sym args[0][0])
 	        (body (rest args))
@@ -30,6 +21,17 @@
 	        (body (rest args))
 		(data args[0][1])]
 	    `(last (map (lambda [,sym] (do ,@body)) ,data))))
+
+(defun symbol-add args
+       (string->symbol (fold + "" (for/list [arg args]
+       		       	       	  	    (if (symbol? arg)
+					    	(symbol->string arg)
+						arg)))))
+
+;; (defun reverse [lst]
+;;   (if lst (append (reverse (rest lst)) (first lst)) '()))
+
+(define reverse (lambda [lst] lst))
 
 (defmacro when args
   (let ([condition args[0]]

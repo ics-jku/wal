@@ -6,6 +6,7 @@ from wal.reader import read_wal_sexpr, read_wal_sexprs, ParseError
 from wal.ast_defs import Operator as Op
 from wal.ast_defs import Symbol as S
 from wal.ast_defs import UserOperator
+from wal.ast_defs import WList
 from wal.passes import expand, optimize, resolve
 
 class Wal:
@@ -15,7 +16,7 @@ class Wal:
         self.traces = TraceContainer()
         self.eval_context = SEval(self.traces)
         self.eval_context.wal = self
-        self.eval_context.eval([Op.REQUIRE, S('std/std')])
+        self.eval_context.eval(WList([Op.REQUIRE, S('std/std')]))
 
     def load(self, file, tid='DEFAULT', from_string=False, keep_signals=None):
         '''Load trace from file and add it using id to WAL'''
@@ -75,7 +76,7 @@ class Wal:
         res = None
         if sexpr:
             self.eval_context.reset()
-            self.eval_context.eval([Op.REQUIRE, S('std/std')])
+            self.eval_context.eval(WList([Op.REQUIRE, S('std/std')]))
 
             for name, val in args.items():
                 self.eval_context.global_environment.define(name, val)
@@ -90,7 +91,7 @@ class Wal:
     def run_file(self, filename):
         '''Executes a WAL program from a file'''
         with open(filename, 'r', encoding='utf-8') as fin:
-            return self.eval([Op.DO, *read_wal_sexprs(fin.read())])
+            return self.eval(WList([Op.DO, *read_wal_sexprs(fin.read())]))
 
 
     def register_operator(self, name, function):

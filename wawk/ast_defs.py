@@ -1,7 +1,8 @@
 '''Definitions for the wal-awk AST'''
 
 from dataclasses import dataclass
-from wal.ast_defs import S, Operator
+from wal.ast_defs import S, Symbol, Operator
+
 
 @dataclass
 class Statement:
@@ -15,7 +16,7 @@ class AST:
     '''Abstract syntax tree.
        Contains definitions of functions and statements'''
 
-    def __init__(self, parsed):
+    def __init__(self, parsed, trace):
         self.functions = {}
         self.statements = []
         self.begin = []
@@ -32,3 +33,21 @@ class AST:
                 self.begin.append(statement.action)
             else:
                 self.statements.append(statement)
+
+    def emit(self):
+        wal = self.begin
+        main_loop = [Operator.WHENEVER, True, [S('cond'), *[[[Operator.AND, *stmt.condition], stmt.action] for stmt in self.statements]]]
+        wal.append(main_loop)
+        wal += self.end
+
+        symbols = []
+        def find_symbols(expr):
+            if isinstance(expr, Symbol):
+                symbols.append(expr.name)
+            elif isinstance(expr, list):
+                for sub in expr:
+                    find_symbols(sub)
+
+        find_symbols(wal)
+        
+        return wal, symbols

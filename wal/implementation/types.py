@@ -1,5 +1,5 @@
 '''Implementations for type related functions such as type checking'''
-from wal.ast_defs import Operator, Symbol
+from wal.ast_defs import Operator, Symbol, WList
 
 
 def op_is_defined(seval, args):
@@ -37,7 +37,7 @@ def op_is_int(seval, args):
 def op_is_list(seval, args):
     '''Returns true if all arguments evaluate to lists'''
     evaluated = seval.eval_args(args)
-    return all(isinstance(arg, list) for arg in evaluated)
+    return all(isinstance(arg, (WList, list)) for arg in evaluated)
 
 
 def op_convert_binary(seval, args):

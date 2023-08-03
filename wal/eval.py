@@ -6,7 +6,7 @@ import wal
 from importlib_resources import files
 
 from wal.util import wal_str
-from wal.ast_defs import Operator, UserOperator, Symbol, Environment, Closure, Macro
+from wal.ast_defs import Operator, UserOperator, Symbol, Environment, Closure, Macro, WList
 from wal.implementation.types import type_operators
 from wal.implementation.math import math_operators
 from wal.implementation.list import list_operators
@@ -79,7 +79,7 @@ class SEval:
 
         if isinstance(closure.args, Symbol):
             new_env.define(closure.args.name, self.eval_args(args))
-        elif isinstance(closure.args, list):
+        elif isinstance(closure.args, WList):
             assert len(closure.args) == len(args), f'{closure.name}: number of passed arguments does not match expected number'
             for arg, val in zip(closure.args, args):
                 new_env.define(arg.name, self.eval(val))
@@ -115,7 +115,7 @@ class SEval:
             else:
                 # this symbol has not been resolved
                 res = self.environment.read(name)
-        elif isinstance(expr, list):
+        elif isinstance(expr, WList):
             head = expr[0]
             tail = expr[1:]
 
@@ -140,6 +140,10 @@ class SEval:
                 res = self.eval([func] + tail)
         elif isinstance(expr, (int, str, float, Closure)):
             res = expr
+        # elif isinstance(expr, list):
+        #     print('List', expr)
+
+        print(expr)
 
         if not isinstance(res, Exception):
             return res

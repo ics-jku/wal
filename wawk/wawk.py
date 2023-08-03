@@ -5,6 +5,7 @@ import sys
 
 from wal.core import Wal
 from wal.ast_defs import Symbol
+from wal.util import wal_str
 from .parser import parse_wawk
 from .ast_defs import AST
 
@@ -17,12 +18,13 @@ class Arguments:  # pylint: disable=too-few-public-methods
         parser = argparse.ArgumentParser()
         self.parser = parser
 
-        parser.add_argument('program_path', help='path to vcd file')
-        parser.add_argument('vcd', help='path to vcd file')
+        parser.add_argument('program_path', help='path to WAWK file')
+        parser.add_argument('trace', help='path to trace file')
         parser.add_argument('args', nargs='*',
                             default=None, help='runtime arguments')
         parser.add_argument('-v', '--version', action='version',
                             version=f'%(prog)s {__version__}')
+        parser.add_argument('-o', '--output', nargs='?', default=None, help='Do not run but only write WAL program to file.')
 
     def parse(self):
         '''Parse program arguments and check minimal requirements'''
@@ -44,11 +46,14 @@ def wawk_set(seval, args):
         while steps > 0:
             defined_at = seval.environment.parent
             steps -= 1
+
+        # get the dict out of the environment
+        defined_at = defined_at.environment
     else:
         defined_at = seval.environment.is_defined(key.name)
 
     if defined_at:
-        defined_at.environment[key.name] = res
+        defined_at[key.name] = res
     else:
         assert f'Write to undefined symbol {key.name}'
         seval.environment.define(key.name, res)
@@ -65,7 +70,7 @@ def run():
 
     try:
         with open(args.program_path, 'r', encoding='UTF-8') as program_file:
-            ast = AST(parse_wawk(program_file.read()))
+            ast = AST(parse_wawk(program_file.read()), args.trace)
     except FileNotFoundError as exception:
         print(exception)
         return os.EX_NOINPUT
@@ -76,28 +81,17 @@ def run():
     wal = Wal()
     wal.register_operator('wawk-set', wawk_set)
     wal.eval_context.global_environment.write('args', args.args)
-    wal.load(args.vcd, 'main')
+    #wal.load(args.trace, 'main')
 
-
-    for begin_action in ast.begin:
-        wal.eval(begin_action)
-
-    while not wal.step():
-        for statement in ast.statements:
-            conditions = []
-            for cond in statement.condition:
-                try:
-                    eval_cond = wal.eval(cond)
-                except Exception as e: # pylint: disable=W0703,C0103
-                    print('ERROR|', e, '\n', cond)
-                    sys.exit()
-                conditions.append(eval_cond)
-
-            if all(conditions):
-                wal.eval(statement.action)
-
-    for end_action in ast.end:
-        wal.eval(end_action)
+    if args.output:
+        with open(args.output, 'w') as f:
+            for stmt in ast.emit():
+                f.write(wal_str(stmt) + '\n\n')
+    else:
+        exprs, symbols = ast.emit()
+        wal.load(args.trace, 'WAWK_TRACE', keep_signals=symbols)
+        for expr in exprs:
+            wal.eval(expr)
 
     return os.EX_OK
 
