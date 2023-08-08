@@ -125,9 +125,7 @@ class TraceVcd(Trace):
                     self.data[id][-1] = value
                 i += 1
             elif tokens[i] == '$comment':
-                print('comment')
                 while tokens[i] != '$end':
-                    print(tokens[i])
                     i += 1
 
                 i += 1
