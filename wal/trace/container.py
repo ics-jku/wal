@@ -16,7 +16,7 @@ class TraceContainer:
         self.index_stack = []
 
 
-    def load(self, file, tid=None, from_string=False):
+    def load(self, file, tid=None, from_string=False, keep_signals=None):
         '''Load a trace from file and add it under trace id tid.'''
 
         if tid is None:
