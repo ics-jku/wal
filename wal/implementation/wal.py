@@ -10,11 +10,16 @@ from wal.repl import WalRepl
 
 def op_load(seval, args):
     '''Load trace from file filename under id tid '''
-    assert len(args) == 2, 'load: expects two arguments (load filename:str tid:str|symbol)'
+    nargs = len(args)
+    assert nargs == 1 or nargs == 2, 'load: expects at least one arguments (load filename:str tid:str|symbo)'
     filename = seval.eval(args[0])
     assert isinstance(filename, str), 'load: first argument must be str'
-    assert isinstance(args[1], (str, Symbol)), 'load: first argument must be str or symbol'
-    tid = args[1] if isinstance(args[1], str) else args[1].name
+
+    tid = None
+    if nargs == 2:
+        assert isinstance(args[1], (str, Symbol)), 'load: first argument must be str or symbol'
+        tid = args[1] if isinstance(args[1], str) else args[1].name
+    
     seval.traces.load(filename, tid)
 
 
