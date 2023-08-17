@@ -9,6 +9,7 @@ from wal.ast_defs import UserOperator
 from wal.ast_defs import WList
 from wal.passes import expand, optimize, resolve
 
+
 class Wal:
     '''Main Wal class to be imported into other applications'''
 
@@ -38,7 +39,7 @@ class Wal:
         except ParseError as e:
             e.show()
             return None
-        
+
     def eval(self, sexpr, **args):
         '''Evaluate the WAL expression sexpr and run passes'''
         # put passed arguments into context

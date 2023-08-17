@@ -4,14 +4,15 @@ import math
 import operator
 
 from functools import reduce
-from wal.ast_defs import Operator
+from wal.ast_defs import Operator, WList
+
 
 def op_add(seval, args):
     evaluated = seval.eval_args(args)
-    if any(map(lambda x: isinstance(x, list), evaluated)):
+    if any(map(lambda x: isinstance(x, (WList, list)), evaluated)):
         res = []
         for item in evaluated:
-            if isinstance(item, list):
+            if isinstance(item, (WList, list)):
                 res += item
             else:
                 res.append(item)
@@ -44,7 +45,6 @@ def op_div(seval, args):
     assert all(map(lambda x: isinstance(x, (int, float)), evaluated))
     assert len(evaluated) == 2
     assert evaluated[1] != 0, 'div: division by zero'
-
     return evaluated[0] / evaluated[1]
 
 

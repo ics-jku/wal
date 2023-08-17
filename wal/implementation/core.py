@@ -277,12 +277,12 @@ def op_parse(seval, args):
 
 
 def op_lambda(seval, args):  # pylint: disable=W0613
-    assert len(args) == 2, 'lambda: expects exactly two arguments (lambda (symbol | (symbol*)) sexpr)'
-    assert isinstance(args[0], (WList, Symbol)), 'lambda: first argument must be a list of symbols or a single symbol'
-    if isinstance(args[0], WList):
+    assert len(args) >= 2, 'lambda: expects exactly two arguments (lambda (symbol | (symbol*)) sexpr)'
+    assert isinstance(args[0], (WList, list, Symbol)), 'lambda: first argument must be a list of symbols or a single symbol'
+    if isinstance(args[0], (list, WList)):
         assert all(isinstance(arg, Symbol) for arg in args[0]), f'lambda: arguments must be symbols but are {wal_str(args[0])}'
 
-    return Closure(seval.environment, args[0], args[1])
+    return Closure(seval.environment, args[0], WList([Operator.DO] + args[1:]))
 
 
 def op_defmacro(seval, args):
@@ -367,7 +367,7 @@ def op_type(seval, args):
 def op_rel_eval(seval, args):
     '''Evaluate an expression at a locally modified index. Index is restored after eval is done.'''
     assert len(args) == 2, 'reval: expects two arguments (reval expr:expr offset:expr->int)'
-    assert isinstance(args[0], (Symbol, int, str, list, float)), 'reval: first argument must be a valid expression'
+    assert isinstance(args[0], (Symbol, int, str, WList, list, float)), 'reval: first argument must be a valid expression'
     offset = seval.eval(args[1])
     assert isinstance(offset, int), 'reval: second argument must evaluate to int'
     # check if any trace becomes oob with offset
@@ -548,7 +548,7 @@ def op_resolve_group(seval, args):
 def op_slice(seval, args):
     assert len(args) > 1 and len(args) < 4, 'slice: two or three arguments required (slice high:int [low:int])'
     evaluated = seval.eval_args(args)
-    assert isinstance(evaluated[0], (int, WList, str)), 'slice: first argument must evaluate to a number or a list'
+    assert isinstance(evaluated[0], (int, WList, list, str)), 'slice: first argument must evaluate to a number or a list'
 
     if isinstance(evaluated[0], int):
         if len(args) == 2: # pylint: disable=R1705
@@ -561,7 +561,7 @@ def op_slice(seval, args):
             lower = evaluated[2]
             assert isinstance(lower, int), 'slice: lower index must evaluate to int'
             return (evaluated[0] & (((1 << (upper - lower + 1)) - 1) << lower)) >> lower
-    elif isinstance(evaluated[0], (WList, str)):
+    elif isinstance(evaluated[0], (WList, list, str)):
         if len(args) == 2: # pylint: disable=R1705
             index = evaluated[1]
             assert isinstance(index, int), 'slice: index must evaluate to int'

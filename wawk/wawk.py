@@ -90,6 +90,7 @@ def run():
     else:
         exprs, symbols = ast.emit()
         wal.load(args.trace, 'WAWK_TRACE', keep_signals=symbols)
+        print("a")
         for expr in exprs:
             wal.eval(expr)
 

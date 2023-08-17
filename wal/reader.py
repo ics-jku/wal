@@ -5,8 +5,8 @@ from lark import Lark, Transformer
 from lark import UnexpectedToken, UnexpectedEOF, UnexpectedCharacters
 from lark.visitors import v_args
 from lark.exceptions import VisitError
-from wal.ast_defs import Symbol, S, Operator, Unquote, UnquoteSplice, operators, WList
-
+from wal.ast_defs import Symbol, Operator, Unquote, UnquoteSplice, operators, WList
+from wal.ast_defs import Symbol as S
 
 WAL_GRAMMAR = r"""
     _NL: /(\r?\n)+/
@@ -64,39 +64,65 @@ class TreeToWal(Transformer):
     def __init__(self, filename):
         super().__init__()
         self.filename = filename
+
+    def line_info(self, meta):
+        return (self.filename, meta.line, meta.end_line, meta.column, meta.end_column)
     
     '''Transformer to create valid WAL expressions form parsed data'''
     string = lambda self, s: ast.literal_eval(s[0])
 
-    def symbol(self, sym):
+    @v_args(meta=True)
+    def symbol(self, sym, meta):
         '''Converts symbols to operators if sym is a valid operator '''
         sym = sym[0]
         if isinstance(sym, Symbol):
             return Operator(sym.name) if sym.name in operators else sym
+
         return sym
 
-    quoted = lambda self, q: WList([Operator.QUOTE, q[0]])
-    quasiquoted = lambda self, q: WList([Operator.QUASIQUOTE, q[0]])
+    @v_args(meta=True)
+    def quoted(self, q, meta):
+        return WList([Operator.QUOTE, q[0]], line_info=self.line_info(meta))
+
+    @v_args(meta=True)
+    def quasiquoted(self, q, meta):
+        return WList([Operator.QUASIQUOTE, q[0]], line_info=self.line_info(meta))
+
     unquote = lambda self, q: Unquote(q[0])
     unquote_splice = lambda self, q: UnquoteSplice(q[0])
 
     operator = lambda self, o: Operator(o[0].value)
-    simple_symbol = lambda self, s: s[0]
-    base_symbol = lambda self, s: S(''.join(list(map(lambda x: x.value, s))))
-    scoped_symbol = lambda self, s: WList([Operator.RESOLVE_SCOPE, s[0]])
 
-    def grouped_symbol(self, s):
+    @v_args(meta=True)
+    def simple_symbol(self, s, meta):
+        sym = s[0]
+        sym.line_info = (self.filename, meta.line, meta.column)
+        return sym
+
+    @v_args(meta=True)
+    def base_symbol(self, s, meta):
+        return S(''.join(list(map(lambda x: x.value, s))), line_info=self.line_info(meta))
+
+    @v_args(meta=True)
+    def scoped_symbol(self, s, meta):
+        return WList([Operator.RESOLVE_SCOPE, s[0]], line_info=self.line_info(meta))
+
+    @v_args(meta=True)
+    def grouped_symbol(self, s, meta):
         if s[0].name == 't':
             return True
         if s[0].name == 'f':
             return False
 
-        return WList([Operator.RESOLVE_GROUP, s[0]])
+        return WList([Operator.RESOLVE_GROUP, s[0]], line_info=self.line_info(meta))
 
-    
+    @v_args(meta=True)
+    def bit_symbol(self, s, meta):
+        return WList([Operator.SLICE, s[0], s[1]], line_info=self.line_info(meta))
 
-    bit_symbol = lambda self, s: WList([Operator.SLICE, s[0], s[1]])
-    sliced_symbol = lambda self, s: WList([Operator.SLICE, s[0], s[1], s[2]])
+    @v_args(meta=True)
+    def sliced_symbol(self, s, meta):
+        return WList([Operator.SLICE, s[0], s[1], s[2]], line_info=self.line_info(meta))
 
     int = lambda self, i: i[0]
     float = lambda self, f: float(f[0])
@@ -108,20 +134,37 @@ class TreeToWal(Transformer):
 
     @v_args(meta=True)
     def list(self, data, meta):
-        return WList(data, (self.filename, meta.line, meta.column))
+        return WList(data, line_info=self.line_info(meta))
 
     
     bool = lambda self, b: b[0]
     true = lambda self, _: True
     false = lambda self, _: False
-    sexpr = lambda self, s: s[0] if s else None
-    timed_sexpr = lambda self, s: WList([Operator.REL_EVAL, s[0], s[1]])
 
-    sexpr_list = lambda self, data: WList(list(map(WList, data))) # WList(list(data))
-    sexpr_strict = lambda self, s: s[0] if s else None
+    @v_args(meta=True)
+    def sexpr(self, s, meta):
+        res = None
+        if isinstance(s[0], list):
+            res = WList(s[0], line_info=self.line_info(meta))
+        elif s:
+            res = s[0]
+
+        return res
+
+    @v_args(meta=True)
+    def timed_sexpr(self, s, meta):
+        return WList([Operator.REL_EVAL, s[0], s[1]], line_info=self.line_info(meta))
+
+    @v_args(meta=True)
+    def sexpr_list(self, data, meta):
+        return WList(data, line_info=self.line_info(meta))
+
+    @v_args(meta=True)
+    def sexpr_strict(self, s, meta):
+        return s[0] if s else None
 
 
-def read(code, reader, filename):
+def read(code, reader, filename=''):
     try:
         parsed = reader.parse(code.strip())
         return TreeToWal(filename).transform(parsed)
@@ -150,7 +193,6 @@ def read_wal_sexpr(code, filename=''):
 reader_sexprs = Lark(WAL_GRAMMAR, start='sexpr_list', parser='lalr', propagate_positions=True)
 def read_wal_sexprs(code, filename=''):
     sexprs = read(code, reader_sexprs, filename=filename)
-    print('>>>', sexprs[0][3], sexprs[0][3][2])
     return sexprs
 
 

@@ -59,7 +59,7 @@ class TraceVcd(Trace):
                     self.signalinfo[id] = {
                         'id': id,
                         'name': fullname,
-                        'width': width,
+                        'width': int(width),
                         'kind': kind,
                         'data': {}
                     }
@@ -145,4 +145,4 @@ class TraceVcd(Trace):
     
     def signal_width(self, name):
         '''Returns the width of a signal'''
-        return self.signals[name]['width']
+        return self.signalinfo[self.name2id[name]]['width']

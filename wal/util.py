@@ -7,7 +7,7 @@ from wal.ast_defs import Symbol, Operator, Closure, Macro, Unquote, UnquoteSplic
 
 def wal_str(sexpr):
     '''Returns a string representation of a WAL expression'''
-    if isinstance(sexpr, list, WLIST):
+    if isinstance(sexpr, (list, WList)):
         if len(sexpr) == 2 and sexpr[0] == Operator.QUOTE:
             txt = f"'{wal_str(sexpr[1])}"
         elif len(sexpr) == 2 and sexpr[0] == Operator.QUASIQUOTE:

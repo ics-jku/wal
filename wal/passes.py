@@ -25,7 +25,6 @@ def expand(seval, exprs, parent=None):
                 else:
                     assert False, f'cannot evaluate {wal_str(expr)}'
 
-
                 save_env = seval.environment
                 seval.environment = macro_env
                 expanded = seval.eval(expr.expression)
@@ -39,7 +38,7 @@ def expand(seval, exprs, parent=None):
                     return expanded
 
 
-        return WList(list(map(lambda expr: expand(seval, expr, parent=parent), exprs)))
+        return WList(list(map(lambda expr: expand(seval, expr, parent=parent), exprs)), line_info=exprs.line_info)
     
     return exprs
 
@@ -52,7 +51,7 @@ def optimize(expr):
             if op in [Operator.QUOTE, Operator.QUASIQUOTE]:
                 pass
             elif op == Operator.IF:
-                expr = WList(list(map(optimize, expr)))
+                expr = WList(list(map(optimize, expr)), line_info=expr.line_info)
                 if (expr[1] is True) or isinstance(expr[1], (int, float, str)):
                     if expr[1]:
                         # (if #t then else) => then
@@ -93,7 +92,7 @@ def resolve(expr, start={}):
                 assert id.name not in scopes[-1], f'symbol {id} already defined'
                 body = resolve_vars(expr[2])
                 scopes[-1][expr[1].name] = True
-                return WList([Operator.DEFINE, id, body])
+                return WList([Operator.DEFINE, id, body], line_info=expr.line_info)
             elif op == Operator.LET:
                 env = {}
                 scopes.append(env)
@@ -102,7 +101,7 @@ def resolve(expr, start={}):
 
                 body = [resolve_vars(sub) for sub in expr[2:]]
                 scopes.pop()
-                return WList([Operator.LET, expr[1], *body])
+                return WList([Operator.LET, expr[1], *body], line_info=expr.line_info)
             elif op == Operator.LAMBDA:
                 args = expr[1]
                 env = {}
@@ -124,10 +123,8 @@ def resolve(expr, start={}):
                 return expr
             elif op in [Operator.QUOTE, Operator.QUASIQUOTE, Operator.ALIAS]:
                 return expr
-            # elif isinstance(op, (Operatorop, S.name in operators:
-            #     return [expr[0], *[resolve_vars(sub) for sub in expr[1:]]]
             else:
-                return WList([resolve_vars(sub) for sub in expr])
+                return WList([resolve_vars(sub) for sub in expr], line_info=expr.line_info)
         elif isinstance(expr, Symbol):
             id = expr.name
             steps = 0
@@ -146,6 +143,3 @@ def resolve(expr, start={}):
 
     return(resolve_vars(expr))
 
-
-
-            

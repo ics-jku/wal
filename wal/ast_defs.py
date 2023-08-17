@@ -3,16 +3,6 @@ from dataclasses import dataclass
 from enum import Enum, unique
 from collections import UserList
 
-class WList(UserList):
-
-    def __init__(self, data, line_info=('', 0, 0)):
-        super().__init__(data)
-        self.line_info = line_info
-
-    def __str__(self):
-        txt = super().__str__()
-        return f'WList({txt})'
-
 @unique
 class Operator(Enum):
     '''Enum for built in operations'''
@@ -131,13 +121,34 @@ class Operator(Enum):
 
 operators = set([op.value for op in Operator])
 
-    
+
+class WList(UserList):
+
+    def __init__(self, data, line_info=('', 0, 0)):
+        super().__init__(data)
+        self.line_info = line_info
+
+    def __str__(self):
+        txt = super().__str__()
+        return f'WList({txt}, {self.line_info})'
+
+    def __eq__(self, other):
+        if isinstance(other, WList):
+            return list.__eq__(self.data, other.data)
+
+        return list.__eq__(self.data, other)
+
+    def strip_line_info(self):
+        return [d.strip_line_info() if isinstance(d, WList) else d for d in self.data]
+
+
 class Symbol:
     '''Symbol class'''
 
-    def __init__(self, name, steps=None):
+    def __init__(self, name, steps=None, line_info=('', 0, 0)):
         self.name = name
         self.steps = steps
+        self.line_info = line_info
 
     def __repr__(self):
         return self.name
@@ -147,11 +158,6 @@ class Symbol:
             return self.name == other.name and self.steps == other.steps
 
         return False
-
-
-def S(name, steps=None):  # pylint: disable=C0103
-    '''Helper function to create Symbols'''
-    return Symbol(name, steps)
 
 
 class UserOperator:

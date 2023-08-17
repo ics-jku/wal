@@ -81,7 +81,7 @@ def main():  # pylint: disable=R1710
         else:
             with open(filename, 'r', encoding='utf8') as file:
                 try:
-                    sexprs = read_wal_sexprs(file.read())
+                    sexprs = read_wal_sexprs(file.read(), filename)
                 except ParseError as e:
                     e.show()
                     sys.exit(os.EX_DATAERR)
@@ -93,8 +93,6 @@ def main():  # pylint: disable=R1710
                 resolved = resolve(optimized, start=wal.eval_context.global_environment.environment)
                 wal.eval(resolved)
         except Exception as e: # pylint: disable=W0703
-            print()
-            print('>>>>> Runtime error! <<<<<')
             print(e)
             if args.repl_on_failure:
                 WalRepl(wal, intro=WalRepl.dyn_intro).cmdloop()

@@ -7,7 +7,7 @@ import os
 from wal.util import wal_str
 from wal.reader import read_wal_sexpr, ParseError
 from wal.passes import expand, optimize, resolve
-from wal.ast_defs import Operator, Symbol
+from wal.ast_defs import Operator, Symbol, WList
 from wal.trace.trace import Trace
 from wal.version import __version__
 

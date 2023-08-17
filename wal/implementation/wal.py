@@ -81,7 +81,7 @@ def op_require(seval, args):
             sexprs = wal_decode(name)
         elif name := wal_file_exists(module + '.wal'):
             with open(name, 'r', encoding='utf-8') as file:
-                sexprs = read_wal_sexprs(file.read())
+                sexprs = read_wal_sexprs(file.read(), name)
         else:
             print(f'require: cant find file {module}.wal')
             raise FileNotFoundError

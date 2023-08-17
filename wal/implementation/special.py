@@ -1,5 +1,5 @@
 '''Implementations for special hardware related functions'''
-from wal.ast_defs import Operator, Symbol
+from wal.ast_defs import Operator, Symbol, WList
 
 def op_find(seval, args):
     '''Find
@@ -87,7 +87,7 @@ def op_fold_signal(seval, args):
     stopped = False
     while not seval.eval(stop) and not stopped:
         if isinstance(func, Operator):
-            acc = seval.eval([func, [Operator.QUOTE, acc], [Operator.QUOTE, seval.eval(signal)]])
+            acc = seval.eval(WList([func, WList([Operator.QUOTE, acc]), WList([Operator.QUOTE, seval.eval(signal)])]))
         else:
             assert func[0] == Operator.LAMBDA or func[0] == Operator.FN, 'fold/signal: first argument must be a function'
             acc = seval.eval_lambda(func, [[Operator.QUOTE, acc], [Operator.QUOTE, seval.eval(signal)]])

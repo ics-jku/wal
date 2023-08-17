@@ -2,7 +2,7 @@
 # pylint: disable=C0103,C0116
 from lark import Lark, Transformer
 from wawk.ast_defs import Statement
-from wal.ast_defs import S
+from wal.ast_defs import Symbol as S
 from wal.ast_defs import Operator as Op
 from wal.ast_defs import UserOperator
 from wal.reader import operators
