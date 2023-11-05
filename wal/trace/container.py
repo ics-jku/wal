@@ -1,11 +1,10 @@
 '''Wrapper class for trace data'''
-
+import sys
 import pathlib
 
 from wal.ast_defs import VirtualSignal
 from wal.trace.trace import Trace
 from wal.trace.vcd import TraceVcd
-from wal.trace.fst import TraceFst
 
 class TraceContainer:
     '''Can hold multiple traces and dispatches value access to the correct trace.'''
@@ -22,7 +21,15 @@ class TraceContainer:
         if file_extension == '.vcd':
             self.traces[tid] = TraceVcd(file, tid, self, from_string=from_string, keep_signals=keep_signals)
         elif file_extension == '.fst':
-            self.traces[tid] = TraceFst(file, tid, self, from_string=from_string, keep_signals=keep_signals)
+            try:
+                from wal.trace.fst import TraceFst
+                self.traces[tid] = TraceFst(file, tid, self, from_string=from_string, keep_signals=keep_signals)
+            except ModuleNotFoundError:
+                print(f'Can not open file "{file}"')
+                print('To get support for the "fst" filetype install "pylibfst" package')
+                print('More information on pylibfst: https://pypi.org/project/pylibfst/')
+                sys.exit(1)
+
         else:
             print(f'File extension "{file_extension}" not supported.')
 

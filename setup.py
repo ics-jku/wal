@@ -12,7 +12,7 @@ long_description = (here / 'README.md').read_text(encoding='utf-8')
 
 setup(
     name='wal-lang',
-    version=__version__, # noqa: F821
+    version=__version__,
     description='Wal - Wavefile Analysis Language',
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -35,13 +35,13 @@ setup(
     keywords=['verilog', 'VHDL', 'vcd', 'fst', 'development', 'hardware', 'rtl', 'simulation', 'verification', 'FPGA'],
     packages=find_packages(),
     python_requires='>=3.8, <4',
-    install_requires=['lark-parser', 'dataclasses', 'pylibfst','importlib-resources'],
+    install_requires=['lark-parser', 'dataclasses', 'importlib-resources'],
     extras_require={
         'dev': [],
         'test': ['ruff', 'coverage'],
     },
     package_data={
-        'wal': ['libs/std/std.wal', 'libs/std/std.wo']
+        'wal': ['libs/std/std.wal', 'libs/std/std.wo', 'libs/std/module.wal', 'libs/std/module.wo']
     },
 
     entry_points={

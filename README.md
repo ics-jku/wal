@@ -42,6 +42,12 @@ cd wal
 make install
 ```
 
+### Support for fst waveforms
+To add support for the fst filetype to WAL, install the `pylibfst` package.
+```
+pip install --user pylibfst
+```
+
 ### PyPy and Pyston Support
 WAL also supports the alternative Python implementations PyPy and Pyston.
 Both alternative implementations can lead to substantial speedups in a lot of scenarios.
