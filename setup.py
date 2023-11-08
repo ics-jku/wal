@@ -35,7 +35,7 @@ setup(
     keywords=['verilog', 'VHDL', 'vcd', 'fst', 'development', 'hardware', 'rtl', 'simulation', 'verification', 'FPGA'],
     packages=find_packages(),
     python_requires='>=3.8, <4',
-    install_requires=['lark-parser', 'dataclasses', 'pylibfst','importlib-resources'],
+    install_requires=['lark-parser', 'pylibfst'],
     extras_require={
         'dev': [],
         'test': ['ruff', 'coverage'],
