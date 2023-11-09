@@ -3,7 +3,7 @@
 import os
 import wal
 
-from importlib_resources import files
+from importlib.resources import files
 
 from wal.util import wal_str
 from wal.ast_defs import Operator, UserOperator, Symbol, Environment, Closure, Macro
