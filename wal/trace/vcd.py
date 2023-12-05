@@ -140,6 +140,9 @@ class TraceVcd(Trace):
         data_by_name = {signal: self.data[self.name2id[signal]] for signal in self.rawsignals}
         self.data = data_by_name
 
+        # Remember all timestamps
+        self.all_timestamps = self.timestamps
+
     def access_signal_data(self, name, index):
         return self.data[name][index]
     
