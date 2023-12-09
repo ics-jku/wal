@@ -48,6 +48,11 @@ class TraceVcd(Trace):
                 width = tokens[i + 2]
                 id = tokens[i + 3]
                 name = tokens[i + 4]
+
+                # Remove bit width annotations from the name
+                if name.endswith(']'):
+                    name= name.split('[')[0]
+
                 # only append scope. if not in root scope
                 if scope:
                     fullname = '.'.join(scope) + '.' + name
@@ -127,9 +132,7 @@ class TraceVcd(Trace):
                     self.data[id][-1] = value
                 i += 1
             elif tokens[i] == '$comment':
-                print('comment')
                 while tokens[i] != '$end':
-                    print(tokens[i])
                     i += 1
 
                 i += 1

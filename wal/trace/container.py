@@ -17,7 +17,11 @@ class TraceContainer:
 
     def load(self, file, tid=None, from_string=False, keep_signals=None):
         '''Load a trace from file and add it under trace id tid.'''
-        tid = tid if tid else 't_{self.n_traces}'
+        if tid is None:
+            tid = f't{len(self.traces)}'
+
+        assert tid not in self.traces, f'load: trace id {tid} already in use'
+        
         file_extension = pathlib.Path(file).suffix
         if file_extension == '.vcd':
             self.traces[tid] = TraceVcd(file, tid, self, from_string=from_string, keep_signals=keep_signals)
