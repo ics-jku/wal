@@ -7,7 +7,7 @@ def op_is_defined(seval, args):
     assert len(args) == 1, 'defined?: expects exactly one argument'
     evaluated = seval.eval(args[0])
     assert isinstance(evaluated, Symbol), 'defined?: argument must evaluate to symbol'
-    return seval.environment.is_defined(evaluated.name)
+    return bool(seval.environment.is_defined(evaluated.name))
 
 
 def op_is_atom(seval, args):

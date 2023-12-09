@@ -10,6 +10,7 @@ class TraceVcd(Trace):
     def __init__(self, filename, tid, container, from_string=False, keep_signals=None):
         super().__init__(tid, filename, container)
         self.timestamps = []
+        self.lookup = None # performs index translation after set-sampling
         self.scopes = []
         self.rawsignals = []
         self.all_ids = set()
@@ -25,6 +26,7 @@ class TraceVcd(Trace):
             with open(filename) as f:
                 self.parse(f.read())
 
+        self.all_timestamps = self.timestamps.copy()
         self.index = 0
         self.max_index = len(self.index2ts) - 1
         self.signals = set(Trace.SPECIAL_SIGNALS + self.rawsignals)
@@ -140,8 +142,21 @@ class TraceVcd(Trace):
         data_by_name = {signal: self.data[self.name2id[signal]] for signal in self.rawsignals}
         self.data = data_by_name
 
+    def set_sampling_points(self, new_indices):
+        '''Updates the indices at which data is sampled'''
+        self.lookup = dict(enumerate(new_indices))
+        new_timestamps = [self.all_timestamps[i] for i in new_indices]
+        self.timestamps = list(dict.fromkeys(new_timestamps))
+        self.timestamps = dict(enumerate(self.timestamps))
+        # stores current time stamp
+        self.index = 0
+        self.max_index = len(self.timestamps.keys()) - 1
+
     def access_signal_data(self, name, index):
-        return self.data[name][index]
+        if self.lookup:
+            return self.data[name][self.lookup[index]]
+        else:
+            return self.data[name][index]
     
     def signal_width(self, name):
         '''Returns the width of a signal'''

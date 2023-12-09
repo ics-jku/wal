@@ -4,7 +4,6 @@ import os
 import sys
 
 from wal.core import Wal
-from wal.ast_defs import Symbol
 from wal.util import wal_str
 from .parser import parse_wawk
 from .ast_defs import AST
@@ -33,34 +32,6 @@ class Arguments:  # pylint: disable=too-few-public-methods
         return args
 
 
-def wawk_set(seval, args):
-    '''This is basically WAL's set implementation but undefined signals get defined'''
-    key = args[0]
-    assert isinstance(key, Symbol), 'assertion key must be a symbol'
-    res = seval.eval(args[1])
-
-    # this signal was already resolved
-    if key.steps is not None:
-        defined_at = seval.environment
-        steps = key.steps
-        while steps > 0:
-            defined_at = seval.environment.parent
-            steps -= 1
-
-        # get the dict out of the environment
-        defined_at = defined_at.environment
-    else:
-        defined_at = seval.environment.is_defined(key.name)
-
-    if defined_at:
-        defined_at[key.name] = res
-    else:
-        assert f'Write to undefined symbol {key.name}'
-        seval.environment.define(key.name, res)
-    
-    return res
-
-    
 def run():
     '''Entry point for the application script'''
 
@@ -79,18 +50,16 @@ def run():
         return os.EX_IOERR
 
     wal = Wal()
-    wal.register_operator('wawk-set', wawk_set)
     wal.eval_context.global_environment.write('args', args.args)
-    #wal.load(args.trace, 'main')
 
     if args.output:
         with open(args.output, 'w') as f:
-            for stmt in ast.emit():
+            stmts, symbols = ast.emit()
+            for stmt in stmts:
                 f.write(wal_str(stmt) + '\n\n')
     else:
         exprs, symbols = ast.emit()
         wal.load(args.trace, 'WAWK_TRACE', keep_signals=symbols)
-        print("a")
         for expr in exprs:
             wal.eval(expr)
 

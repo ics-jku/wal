@@ -56,28 +56,28 @@ def op_exp(seval, args):
 
 
 def op_floor(seval, args):
-    assert isinstance(args, list) and len(args) == 1, 'floor: expects exactly one argument (floor x:num?)'
+    assert len(args) == 1, 'floor: expects exactly one argument (floor x:num?)'
     evaluated = seval.eval(args[0])
     assert isinstance(evaluated, (int, float)), 'floor: expects exactly one argument (floor x:num?)'
     return math.floor(evaluated)
 
 
 def op_ceil(seval, args):
-    assert isinstance(args, list) and len(args) == 1, 'floor: expects exactly one argument (ceil x:num?)'
+    assert len(args) == 1, 'floor: expects exactly one argument (ceil x:num?)'
     evaluated = seval.eval(args[0])
     assert isinstance(evaluated, (int, float)), 'ceil: expects exactly one argument (ceil x:num?)'
     return math.ceil(evaluated)
 
 
 def op_round(seval, args):
-    assert isinstance(args, list) and len(args) == 1, 'round: expects exactly one argument (round x:num?)'
+    assert len(args) == 1, 'round: expects exactly one argument (round x:num?)'
     evaluated = seval.eval(args[0])
     assert isinstance(evaluated, (int, float)), 'round: expects exactly one argument (round x:num?)'
     return round(evaluated)
 
 
 def op_mod(seval, args):
-    assert isinstance(args, list) and len(args) == 2, 'mod: expects exactly one argument (mod x:num?)'
+    assert len(args) == 2, 'mod: expects exactly one argument (mod x:num?)'
     evaluated = seval.eval_args(args)
     assert all(map(lambda x: isinstance(x, (int, float)), evaluated)), 'mod: expects exactly one argument (mod x:num? y:num?)'
     return evaluated[0] % evaluated[1]

@@ -1,5 +1,6 @@
 '''Test wal array eval logic'''
 from wal.core import Wal
+from wal.ast_defs import WalEvalError
 from .test_eval import OpTest
 
 # pylint: disable=C0103
@@ -29,9 +30,9 @@ class BasicaArrayTest(OpTest):
         self.checkEqual('(array (1 "a"))', {'1': 'a'})
         self.checkEqual('(array ("a" 1))', {'a': 1})
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str('(array (1))')
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str('(array (1 2 3))')
 
     def test_geta(self):
@@ -48,12 +49,12 @@ class BasicaArrayTest(OpTest):
         self.checkEqual("(geta (array (\"a\" 2) ('a 4)) \"a\")", 4)
 
         # should fail since geta requires at least 2 arguments
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str('(geta)')
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str('(geta x)')
         # should fail since geta requires first argument to be a symbol
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str('(geta 5 "a")')
 
     def test_seta(self):
@@ -64,16 +65,16 @@ class BasicaArrayTest(OpTest):
         self.checkEqual("(seta (array ['a 5]) 'a 2)", {'a': 2})
 
         # should fail since first argument must be a symbol or array
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str('(seta 0 0)')
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str('(seta "a" 0)')
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str("(seta '(1 2) 0)")
         # should fail since keys must be either string or int
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str("(seta (array) '(1 2) 2)")
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str("(seta (array) (array) 2)")
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str("(seta (array) '+ 2)")

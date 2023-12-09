@@ -2,6 +2,7 @@
 
 import re
 import pylibfst as fst
+from functools import lru_cache
 
 from wal.trace.trace import Trace
 
@@ -41,10 +42,14 @@ class TraceFst(Trace):
         self.index = 0
         self.max_index = raw_timestamps.nvals - 1
 
+    @lru_cache
     def access_signal_data(self, name, index):
         '''Backend specific function for accessing signals in the waveform'''
         handle = self.references_to_ids[name].handle
         return fst.helpers.string(fst.lib.fstReaderGetValueFromHandleAtTime(self.fst, self.timestamps[index], handle, self.buf))
+
+    def set_sampling_points(self, new_indices):
+        super().set_sampling_points(new_indices)
 
     def signal_width(self, name):
         return self.references_to_ids[name].length

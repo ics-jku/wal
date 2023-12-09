@@ -3,9 +3,8 @@ import unittest
 import random
 
 from wal.core import Wal
+from wal.ast_defs import WalEvalError
 
-# pylint: disable=C0103
-# _pylint: disable=W0201
 
 class BasicOpTest(unittest.TestCase):
     '''Test built-in functions'''
@@ -94,10 +93,10 @@ class BasicOpTest(unittest.TestCase):
             int_str = self.wal.eval_str(f"(convert/bin {random_int} {random_width})")
             self.assertEqual(random_int, int(int_str, 2))
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.wal.eval_str('(convert/bin "hi")')
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.wal.eval_str('(convert/bin (quote a))')
 
     def test_string_to_int(self):
@@ -114,13 +113,13 @@ class BasicOpTest(unittest.TestCase):
             random_int = random.randint(-99999999, 99999999)
             self.checkEqual(f'(string->int "{random_int}")', random_int)
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.wal.eval_str('(string->int (quote a))')
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.wal.eval_str('(string->int 1)')
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.wal.eval_str('(string->int (array))')
 
     def test_int_to_string(self):
@@ -137,8 +136,8 @@ class BasicOpTest(unittest.TestCase):
             random_int = random.randint(-99999999, 99999999)
             self.checkEqual(f'(int->string {random_int})', str(random_int))
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.wal.eval_str('(int->string (quote a))')
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.wal.eval_str('(int->string (array))')

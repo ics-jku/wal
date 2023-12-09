@@ -8,6 +8,7 @@ from wal.core import Wal
 from wal.reader import read_wal_sexpr
 from wal.ast_defs import Symbol as S
 from wal.ast_defs import Operator
+from wal.ast_defs import WalEvalError
 
 # pylint: disable=C0103
 # pylint: disable=W0201
@@ -75,7 +76,7 @@ class BasicOpTest(OpTest):
         self.checkEqual('(- 1 2)', -1)
         self.checkEqual('(- y x)', self.y - self.x)
         # test mixed int string
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str('(- x 1 "test")')
 
         # test nested additions
@@ -98,10 +99,10 @@ class BasicOpTest(OpTest):
         # with self.assertRaises(ZeroDivisionError):
         #     self.w.eval('(/ 5 0)')
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str('(/ 1)')
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str('(/ 1 "a")')
 
     def test_exp(self):
@@ -109,13 +110,13 @@ class BasicOpTest(OpTest):
         self.checkEqual('(** 2 10)', 1024)
         self.checkEqual('(** x y)', math.pow(self.x, self.y))
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str('(** 1)')
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str('(** 1 "a")')
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str('(** 1 2 3)')
 
     def test_eq(self):
@@ -151,17 +152,17 @@ class BasicOpTest(OpTest):
         self.checkEqual('(> x y)', 0)
 
         # compare only on two elements
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str("(> 3)")
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str("(> 3 4 5)")
 
         # compare only on ints
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str("(> '(1 2) 3)")
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str("(> '(1 2) '(3))")
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str("(> 3 '(3))")
 
 
@@ -177,17 +178,17 @@ class BasicOpTest(OpTest):
         self.checkEqual('(< x y)', 1)
 
         # compare only on two elements
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str("(< 3)")
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str("(< 3 4 5)")
 
         # compare only on ints
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str("(< '(1 2) 3)")
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str("(< '(1 2) '(3))")
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str("(< 3 '(3))")
 
     def test_larger_equal(self):
@@ -202,17 +203,17 @@ class BasicOpTest(OpTest):
         self.checkEqual('(>= x y)', 0)
 
         # compare only on two elements
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str("(>= 3)")
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str("(>= 3 4 5)")
 
         # compare only on ints
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str("(>= '(1 2) 3)")
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str("(>= '(1 2) '(3))")
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str("(>= 3 '(3))")
 
     def test_smaller_equal(self):
@@ -227,17 +228,17 @@ class BasicOpTest(OpTest):
         self.checkEqual('(<= x y)', 1)
 
         # compare only on two elements
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str("(<= 3)")
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str("(<= 3 4 5)")
 
         # compare only on ints
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str("(<= '(1 2) 3)")
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str("(<= '(1 2) '(3))")
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str("(<= 3 '(3))")
 
     def test_and(self):
@@ -249,9 +250,6 @@ class BasicOpTest(OpTest):
         self.checkEqual('(&& 1 0)', False)
         self.checkEqual('(&& 0 0)', False)
 
-        with self.assertRaises(AssertionError):
-            self.w.eval_str("(&&)")
-
     def test_or(self):
         '''Test logical and operator'''
         self.checkEqual('(|| 1 1)', True)
@@ -261,15 +259,12 @@ class BasicOpTest(OpTest):
         self.checkEqual('(|| 1 0)', True)
         self.checkEqual('(|| 0 0)', False)
 
-        with self.assertRaises(AssertionError):
-            self.w.eval_str("(||)")
-
     def test_not(self):
         '''Test not operator'''
         self.checkEqual('(! 1)', 0)
         self.checkEqual('(! 0)', 1)
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str("(!)")
 
     def test_set(self):
@@ -294,7 +289,7 @@ class BasicOpTest(OpTest):
 
         self.checkEqual('(let ([b 0]) (set (a 11) (b 22)))', 22)
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             # should fail because only symbols can be assigned to
             self.w.eval_str('(set (5 5))')
 
@@ -370,9 +365,9 @@ class EvalControlFlowTest(OpTest):
         self.checkEqual('(if 1 2)', 2)
         self.checkEqual('(if 0 2)', None)
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str('(if)')
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str('(if 1)')
 
     def test_cond(self):
@@ -425,7 +420,7 @@ class EvalControlFlowTest(OpTest):
         with self.assertRaises(ValueError):
             self.w.eval_str('(case 1 (1 a) (2 b) (1 c))')
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str('(case)')
 
     def test_do(self):
@@ -433,16 +428,13 @@ class EvalControlFlowTest(OpTest):
         self.checkEqual('(do 1 2)', 2)
         self.checkEqual('(do (+ 1 2) (+ 2 2))', 4)
 
-        with self.assertRaises(AssertionError):
-            self.w.eval_str('(do)')
-
     def test_while(self):
         '''Test while loop'''
         self.w.eval_str('(set (x 0))')
         self.checkEqual('(while (< x 5) (set (x (+ x 1))))', 5)
 
         # should fail since while expects 2 args
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str('(while (< x 5))')
 
     def test_alias(self):
@@ -454,10 +446,10 @@ class EvalControlFlowTest(OpTest):
         self.checkEqual('def', self.y)
 
         # alias expects only an even number of arguments
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str('(alias)')
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str('(alias a 1 b)')
 
     def test_unalias(self):
@@ -465,17 +457,17 @@ class EvalControlFlowTest(OpTest):
         self.w.eval_str('(alias abc x)')
         self.checkEqual('abc', self.x)
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str('(unalias abc)')
             self.w.eval_str('abc')
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str('(unalias)')
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str('(unalias 1)')
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str('(unalias x y)')
 
     def test_quote(self):
@@ -484,10 +476,10 @@ class EvalControlFlowTest(OpTest):
         self.checkEqual("'x", S('x'))
         self.checkEqual("'(+ 1 2)", [Operator.ADD, 1, 2])
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str('(quote)')
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str('(quote a b)')
 
 
@@ -496,10 +488,10 @@ class EvalFunctionTest(OpTest):
 
     def test_lambda_args(self):
         '''Lambdas should raise errors for wrong arguments'''
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str('(lambda (x))')
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str('(lambda (x 1) x)')
 
     def test_lambda_apply(self):
@@ -509,7 +501,7 @@ class EvalFunctionTest(OpTest):
         self.checkEqual('((lambda (x) (+ x 1)) 1)', 2)
 
         # correct number of args must be supplied
-        # with self.assertRaises(AssertionError):
+        # with self.assertRaises(WalEvalError):
         #     self.w.eval_str('(lambda (x) (+ x 1) 1 2)')
 
         # Apply named lambda

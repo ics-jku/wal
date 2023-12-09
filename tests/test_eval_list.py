@@ -1,5 +1,6 @@
 '''Test wal list eval logic'''
 from wal.ast_defs import Operator as Op
+from wal.ast_defs import WalEvalError
 from .test_eval import OpTest
 
 # pylint: disable=C0103
@@ -32,12 +33,12 @@ class BasicListTest(OpTest):
         self.checkEqual("(second '(1 2))", self.w.eval_str("(last '(1 2))"))
 
         for op in [Op.FIRST, Op.SECOND, Op.LAST]:
-            with self.assertRaises(AssertionError):
+            with self.assertRaises(WalEvalError):
                 self.w.eval_str(f'({op.value})')
-            with self.assertRaises(AssertionError):
+            with self.assertRaises(WalEvalError):
                 self.w.eval_str(f'({op.value} 1 2)')
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str("(second '(1))")
 
     def test_rest(self):
@@ -47,7 +48,7 @@ class BasicListTest(OpTest):
         self.checkEqual("(rest '(1))", [])
         self.checkEqual("(rest '())", [])
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str('(rest)')
 
     def test_in(self):
@@ -60,13 +61,13 @@ class BasicListTest(OpTest):
 
         self.checkEqual(f'(in "a" {l1})', False)
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str('(in)')
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str('(in 1)')
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str('(in 1 2)')
 
     def test_map(self):
@@ -77,15 +78,15 @@ class BasicListTest(OpTest):
         self.checkEqual(f'(map {f} {l1})', [2, 3, 4, 5])
         self.checkEqual(f'(map {f} {l2})', ['a1', 'b1'])
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str('(map)')
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str('(map f)')
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str(f'(map {l1})')
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str(f'(map {l1} {f})')
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str(f'(map {l1} {l2})')
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(WalEvalError):
             self.w.eval_str(f'(map {f} {l1} {l2})')

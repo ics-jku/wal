@@ -16,6 +16,7 @@ package:
 	$(PYTHON) -m pip install .
 	$(PYTHON) -m pip install build virtualenv
 	$(PYTHON) -m walc wal/libs/std/std.wal
+	$(PYTHON) -m walc wal/libs/std/module.wal
 	$(PYTHON) -m build
 
 uninstall:

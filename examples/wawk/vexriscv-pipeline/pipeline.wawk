@@ -15,8 +15,8 @@ function render_cell(msg, color) {
   printf("<td style='background-color:%s'>%s</td>", color, msg);
 }
 
-// detection of halting
 TOP.clk: {
+  // detection of halting
   if (TOP.VexRiscv.decode_arbitration_isMoving) {
     if (decode_halt > 4) {
       show_warning(error_id, "Pipeline halted for " + decode_halt + " cycles");
@@ -26,10 +26,8 @@ TOP.clk: {
   } else {
     decode_halt += 1;
   }
-}
 
-// main generation of HTML table
-TOP.clk: {
+  // main generation of HTML table
   printf("<tr><td>%s</td>", TS);
   for (stage in ["decode", "execute", "memory", "writeBack"]) {
     group(["TOP.VexRiscv." + stage]) {

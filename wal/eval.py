@@ -3,10 +3,10 @@
 import os
 import wal
 
-from importlib_resources import files
+from importlib.resources import files
 
 from wal.util import wal_str
-from wal.ast_defs import Operator, UserOperator, Symbol, Environment, Closure, Macro, WList
+from wal.ast_defs import Operator, UserOperator, Symbol, Environment, Closure, Macro, WList, WalEvalError
 from wal.implementation.types import type_operators
 from wal.implementation.math import math_operators
 from wal.implementation.list import list_operators
@@ -87,41 +87,18 @@ class SEval:
             assert False, f'cannot evaluate {wal_str(closure)}'
 
         self.environment = new_env
-        res = self.eval(closure.expression)
+        try:
+            res = self.eval(closure.expression)
+        except WalEvalError as error:
+            error.add(closure.name)
+            raise error
+
         self.environment = save_env
         return res
-
-    def evale(self, expr):
-        try:
-            return self.eval(expr)
-        except AssertionError as error:
-            print()
-            print('>>>>> WAL Runtime error! <<<<<')
-            if isinstance(expr, (WList, Symbol)) and expr.line_info[0] != '':
-                with open(expr.line_info[0]) as f:
-                    lines = f.readlines()
-                    error_range = range(expr.line_info[1] - 5, expr.line_info[1])
-                    max_line_nr_width = max([len(str(lnr)) for lnr in error_range])
-                    for lnr in error_range:
-                        if lnr >= 0:
-                            if lnr == expr.line_info[1] - 1:
-                                print('\033[91m', end='')
-
-                            print(f'{lnr:{max_line_nr_width}}:', lines[lnr].rstrip())
-
-                            if lnr == expr.line_info[1] - 1:
-                                print('\033[0m', end='')
-
-                    print(' ' * (max_line_nr_width + expr.line_info[2] + 2), '^', sep='')
-
-                print('Error on line ', expr.line_info[1])
-
-            print(error)
 
     def eval(self, expr):
         '''Main s-expression eval function'''
         res = NotImplementedError()
-
         try:
             if isinstance(expr, Symbol):
                 name = expr.name
@@ -168,34 +145,57 @@ class SEval:
                     res = self.eval([func] + tail)
             elif isinstance(expr, (int, str, float, Closure)):
                 res = expr
-            # elif isinstance(expr, list):
-            #     print('List', expr)
-        # except AssertionError as error:
-        # except AssertionError as error:
-        #     print()
-        #     print('>>>>> WAL Runtime error! <<<<<')
-        #     if isinstance(expr, (WList, Symbol)) and expr.line_info[0] != '':
-        #         with open(expr.line_info[0]) as f:
-        #             lines = f.readlines()
-        #             error_range = range(expr.line_info[1] - 5, expr.line_info[1])
-        #             max_line_nr_width = max([len(str(lnr)) for lnr in error_range])
-        #             for lnr in error_range:
-        #                 if lnr >= 0:
-        #                     if lnr == expr.line_info[1] - 1:
-        #                         print('\033[91m', end='')
-
-        #                     print(f'{lnr:{max_line_nr_width}}:', lines[lnr].rstrip())
-
-        #                     if lnr == expr.line_info[1] - 1:
-        #                         print('\033[0m', end='')
-
-        #             print(' ' * (max_line_nr_width + expr.line_info[2] + 2), '^', sep='')
-
-        #         print('Error on line ', expr.line_info[1])
-
-        #     print(error)
-        #     raise error
+        except AssertionError as error:
+            self.print_error(expr, error)
+            raise WalEvalError()
 
         if not isinstance(res, Exception):
             return res
         raise NotImplementedError(str(expr))
+
+
+    def print_error(self, expr, error):
+        print()
+        print('>>>>> WAL Runtime error! <<<<<')
+        if isinstance(expr, (WList, Symbol)) and expr.line_info and expr.line_info['filename'] != '':
+            with open(expr.line_info['filename']) as f:
+                lines = f.readlines()
+                error_range = range(expr.line_info['line'] - 5, expr.line_info['end_line'])
+                max_line_nr_width = max([len(str(lnr)) for lnr in error_range])
+
+                for lnr in error_range:
+                    if lnr >= 0:
+                        line = lines[lnr].rstrip()
+                        if lnr+1 >= expr.line_info['line'] and lnr+1 <= expr.line_info['end_line']:
+                            print(f'\033[91m{lnr+1:{max_line_nr_width}}:\033[0m ', end='')
+                        else:
+                            print(f'{lnr+1:{max_line_nr_width}}: ', end='')
+
+                        for cnr, char in enumerate(line):
+                            if lnr + 1 == expr.line_info['line'] and (cnr + 1) == expr.line_info['column']:
+                                print('\033[91m', end='')
+
+                            print(char, end='')
+                            if lnr + 1 == expr.line_info['end_line'] and cnr + 2 == expr.line_info['end_column']:
+                                print('\033[0m', end='')
+
+                        print()
+
+                print(' ' * (max_line_nr_width + 1), end='')
+                for cnr, char in enumerate(lines[expr.line_info['line'] - 1]):
+                    if char.isspace():
+                        print(char, end='')
+                    elif cnr == expr.line_info['column']:
+                        print('\033[91m^\033[0m', end='')
+                    else:
+                        print(' ', end='')
+
+            print()
+            if expr.line_info['filename']:
+                print('Error at ', expr.line_info['filename'], ':', expr.line_info['line'], sep='')
+            else:
+                print('Error on line', expr.line_info['line'])
+
+            print('\033[0m', end='')
+
+        print(error)

@@ -111,3 +111,7 @@ class Trace:
 
     def get_all_signals(self):
         return list(self.rawsignals) + list(self.virtual_signals.keys())
+
+    def set_max_index(self, new_max_index):
+        self.max_index = min(new_max_index, self.max_index)
+        return self.max_index

@@ -1,7 +1,7 @@
 '''Definitions for the wal-awk AST'''
 
 from dataclasses import dataclass
-from wal.ast_defs import Symbol as S, Symbol, Operator
+from wal.ast_defs import Symbol as S, Symbol, Operator, WList
 
 
 @dataclass
@@ -35,8 +35,14 @@ class AST:
                 self.statements.append(statement)
 
     def emit(self):
-        wal = self.begin
         main_loop = [Operator.WHENEVER, True, [S('cond'), *[[[Operator.AND, *stmt.condition], stmt.action] for stmt in self.statements]]]
+        variables = self.find_variables(self.begin)
+        variables = self.find_variables(self.end, vars=variables)
+        variables = self.find_variables(main_loop, vars=variables)
+
+        variable_definitions = [[Operator.DEFINE, S(key[0]), key[1]] for key in variables.items()]
+        begin_statements = self.begin
+        wal = [[Operator.DO, *variable_definitions, *begin_statements]]
         wal.append(main_loop)
         wal += self.end
 
@@ -51,3 +57,18 @@ class AST:
         find_symbols(wal)
         
         return wal, symbols
+
+    def find_variables(self, expr, vars={}):
+        if isinstance(expr, (WList, list)):
+            if len(expr) > 1 and expr[0] == Operator.SET:
+                for binding in expr[1:]:
+                    vars[binding[0].name] = 0
+                    self.find_variables(binding[1], vars)
+            if len(expr) > 1 and expr[0] == Operator.SETA:
+                vars[expr[1].name] = [Operator.ARRAY]
+                self.find_variables(expr[-1], vars)
+            else:
+                for sub_expr in expr:
+                    self.find_variables(sub_expr, vars)
+
+        return vars

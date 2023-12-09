@@ -3,11 +3,6 @@ BEGIN: {
   alias(fire, TOP.VexRiscv.lastStageIsFiring);
   alias(pc, TOP.VexRiscv.lastStagePc);
   alias(inst, TOP.VexRiscv.lastStageInstruction);
-  starts = array();
-  trans = array();
-  ends = array();
-  bstart = 0;
-  lasti = 0;
 }
 
 // Stmt 2: initialize pc
@@ -16,21 +11,21 @@ TOP.clk, fire, !bstart: { bstart = pc; }
 // Stmt 3: detect block boundaries
 TOP.clk, fire: {
   was_jump = (lasti[6:5] == 3);
-  run_into = (starts[pc] && (starts[pc]!=starts[last]));
+  run_into = (starts[pc] && (starts[pc]!=starts[last_pc]));
   if (was_jump || run_into) {
-    trans[last, pc] = [last, pc];
-    ends[last] = last;
+    trans[last_pc, pc] = [last_pc, pc];
+    ends[last_pc] = last_pc;
     bstart = pc;
   };
   // save start of block
   starts[pc] = bstart;
   // save current instruction
-  last = pc;
+  last_pc = pc;
   lasti = inst;
 }
 
 END: {
-  ends[last] = last;
+  ends[last_pc] = last_pc;
 
   print("digraph fsm {node [shape=record];");
 

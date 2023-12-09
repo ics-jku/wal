@@ -14,6 +14,7 @@ class Operator(Enum):
     LOADED_TRACES = 'loaded-traces'
     # basic
     REQUIRE = 'require'
+    EVAL_FILE = 'eval-file'
     # maths
     ADD = '+'
     SUB = '-'
@@ -111,6 +112,7 @@ class Operator(Enum):
     FOLD_SIGNAL = 'fold/signal'
     SIGNAL_WIDTH = 'signal-width'
     SAMPLE_AT = 'sample-at'
+    TRIM_TRACE = 'trim-trace'
     # system
     EXIT = 'exit'
     # virtual signals
@@ -124,7 +126,7 @@ operators = set([op.value for op in Operator])
 
 class WList(UserList):
 
-    def __init__(self, data, line_info=('', 0, 0)):
+    def __init__(self, data, line_info=None):
         super().__init__(data)
         self.line_info = line_info
 
@@ -180,7 +182,6 @@ class Environment:
 
     def define(self, name, value):
         '''Define new variable in this context '''
-
         assert name not in self.environment, f'variable {name} already defined'
         self.environment[name] = value
 
@@ -255,7 +256,6 @@ class VirtualSignal:
     '''Holds information about a virtual signal'''
     name: str
 
-
     def __init__(self, name, expr, trace, seval, width=32): # pylint: disable=R0913
         self.name = name
         self.expr = expr
@@ -264,7 +264,6 @@ class VirtualSignal:
         self.seval = seval
         self.dependencies = []
         self.cache = {}
-
 
     @property
     def value(self):
@@ -277,5 +276,26 @@ class VirtualSignal:
             res = self.seval.eval_args(self.expr)[-1]
             self.cache[ts] = res
 
-
         return res
+
+
+class WalEvalError(Exception):
+
+    def __init__(self, message=''):
+        self.trace = []
+        self.message = message
+
+    def add(self, f):
+        self.trace.append(f)
+
+    def print(self):
+        if self.trace:
+            print()
+            print("Backtrace:")
+            for function in reversed(self.trace):
+                if isinstance(function, Symbol):
+                    line = function.line_info['line']
+                    filename = function.line_info['filename']
+                    print(f'{function}, line {line} in {filename}')
+                else:
+                    print(function)

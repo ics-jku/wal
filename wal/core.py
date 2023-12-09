@@ -7,6 +7,7 @@ from wal.ast_defs import Operator as Op
 from wal.ast_defs import Symbol as S
 from wal.ast_defs import UserOperator
 from wal.ast_defs import WList
+from wal.ast_defs import WalEvalError
 from wal.passes import expand, optimize, resolve
 
 
@@ -17,7 +18,8 @@ class Wal:
         self.traces = TraceContainer()
         self.eval_context = SEval(self.traces)
         self.eval_context.wal = self
-        self.eval_context.eval(WList([Op.REQUIRE, S('std/std')]))
+        self.eval_context.eval(WList([Op.EVAL_FILE, S('std/std')]))
+        self.eval_context.eval(WList([Op.EVAL_FILE, S('std/module')]))
 
     def load(self, file, tid='DEFAULT', from_string=False, keep_signals=None):
         '''Load trace from file and add it using id to WAL'''
@@ -51,10 +53,14 @@ class Wal:
 
         res = None
         if sexpr:
-            expanded = expand(self.eval_context, sexpr, parent=self.eval_context.global_environment)
-            optimized = optimize(expanded)
-            resolved = resolve(optimized, start=self.eval_context.global_environment.environment)
-            res = self.eval_context.eval(resolved)
+            try:
+                expanded = expand(self.eval_context, sexpr, parent=self.eval_context.global_environment)
+                optimized = optimize(expanded)
+                resolved = resolve(optimized, start=self.eval_context.global_environment.environment)
+                res = self.eval_context.eval(resolved)
+            except AssertionError as error:
+                self.eval_context.print_error(sexpr, error)
+                raise WalEvalError()
 
         # remove passed arguments from context
         for name, val in args.items():
@@ -77,7 +83,8 @@ class Wal:
         res = None
         if sexpr:
             self.eval_context.reset()
-            self.eval_context.eval(WList([Op.REQUIRE, S('std/std')]))
+            self.eval_context.eval(WList([Op.EVAL_FILE, S('std/std')]))
+            self.eval_context.eval(WList([Op.EVAL_FILE, S('std/module')]))
 
             for name, val in args.items():
                 self.eval_context.global_environment.define(name, val)

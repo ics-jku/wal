@@ -66,7 +66,13 @@ class TreeToWal(Transformer):
         self.filename = filename
 
     def line_info(self, meta):
-        return (self.filename, meta.line, meta.end_line, meta.column, meta.end_column)
+        return {
+            'filename': self.filename,
+            'line': meta.line,
+            'end_line': meta.end_line,
+            'column': meta.column,
+            'end_column': meta.end_column
+        }
     
     '''Transformer to create valid WAL expressions form parsed data'''
     string = lambda self, s: ast.literal_eval(s[0])
@@ -96,7 +102,7 @@ class TreeToWal(Transformer):
     @v_args(meta=True)
     def simple_symbol(self, s, meta):
         sym = s[0]
-        sym.line_info = (self.filename, meta.line, meta.column)
+        sym.line_info(meta)
         return sym
 
     @v_args(meta=True)
@@ -166,7 +172,7 @@ class TreeToWal(Transformer):
 
 def read(code, reader, filename=''):
     try:
-        parsed = reader.parse(code.strip())
+        parsed = reader.parse(code)
         return TreeToWal(filename).transform(parsed)
     except UnexpectedEOF as u:
         context = u.get_context(code)

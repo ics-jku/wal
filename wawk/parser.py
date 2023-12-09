@@ -4,7 +4,6 @@ from lark import Lark, Transformer
 from wawk.ast_defs import Statement
 from wal.ast_defs import Symbol as S
 from wal.ast_defs import Operator as Op
-from wal.ast_defs import UserOperator
 from wal.reader import operators
 
 WAWK_GRAMMAR = r"""
@@ -135,9 +134,9 @@ class TreeToWal(Transformer):
     sliced_symbol = lambda self, s: [Op.SLICE, s[0], self.number([s[1].value]), self.number([s[2].value])]
     block = lambda self, b: [Op.DO] + b
     assign = lambda self, s: s[0]
-    assign_std = lambda self, a: [UserOperator('wawk-set'), a[0], a[1]]
+    assign_std = lambda self, a: [Op.SET, [a[0], a[1]]]
     define = lambda self, a: [Op.DEFINE, a[0], a[1]]
-    assign_arith = lambda self, a: [UserOperator('wawk-set'), a[0], [Op(a[1]), a[0], a[3]]]
+    assign_arith = lambda self, a: [Op.SET, [a[0], [Op(a[1]), a[0], a[3]]]]
     forin = lambda self, f: [Op.MAP, [Op.LAMBDA, [f[0]], f[2]], f[1]]
     forinarray = lambda self, f: [Op.MAPA, [Op.LAMBDA, [f[0], f[1]], f[3]], f[2]]
     forvar = lambda self, f: [Op.LET, [f[0][1]], [Op.WHILE, f[1], [Op.DO, f[3], f[2]]]]

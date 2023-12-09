@@ -11,7 +11,6 @@ def op_find(seval, args):
     found = []
     for trace in seval.traces.traces.values():
         start_index = trace.index # store current index
-        trace.index = 0 # search from the start
         ended = False
         while not ended:
             if seval.eval(args[0]):
@@ -54,6 +53,7 @@ def op_whenever(seval, args):
     assert len(args) >= 2, 'whenever: expects exactly two arguments (whenever condition body)'
 
     prev_indices = seval.traces.indices()
+
     res = None
     ended = []
     while not ended:
@@ -115,7 +115,7 @@ def op_sample_at(seval, args):
     '''Sets the timestamps of trace t to list xs'''
     assert len(args) == 1 or len(args) == 2, 'sample-at: expects one or two arguments (sample-at timestamps:list? trace:symbol?)'
     timestamps = seval.eval(args[0])
-    assert isinstance(timestamps, list), 'sample-at: first argument must be a list of integers'
+    assert isinstance(timestamps, (WList, list)), 'sample-at: first argument must be a list of integers'
     assert all(map(lambda x: isinstance(x, int), timestamps)), 'sample-at: second argument must be a list of integers'
 
     if len(args) == 2:
@@ -126,6 +126,16 @@ def op_sample_at(seval, args):
         for trace in seval.traces.traces.values():
             trace.set_sampling_points(timestamps)
 
+def op_trim_trace(seval, args):
+    '''Trims the trace to end at some point'''
+    assert len(args) == 2, 'trim-trace: expects exactly one argument (trim-trace t:symbol?|str? e:int?)'
+    tid = seval.eval(args[0])
+    new_max_index = seval.eval(args[1])
+    assert isinstance(tid, (str, Symbol)), 'trim-trace: first argument must evaluate to symbol or string'
+    assert isinstance(new_max_index, int), 'trim-trace: second argument must evaluate to int'
+    tid = tid.name if isinstance(tid, str) else tid.name
+    return seval.traces.traces[tid].set_max_index(new_max_index)
+
 
 special_operators = {
     Operator.FIND.value: op_find,
@@ -134,4 +144,5 @@ special_operators = {
     Operator.FOLD_SIGNAL.value: op_fold_signal,
     Operator.SIGNAL_WIDTH.value: op_signal_width,
     Operator.SAMPLE_AT.value: op_sample_at,
+    Operator.TRIM_TRACE.value: op_trim_trace,
 }

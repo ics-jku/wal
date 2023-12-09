@@ -5,9 +5,19 @@ from wal.ast_defs import Operator, Symbol, Macro, Environment, WList
 from wal.util import wal_str
 
 
+def recursive_set_line_info(expr, line_info):
+  if isinstance(expr, (WList, list)):
+    return WList([recursive_set_line_info(sub, line_info) for sub in expr], line_info=line_info)
+  elif isinstance(expr, Symbol):
+    expr.line_info = line_info
+    return expr
+  else:
+    return expr
+
+
 def expand(seval, exprs, parent=None):
     '''Macroexpansion Pass'''
-    if isinstance(exprs, WList):
+    if isinstance(exprs, (WList, list)):
         if len(exprs) > 0 and exprs[0] in [Operator.QUOTE, Operator.QUASIQUOTE]:
             return exprs
         if len(exprs) > 0 and isinstance(exprs[0], Symbol) and seval.environment.is_defined(exprs[0].name):
@@ -28,17 +38,23 @@ def expand(seval, exprs, parent=None):
                 save_env = seval.environment
                 seval.environment = macro_env
                 expanded = seval.eval(expr.expression)
+                expanded = expand(seval, expanded, parent)
+                optimized = optimize(expanded)
+                resolved = resolve(optimized, start=seval.environment.environment)
+
                 seval.environment = save_env
 
-                if isinstance(expanded, WList):
+                if isinstance(resolved, WList):
                     exprs.clear()
-                    for expr in expanded:
+                    for expr in resolved:
                         exprs.append(expr)
                 else:
                     return expanded
 
 
-        return WList(list(map(lambda expr: expand(seval, expr, parent=parent), exprs)), line_info=exprs.line_info)
+        line_info = exprs.line_info if isinstance(exprs, WList) else None
+        result = WList(list(map(lambda expr: expand(seval, expr, parent=parent), exprs)), line_info=line_info)
+        return recursive_set_line_info(result, line_info)
     
     return exprs
 
@@ -46,7 +62,7 @@ def expand(seval, exprs, parent=None):
 def optimize(expr):
     '''Optimization Pass'''
     try:
-        if isinstance(expr, WList):
+        if isinstance(expr, (WList, list)):
             op = expr[0]
             if op in [Operator.QUOTE, Operator.QUASIQUOTE]:
                 pass
@@ -61,21 +77,43 @@ def optimize(expr):
                         expr = expr[3]
             # (do expr) => expr
             elif op == Operator.DO:
-                expr = WList(list(map(optimize, expr)))
+                expr = WList(list(map(optimize, expr)), line_info=expr.line_info)
                 if len(expr) == 2:
-                    expr = expr[1]
+                    expr = optimize(expr[1])
 
             elif op == Operator.ADD:
-                expr = WList(list(map(optimize, expr)))
+                expr = WList(list(map(optimize, expr)), line_info=expr.line_info)
                 if all(isinstance(arg, (int, float)) for arg in expr[1:]):
                     expr = sum(expr[1:])
                 elif all(isinstance(arg, str) for arg in expr[1:]):
                     expr = ''.join(expr[1:])
 
             elif op == Operator.MUL:
-                expr = WList(list(map(optimize, expr)))
+                expr = WList(list(map(optimize, expr)), line_info=expr.line_info)
+                if any(arg == 0 for arg in expr[1:]):
+                    expr = 0
                 if all(isinstance(arg, (int, float)) for arg in expr[1:]):
                     expr = prod(expr[1:])
+
+            elif op == Operator.AND:
+                # (&& x) => x
+                if len(expr) == 2:
+                    expr = expr[1]
+                elif any(not arg for arg in expr[1:]):
+                    expr = False
+                elif all(isinstance(arg, (int, float, str)) and arg != 0 for arg in expr[1:]):
+                    expr = True
+
+            elif op == Operator.OR:
+                # (|| x) => x
+                if len(expr) == 2:
+                    expr = expr[1]
+                elif any(isinstance(arg, (int, float, str)) and arg != 0 for arg in expr[1:]):
+                    expr = True
+                elif all(not arg for arg in expr[1:]):
+                    expr = False
+            else:
+                expr = WList(list(map(optimize, expr)), line_info=expr.line_info)
 
     finally:
         return expr
@@ -85,7 +123,7 @@ def resolve(expr, start={}):
     '''Variable environment resolution pass '''
     scopes=[None, dict(start)]
     def resolve_vars(expr):
-        if isinstance(expr, WList):
+        if isinstance(expr, WList) and len(expr) > 0:
             op = expr[0]
             if op == Operator.DEFINE:
                 id = expr[1]
@@ -106,7 +144,7 @@ def resolve(expr, start={}):
                 args = expr[1]
                 env = {}
                 scopes.append(env)
-                if isinstance(args, WList):
+                if isinstance(args, (WList, list)):
                     for arg in expr[1]:
                         assert isinstance(arg, Symbol), 'lambda: parameters must be symbols'
                         env[arg.name] = True
@@ -138,7 +176,7 @@ def resolve(expr, start={}):
                 # in this case just use regular slow resolution
                 return expr
 
-        # all other expression can just be returned as they are
+        # all other expressions can just be returned as they are
         return expr
 
     return(resolve_vars(expr))

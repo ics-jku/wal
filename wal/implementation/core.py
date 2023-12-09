@@ -116,7 +116,7 @@ def op_set(seval, args):
         if defined_at:
             defined_at[key.name] = res
         else:
-            assert f'Write to undefined symbol {key.name}'
+            assert False, f'Write to undefined symbol {key.name}'
 
     return res
 
@@ -140,7 +140,9 @@ def op_printf(seval, args):
     format_evaluated = seval.eval(args[0])
     if isinstance(format_evaluated, str):
         def wal_stringify(expr):
-            if isinstance(expr, (WList, dict, Operator, Unquote, UnquoteSplice, Macro, Closure, Symbol)):
+            if isinstance(expr, str):
+                return expr
+            if isinstance(expr, (list, WList, dict, Operator, Unquote, UnquoteSplice, Macro, Closure, Symbol)):
                 return wal_str(expr)
 
             return expr
@@ -188,8 +190,8 @@ def op_case(seval, args):
 
 
 def op_do(seval, args):
-    assert args, 'do: expects at least on argument'
-    return seval.eval_args(args)[-1]
+    if args:
+      return seval.eval_args(args)[-1]
 
 
 def op_while(seval, args):
@@ -251,7 +253,6 @@ def op_quasiquote(seval, args):
     return unquote(args[0])
 
 
-# pylint: disable=W0613
 def op_unquote(seval, args):
     assert False, 'unquote: not in quasiquote'
 
@@ -276,13 +277,15 @@ def op_parse(seval, args):
     return WList([Operator.DO] + sexprs)
 
 
-def op_lambda(seval, args):  # pylint: disable=W0613
+def op_lambda(seval, args):
     assert len(args) >= 2, 'lambda: expects exactly two arguments (lambda (symbol | (symbol*)) sexpr)'
     assert isinstance(args[0], (WList, list, Symbol)), 'lambda: first argument must be a list of symbols or a single symbol'
     if isinstance(args[0], (list, WList)):
         assert all(isinstance(arg, Symbol) for arg in args[0]), f'lambda: arguments must be symbols but are {wal_str(args[0])}'
 
-    return Closure(seval.environment, args[0], WList([Operator.DO] + args[1:]))
+    name = args[1] if isinstance(args[1], (Symbol, str)) else "lambda"
+
+    return Closure(seval.environment, args[0], WList([Operator.DO] + args[1:]), name=name)
 
 
 def op_defmacro(seval, args):
@@ -299,9 +302,9 @@ def op_defmacro(seval, args):
 
 def op_macroexpand(seval, args):
     assert len(args) == 1, 'macroexpand: expects exactly one argument'
-    expanded = expand(seval, args[0])
+    expanded = expand(seval, seval.eval(args[0]), parent=seval.environment)
     optimized = optimize(expanded)
-    return resolve(optimized)
+    return optimized
 
 
 def op_gensym(seval, args):

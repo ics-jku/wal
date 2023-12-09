@@ -6,6 +6,7 @@ from wal.reader import read_wal_sexpr
 from wal.passes import resolve
 from wal.ast_defs import Symbol as S
 from wal.ast_defs import Operator as Op
+from wal.ast_defs import WalEvalError
 
 
 class BasicResolveTest(unittest.TestCase):
@@ -20,7 +21,7 @@ class BasicResolveTest(unittest.TestCase):
 
     def checkRaises(self, txt):
         '''eval first argument and check if assertion is raised'''
-        self.assertRaises(AssertionError, lambda code: resolve(read_wal_sexpr(code)), txt)
+        self.assertRaises(WalEvalError, lambda code: resolve(read_wal_sexpr(code)), txt)
 
     def test_resolve_num(self):
         '''Test resolution of numbers'''
@@ -81,7 +82,7 @@ class ResolveEvalTest(unittest.TestCase):
 
     def checkRaises(self, txt):
         '''eval first argument and check if assertion is raised'''
-        self.assertRaises(AssertionError, lambda code: self.wal.run_str(code), txt)
+        self.assertRaises(WalEvalError, lambda code: self.wal.run_str(code), txt)
 
     def test_resolve_num(self):
         '''Test resolution of numbers'''
@@ -125,7 +126,7 @@ class ResolveEvalTest(unittest.TestCase):
         self.checkEqual('((lambda [x y] ((lambda [z] y) 0)) 22 33)', 33)
 
     def test_resolution_in_set(self):
-        self.checkEqual('(set [x 5])', 5)
+        self.checkRaises('(set [x 5])')
         self.checkEqual('(do (define x 0) (set [x 5]))', 5)
         self.checkEqual('(do (define x 0) (set [x x]))', 0)
         self.checkRaises('(do (define x 0) (set [x y]))')

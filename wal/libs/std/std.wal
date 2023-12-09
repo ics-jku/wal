@@ -3,7 +3,7 @@
   (define name (first args))
   (define params (second args))
   (define body (rest (rest args)))
-  `(define ,name (lambda ,params (do ,@body))))
+  `(define ,name (lambda ,params ,@body)))
 
 (defmacro append [xs x]
   (let ([tmp (gensym)])
@@ -18,18 +18,26 @@
 
 (defmacro for args
 	  (let [(sym args[0][0])
+          (temp (gensym))
 	        (body (rest args))
 		(data args[0][1])]
-	    `(last (map (lambda [,sym] (do ,@body)) ,data))))
+    `(let ([,temp (map (lambda [,sym] (do ,@body)) ,data)])
+          (if ,temp (last ,temp) '()))))
 
 (defun symbol-add args
-       (string->symbol (fold + "" (for/list [arg args]
-       		       	       	  	    (if (symbol? arg)
-					    	(symbol->string arg)
-						arg)))))
+  (string->symbol
+    (fold +
+          ""
+          (for/list [arg args]
+                    (if (symbol? arg)
+                        (symbol->string arg)
+                        arg)))))
 
 (defun reverse [lst]
   (if lst (append (reverse (rest lst)) (first lst)) '()))
+
+(defun filter [p xs]
+  (fold (fn [acc x] (if (p x) (append acc x) acc)) '() xs))
 
 (defmacro when args
   (let ([condition args[0]]
@@ -54,6 +62,8 @@
 
 (defmacro step-until [condition]
     `(while (&& (! ,condition) (step)) INDEX))
+
+(defmacro always args `(whenever #t ,@args))
 
 (defmacro cond args
 	(fold (fn [acc branch]
@@ -89,14 +99,14 @@
 
 ;; Increment the value of a variable by one
 ;; if variable is not defined bind it with value 1
-(defmacro inc symbols
+(defmacro inc-define symbols
   (let ([assignments
 	 (for/list [symbol symbols]
 	      (cond [(symbol? symbol) `(,symbol (if (defined? ',symbol) (+ ,symbol 1) 1))]
 		    [else (print "inc: expected symbol but got " (type symbol)) (exit 1)]))])
     `(set ,@ assignments)))
 
-(defmacro inc-safe symbols
+(defmacro inc symbols
   (let ([assignments
 	 (for/list [symbol symbols]
 	      (cond [(symbol? symbol) `(,symbol (+ ,symbol 1))]
@@ -116,7 +126,6 @@
   `(fold + 0 ,xs))
 
 ;; trace functions
-;;  (in-group (+ t ":") #INDEX)
 (defun ALL-INDICES []
   (map (fn [t] (list t (get (+ t "§INDEX")))) (loaded-traces)))
 
@@ -136,7 +145,7 @@
   `(&& (reval ,expr -1) (! ,expr)))
 
 (defmacro unstable [expr]
-  `(= (reval ,expr -1) ,expr))
+  `(!= (reval ,expr -1) ,expr))
 
 (defmacro stable [expr]
   `(= (reval ,expr -1) ,expr))
@@ -160,3 +169,6 @@
 	[(> i MAX-INDEX) #f]
 	[else (for [trace (loaded-traces)]
 		 (step (- i (trace-index trace))))]))
+
+(defmacro set! [key value]
+  `(set [,key ,value]))

@@ -33,6 +33,7 @@ def wal_str(sexpr):
     elif isinstance(sexpr, Operator):
         txt = sexpr.value
     elif isinstance(sexpr, str):
+        sexpr = sexpr.replace("\"", "\\\"")
         txt = f'"{sexpr}"'
     elif isinstance(sexpr, bool):
         txt = '#t' if sexpr else '#f'

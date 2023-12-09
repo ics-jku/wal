@@ -6,7 +6,6 @@ import os
 
 from wal.util import wal_str
 from wal.reader import read_wal_sexpr, ParseError
-from wal.passes import expand, optimize, resolve
 from wal.ast_defs import Operator, Symbol, WList
 from wal.trace.trace import Trace
 from wal.version import __version__
@@ -44,15 +43,12 @@ Exit to calling script or terminate running evaluations with CTRL-C'''
 
     def onecmd(self, line):
         try:
-            expanded = expand(self.wal.eval_context, line, parent=self.wal.eval_context.global_environment)
-            optimized = optimize(expanded)
-            resolved = resolve(optimized, start=self.wal.eval_context.global_environment.environment)
-            evaluated = self.wal.eval(resolved)
+            evaluated = self.wal.eval(line)
 
             if evaluated is not None:
                 print(wal_str(evaluated))
 
-            if readline: # pylint: disable=W0125
+            if readline:
                 readline.set_history_length(histfile_size)
                 readline.write_history_file(histfile)
 
@@ -74,7 +70,7 @@ Exit to calling script or terminate running evaluations with CTRL-C'''
             return sexpr
         except ParseError as e:
             e.show()
-        except Exception as e:  # pylint: disable=W0703,C0103
+        except Exception as e:
             print(e)
         return None
 
