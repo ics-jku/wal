@@ -1,0 +1,29 @@
+(defmacro module body
+  (define name body[0]) 
+  (define provided-definitions
+    (fold
+      (lambda [acc e]
+        (if (&& (list? e) (> (length e) 0) (= (first e) 'provide))
+          (+ acc (rest e))
+          acc))
+      '() (rest body)))
+
+  (define module-body 
+    (filter 
+      (fn [x] (! (&& (list? x) (> (length x) 0) (= x[0] 'provide))))
+      (rest body)))
+
+  (define module-data (map (fn [d] `(',d ,d)) provided-definitions))
+  `(unless (defined? ',name)
+     (define ,name
+       (let ()
+         ,@module-body
+         (array ,@module-data)))))
+
+(defmacro use specs
+  (define exprs
+    (for/list [spec specs]
+        (cond [(symbol? spec)
+              `(do (eval-file ,spec)
+                   (require ,spec))])))
+  `(do ,@exprs #f))
