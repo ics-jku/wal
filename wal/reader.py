@@ -44,7 +44,7 @@ WAL_GRAMMAR = r"""
 
     scoped_symbol : "~" base_symbol
     grouped_symbol : "#" base_symbol
-    !base_symbol : /[a-zA-Z_\.][=$\*\/>:\.\-_\?=%§!\\~+<>|,\w]*/
+    !base_symbol : /[a-zA-Z_\.][=$\*\/>:\.\-_\?=%§!\\~+<>|,\w]*/ | /\\\S+/
     bit_symbol : sexpr_strict "[" sexpr "]"
     sliced_symbol : sexpr_strict "[" sexpr ":" sexpr "]"
 
