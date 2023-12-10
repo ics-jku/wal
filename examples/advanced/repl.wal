@@ -2,7 +2,7 @@
 ;; when an error is detected. This allows to inspect signal
 ;; values in the context in which the error occurred.
 
-(load "../basics/counter.fst" t)
+(load "../basics/counter.fst")
 
 ;; check if the tb.overflow signal is set to high whenever the counter overflows
 ;; if tb.overflow is not high when the counter overflows drop into a REPL

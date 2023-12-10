@@ -8,7 +8,7 @@
 (defsig overflow (if (= cnt 3) 1 0))                  
 
 ;; render the virtual trace
-(require print-vcd)
+(eval-file print-vcd)
 (render '("clk" "cnt" "overflow"))
 
 ;; dump the trace to "t.vcd", experimental

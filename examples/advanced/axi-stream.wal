@@ -1,5 +1,5 @@
 ;; This examples analyzes the uart->axi converter from https://github.com/fcayci/vhdl-axis-uart.
-(load "uart-axi.fst" t)
+(load "uart-axi.fst")
 
 (alias clk uut_rx.clk)
 (alias ready uut_rx.m_axis_tready)

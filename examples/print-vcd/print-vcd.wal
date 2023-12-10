@@ -15,7 +15,7 @@
       (print "usage: print-vcd filename scope")
       (exit 1))
 
-(load args[0] t)
+(load args[0])
 
 ;; get longest signal name
 (define max-signal (max (map (fn [x] (length x)) SIGNALS)))
@@ -59,7 +59,9 @@
 		    [n (get signal)@1])
 		(cond [(= v 0) (printf "────")]
 	      	      [(= v "x") (printf "XXXX")]
-		      [(!= p v) (printf "┤%3x" v)]
+		      [(!= p v) (if (int? v)
+                        (printf "┤%3x" v)
+                        (printf "┤%3s" v))]
 		      [(&& (!= p v) (!= v n)) (printf "┤%2x├" v)]
 		      [(!= v n) (printf "   ├")]
 	      	      [#t (printf "    ")]))
@@ -81,5 +83,5 @@
 
 ;; Set current scope
 (if (> (length args) 1)
-    (in-scope args[1] (render SIGNALS))
+    (in-scope args[1] (render LOCAL-SIGNALS))
     (render SIGNALS))

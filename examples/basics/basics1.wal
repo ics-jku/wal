@@ -3,7 +3,7 @@
 ;; To get access to the waveform in "counter.vcd" first we must load it.
 ;; The "load" function loads the waveform from the file pointed to by the first
 ;; parameter and registers it using the name passed as the second parameter.
-(load "counter.fst" t)
+(load "counter.fst")
 
 ;; Now we can print all signal names that are in the waveform.
 ;; "SIGNALS" is a special variable containing a list of all signal names.

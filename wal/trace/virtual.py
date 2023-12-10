@@ -5,8 +5,8 @@ from wal.trace.trace import Trace
 class TraceVirtual(Trace):
     '''Holds data for one virtual trace.'''
 
-    def __init__(self, tid, max_index):
-        super().__init__(tid, 'virtual')
+    def __init__(self, tid, max_index, container):
+        super().__init__(tid, 'virtual', container)
         self.signals = set()
         self.rawsignals = self.signals
         self.max_index = max_index
@@ -19,8 +19,11 @@ class TraceVirtual(Trace):
         with open(self.tid + '.vcd', 'w', encoding='utf-8') as f:
             f.write('$version\n    WAL\n$end\n')
             f.write('$timescale\n    1ps\n$end\n')
+            f.write(f'$scope module {self.tid} $end\n')
             for signal in self.signals:
                 f.write(f'$var reg 32 {signal} {signal} [31:0] $end\n')
+
+            f.write('$upscope $end\n')
             f.write('$enddefinitions $end\n')
 
             old_index = self.index

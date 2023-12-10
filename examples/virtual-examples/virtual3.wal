@@ -1,4 +1,4 @@
-(load "../basics/counter.fst" t)
+(load "../basics/counter.fst")
 
 (defsig last-overflow (if (&& tb.dut.overflow (! tb.dut.overflow@-1)) INDEX last-overflow@-1))
 (defsig diff (if (!= last-overflow@-1 last-overflow) (- last-overflow last-overflow@-1) 0))

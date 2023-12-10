@@ -1,7 +1,7 @@
 ;; In this example we are adding some virtual signals to the counter trace.
 ;; Inspired by https://www.tessla.io/intro/
 
-(load "../basics/counter.fst" t)
+(load "../basics/counter.fst")
 
 ;; indicates when the temperature is dangerously low
 (defsig low (< tb.dut.counter 3))

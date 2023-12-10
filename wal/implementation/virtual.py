@@ -39,7 +39,7 @@ def op_new_trace(seval, args):
     assert isinstance(args[0], Symbol), 'new-trace: first argument must be a symbol'
     assert isinstance(args[1], int), 'new-trace: second argument must be an int'
 
-    seval.traces.traces[args[0].name] = TraceVirtual(args[0].name, args[1])
+    seval.traces.traces[args[0].name] = TraceVirtual(args[0].name, args[1], seval.traces)
     seval.traces.n_traces += 1
 
 

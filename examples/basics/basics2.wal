@@ -4,7 +4,7 @@
 ;; Our goal in this example is to find all the time indices at which the
 ;; counter overflows.
 
-(load "counter.fst" t)
+(load "counter.fst")
 
 ;; We have to check on each time index if the counter is overflowing and if
 ;; it is we want to print the time index.

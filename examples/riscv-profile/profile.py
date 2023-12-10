@@ -53,7 +53,7 @@ if __name__ == '__main__':
 
     wal = Wal()
     wal.load(VCD)
-    wal.eval_str('(require config)') # require config script to get concrete signal names
+    wal.eval_str('(eval-file config)') # require config script to get concrete signal names
     wal.eval_str('''(defun count-function [addr]
                   (for [f funcs]
                     (when (&& (>= addr f[1]) (<= addr f[2]))

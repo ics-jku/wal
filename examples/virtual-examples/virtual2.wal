@@ -1,6 +1,6 @@
 ;; In this example we count how long the reset is high
 
-(load "../basics/counter.fst" t)
+(load "../basics/counter.fst")
 
 (defsig count-reset (if tb.dut.reset (+ count-reset@-1 tb.dut.reset) 0))
 

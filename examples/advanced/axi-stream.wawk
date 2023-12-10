@@ -37,8 +37,8 @@ clk, valid, ready: {
     if (ack_delay == 0) {
         print("[OK]");
     } else {
-	printf("[DELAY %d]\n", ack_delay);
-    };
+        printf("[DELAY %d]\n", ack_delay);
+    }
 }
 
 // executed whenever the data changes whithout being acknowledged
@@ -51,7 +51,7 @@ clk, (data != data@2), valid, !ready: {
 END: {
     if (bytes_dropped) {
       printf("\nWARNING: %d bytes dropped due to an unavailable AXI sink!\n", bytes_dropped);
-    };
+    }
 
     printf("Average delay until byte acknowlede %d cycles\n", average(byte_delay));
 }
