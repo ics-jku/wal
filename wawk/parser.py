@@ -104,7 +104,6 @@ WAWK_GRAMMAR = r"""
     %import common.WS
     %import common.LETTER
     %import common.NEWLINE
-    //%ignore WS_INLINE
     %ignore WS
     %ignore COMMENT
     """
@@ -112,7 +111,10 @@ WAWK_GRAMMAR = r"""
 class TreeToWal(Transformer):
     '''Transforms a parsed tree into WAL data structures'''
 
-    function = lambda self, f: Statement([S('BEGIN')], [S('defun'), f[0], f[1:-1], f[-1]])
+    def function(self, f):
+        args = f[1:-1] if f[1] else []
+        return Statement([S('BEGIN')], [S('defun'), f[0], args, f[-1]])
+
     statement = lambda self, s: Statement(s[:-1], s[-1])
     line = lambda self, line: line[0]
     program = lambda self, p: p
@@ -161,19 +163,20 @@ class TreeToWal(Transformer):
     in_scope = lambda self, s: [Op.SCOPED, s[0], s[1]]
     in_group = lambda self, g: [Op.IN_GROUPS, g[0], g[1]]
 
-    list = lambda self, ls: [Op.LIST] + ls
-    #pair = tuple
-    #dict = dict
+    def list(self, ls):
+        return [Op.LIST] + (ls if ls != [None] else [])
+
     forstmt = lambda self, f: f[0]
     null = lambda self, _: None
     true = lambda self, _: True
     false = lambda self, _: False
 
     def fcall(self, f):
+        args = f[1:] if f[1:] != [None] else []
         if f[0].name in operators:
-            expr = [Op(f[0].name)] + f[1:]
+            expr = [Op(f[0].name)] + args
         else:
-            expr = [f[0]] + f[1:]
+            expr = [f[0]] + args
 
         return expr
 

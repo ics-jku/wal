@@ -78,7 +78,7 @@ class TreeToWal(Transformer):
     string = lambda self, s: ast.literal_eval(s[0])
 
     @v_args(meta=True)
-    def symbol(self, sym, meta):
+    def symbol(self, meta, sym):
         '''Converts symbols to operators if sym is a valid operator '''
         sym = sym[0]
         if isinstance(sym, Symbol):
@@ -87,11 +87,11 @@ class TreeToWal(Transformer):
         return sym
 
     @v_args(meta=True)
-    def quoted(self, q, meta):
+    def quoted(self, meta, q):
         return WList([Operator.QUOTE, q[0]], line_info=self.line_info(meta))
 
     @v_args(meta=True)
-    def quasiquoted(self, q, meta):
+    def quasiquoted(self, meta, q):
         return WList([Operator.QUASIQUOTE, q[0]], line_info=self.line_info(meta))
 
     unquote = lambda self, q: Unquote(q[0])
@@ -100,21 +100,21 @@ class TreeToWal(Transformer):
     operator = lambda self, o: Operator(o[0].value)
 
     @v_args(meta=True)
-    def simple_symbol(self, s, meta):
+    def simple_symbol(self, meta, s):
         sym = s[0]
         sym.line_info(meta)
         return sym
 
     @v_args(meta=True)
-    def base_symbol(self, s, meta):
+    def base_symbol(self, meta, s):
         return S(''.join(list(map(lambda x: x.value, s))), line_info=self.line_info(meta))
 
     @v_args(meta=True)
-    def scoped_symbol(self, s, meta):
+    def scoped_symbol(self, meta, s):
         return WList([Operator.RESOLVE_SCOPE, s[0]], line_info=self.line_info(meta))
 
     @v_args(meta=True)
-    def grouped_symbol(self, s, meta):
+    def grouped_symbol(self, meta, s):
         if s[0].name == 't':
             return True
         if s[0].name == 'f':
@@ -123,11 +123,11 @@ class TreeToWal(Transformer):
         return WList([Operator.RESOLVE_GROUP, s[0]], line_info=self.line_info(meta))
 
     @v_args(meta=True)
-    def bit_symbol(self, s, meta):
+    def bit_symbol(self, meta, s):
         return WList([Operator.SLICE, s[0], s[1]], line_info=self.line_info(meta))
 
     @v_args(meta=True)
-    def sliced_symbol(self, s, meta):
+    def sliced_symbol(self, meta, s):
         return WList([Operator.SLICE, s[0], s[1], s[2]], line_info=self.line_info(meta))
 
     int = lambda self, i: i[0]
@@ -139,7 +139,7 @@ class TreeToWal(Transformer):
     atom = lambda self, a: a[0]
 
     @v_args(meta=True)
-    def list(self, data, meta):
+    def list(self, meta, data):
         return WList(data, line_info=self.line_info(meta))
 
     
@@ -148,7 +148,7 @@ class TreeToWal(Transformer):
     false = lambda self, _: False
 
     @v_args(meta=True)
-    def sexpr(self, s, meta):
+    def sexpr(self, meta, s):
         res = None
         if isinstance(s[0], list):
             res = WList(s[0], line_info=self.line_info(meta))
@@ -158,15 +158,15 @@ class TreeToWal(Transformer):
         return res
 
     @v_args(meta=True)
-    def timed_sexpr(self, s, meta):
+    def timed_sexpr(self, meta, s):
         return WList([Operator.REL_EVAL, s[0], s[1]], line_info=self.line_info(meta))
 
     @v_args(meta=True)
-    def sexpr_list(self, data, meta):
+    def sexpr_list(self, meta, data):
         return WList(data, line_info=self.line_info(meta))
 
     @v_args(meta=True)
-    def sexpr_strict(self, s, meta):
+    def sexpr_strict(self, meta, s):
         return s[0] if s else None
 
 

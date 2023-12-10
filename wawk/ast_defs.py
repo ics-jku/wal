@@ -35,7 +35,10 @@ class AST:
                 self.statements.append(statement)
 
     def emit(self):
-        main_loop = [Operator.WHENEVER, True, [S('cond'), *[[[Operator.AND, *stmt.condition], stmt.action] for stmt in self.statements]]]
+        main_loop = [Operator.WHENEVER, True]
+        for stmt in self.statements:
+            main_loop.append([S('when'), [Operator.AND, *stmt.condition], stmt.action])
+
         variables = self.find_variables(self.begin)
         variables = self.find_variables(self.end, vars=variables)
         variables = self.find_variables(main_loop, vars=variables)
