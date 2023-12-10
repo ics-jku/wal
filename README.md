@@ -63,17 +63,15 @@ The WAL Programmer Manual is available on [wal-lang.org](https://wal-lang.org/do
 To get an impression of WAL you can check out [basic examples](https://github.com/ics-jku/wal/tree/main/examples/basics).
 Also, this ASCII cast [ASCII Cast](https://asciinema.org/a/I8fQknySyaZqNjXAA8Ej7wOoq), shows how the WAL REPL is used to compare two RISCV cores.
 
-A more sophisticated RISC-V core comparison is described [here](https://www.ics.jku.at/files/2022DAC_LBR-Waveform-based-Performance-Analyisis-for-RISC-V.pdf) and the WAL code to this publication can be found [here](https://github.com/LucasKl/dac22-lbr-experiments).
-
 ### WAWK
 [WAWK](https://github.com/ics-jku/wal/tree/main/wawk) is a project building on top of the WAL language. It combines the waveform analysis of WAL with the programming Style of AWK.
 Internally, WAWK is transpiled to WAL expressions, showcasing how new languages can be build on top of WAL.
 
-## Publication
+## Publications
 The initial paper on WAL was presented at ASPDAC'22 and can be downloaded here: https://www.ics.jku.at/files/2022ASPDAC_WAL.pdf.
 The examples from the paper can be found in the *examples* folder.
 
-If you like WAL you can cite our paper as follows:
+If you like WAL or found it useful, you can cite our paper as follows:
 
 ```
 @InProceedings{KG:2022,
@@ -84,6 +82,8 @@ If you like WAL you can cite our paper as follows:
 }
 
 ```
+
+WAL was also used in other publications for [processor analysis](https://doi.org/10.1145/3489517.3530623), [Spade HDL integration](https://doi.org/10.1109/FDL59689.2023.10272204), [pipeline visualization](https://ics.jku.at/files/2023RISCVSummit_DSLforVisualizingPipelines.pdf), and for a novel [debug methodology](https://ics.jku.at/files/2024ASPDAC_WAL-VirtualSignals.pdf).
 
 ## Emacs Mode
 A basic major mode for Emacs is available [here](https://github.com/LucasKl/wal-major-mode).
