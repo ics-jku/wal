@@ -63,6 +63,9 @@
 (defmacro step-until [condition]
     `(while (&& (! ,condition) (step)) INDEX))
 
+(defmacro step-while [condition]
+    `(while (&& ,condition (step)) INDEX))
+
 (defmacro always args `(whenever #t ,@args))
 
 (defmacro cond args

@@ -35,7 +35,8 @@ Exit to calling script or terminate running evaluations with CTRL-C'''
     @property
     def prompt(self):
         '''Generate prompt symbol'''
-        traces = ', '.join(self.wal.traces.traces.keys())
+        ids = [f'{k}({self.wal.traces.traces[k].index})' for k in self.wal.traces.traces.keys()]
+        traces = ', '.join(ids)
         if self.wal.traces.traces:
             traces = traces + ' '
         return f'{traces}>-> '
