@@ -1,10 +1,12 @@
 '''Generic trace class '''
 # pylint: disable=E1101, W0201
 
+from bisect import bisect_left, bisect_right
+
 class Trace:
     '''A generic class for representing waveforms'''
     SCOPE_SEPERATOR = '§'
-    SPECIAL_SIGNALS = ['SIGNALS', 'LOCAL-SIGNALS', 'INDEX', 'MAX-INDEX', 'TS', 'TRACE-NAME', 'TRACE-FILE', 'SCOPES', 'LOCAL-SCOPES']
+    SPECIAL_SIGNALS = ['SIGNALS', 'LOCAL-SIGNALS', 'INDEX', 'MAX-INDEX', 'TS', 'TRACE-NAME', 'TRACE-FILE', 'SCOPES', 'LOCAL-SCOPES', 'TIMESCALE']
     SPECIAL_SIGNALS_SET = set(SPECIAL_SIGNALS)
 
 
@@ -14,6 +16,7 @@ class Trace:
         self.container = container
         self.virtual_signals = {}
         self.index = 0
+        self.timescale = '1ps'
 
 
     def set(self, index=0):
@@ -71,6 +74,8 @@ class Trace:
                     res = [s for s in self.scopes if (s.startswith(scope)) and ('.' not in s[len(scope) + 1:])]
                 elif name == 'SCOPES':
                     res = self.scopes
+                elif name == 'TIMESCALE':
+                    res = self.timescale
             elif name in self.virtual_signals:
                 res = self.virtual_signals[name].value
             else:
@@ -109,9 +114,21 @@ class Trace:
         self.signals.add(signal.name)
         self.virtual_signals[signal.name] = signal
 
+        path = signal.name.split('.')
+        for depth in range(len(path)):
+            scope = '.'.join(path[:depth])
+            if scope != '' and scope not in self.scopes:
+                self.scopes.append(scope)
+
     def get_all_signals(self):
         return list(self.rawsignals) + list(self.virtual_signals.keys())
 
     def set_max_index(self, new_max_index):
         self.max_index = min(new_max_index, self.max_index)
         return self.max_index
+
+    def ts_to_index_left(self, ts):
+        return bisect_left(self.timestamps, ts)
+
+    def ts_to_index_right(self, ts):
+        return bisect_right(self.timestamps, ts)

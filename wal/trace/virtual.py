@@ -10,7 +10,7 @@ class TraceVirtual(Trace):
         self.signals = set()
         self.rawsignals = self.signals
         self.max_index = max_index
-        self.timestamps = range(max_index)
+        self.timestamps = list(range(max_index + 1))
         self.scopes = []
 
     def dump_vcd(self):

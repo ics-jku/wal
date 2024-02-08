@@ -119,6 +119,9 @@ class Operator(Enum):
     DEFSIG = 'defsig'
     NEWTRACE = 'new-trace'
     DUMPTRACE = 'dump-trace'
+    # cxxrtl
+    CXXRTL_SERVER_START = 'cxxrtl-server-start'
+    CXXRTL_SERVER_STOP = 'cxxrtl-server-stop'
 
 
 operators = set([op.value for op in Operator])
