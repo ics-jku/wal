@@ -15,6 +15,7 @@ from wal.implementation.wal import wal_operators
 from wal.implementation.core import core_operators
 from wal.implementation.special import special_operators
 from wal.implementation.virtual import virtual_operators
+from wal.implementation.cxxrtl import cxxrtl_operators
 
 
 class SEval:
@@ -32,10 +33,11 @@ class SEval:
         self.scope = None
         self.group = None
         self.context = None
+        self.cxxrtl_server = None
         self.reset()
         self.dispatch = {**core_operators, **math_operators, **type_operators, \
             **list_operators, **array_operators, **wal_operators, \
-            **special_operators, **virtual_operators}
+            **special_operators, **virtual_operators, **cxxrtl_operators}
         self.user_dispatch = {}
         initial_walpath = ['.', os.path.expanduser('~/.wal/libs/'), str(files(wal).joinpath('libs/'))]
         self.walpath = initial_walpath + os.getenv('WALPATH', '').split(';')
@@ -116,7 +118,7 @@ class SEval:
                     res = env.read(expr.name)
 
                 if self.traces.contains(name):  # if symbol is a signal from wavefile
-                    res = self.traces.signal_value(name, scope=self.scope) # env[symbol_id]
+                    res = self.traces.signal_value(name, scope=self.scope)
                 else:
                     # this symbol has not been resolved
                     res = self.environment.read(name)

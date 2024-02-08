@@ -460,7 +460,7 @@ def op_groups(seval, args):
 
     def process_arg(arg):
         '''evaluates arg if it is a list, else unpacks a signal or just returns a string'''
-        if isinstance(arg, WList):
+        if isinstance(arg, (WList, list)):
             return seval.eval(arg)
         if isinstance(arg, Symbol):
             return arg.name
@@ -489,7 +489,7 @@ def op_groups(seval, args):
         if all(seval.traces.contains(f'{pre}{post}') for post in args[1:]):
             groups.add(pre)
 
-    groups = list(groups)
+    groups = WList(groups)
     groups.sort()
 
     return groups
@@ -526,7 +526,7 @@ def op_in_group(seval, args):
 def op_in_groups(seval, args):
     assert len(args) >= 2, 'in-groups: exactly two arguments required (in-group group:(symbol+) expression)'
     groups = seval.eval(args[0])
-    assert isinstance(groups, WList), 'in-groups: first argument must evaluate to list'
+    assert isinstance(groups, (WList, list)), 'in-groups: first argument must evaluate to list'
 
     res = None
     for group in groups:

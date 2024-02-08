@@ -84,11 +84,26 @@ class TraceVcd(Trace):
                 i += 2
                 header_done = True
             elif tokens[i] == '$timescale':
+
+                def supported_timescales(timescale):
+                    if timescale == '1fs':
+                        return -15
+                    elif timescale == '1ps':
+                        return -12
+                    elif timescale == '1ns':
+                        return -9
+                    elif timescale == '1ms':
+                        return -3
+                    elif timescale == '1s':
+                        return 1
+                    else:
+                        return timescale
+
                 if tokens[i + 3] == '$end':
-                    self.timescale = tokens[i + 1] + tokens[i + 2]
+                    self.timescale = supported_timescales(tokens[i + 1] + tokens[i + 2])
                     i += 4
                 elif tokens[i + 2] == '$end':
-                    self.timescale = tokens[i + 1]
+                    self.timescale = supported_timescales(tokens[i + 1])
                     i += 3
             elif tokens[i] in TraceVcd.SKIPPED_COMMANDS_HEADER:
                 while tokens[i] != '$end':
@@ -149,11 +164,17 @@ class TraceVcd(Trace):
         '''Updates the indices at which data is sampled'''
         self.lookup = dict(enumerate(new_indices))
         new_timestamps = [self.all_timestamps[i] for i in new_indices]
-        self.timestamps = list(dict.fromkeys(new_timestamps))
-        self.timestamps = dict(enumerate(self.timestamps))
+
+        self.timestamps = new_timestamps
         # stores current time stamp
         self.index = 0
-        self.max_index = len(self.timestamps.keys()) - 1
+        self.max_index = len(self.timestamps) - 1
+ 
+        # self.timestamps = list(dict.fromkeys(new_timestamps))
+        # self.timestamps = dict(enumerate(self.timestamps))
+        # # stores current time stamp
+        # self.index = 0
+        # self.max_index = len(self.timestamps.keys()) - 1
 
     def access_signal_data(self, name, index):
         if self.lookup:
@@ -163,4 +184,7 @@ class TraceVcd(Trace):
     
     def signal_width(self, name):
         '''Returns the width of a signal'''
+        if name in self.virtual_signals:
+            return self.virtual_signals[name].width
+ 
         return self.signalinfo[self.name2id[name]]['width']

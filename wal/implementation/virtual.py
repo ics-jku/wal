@@ -6,7 +6,7 @@ from wal.trace.virtual import TraceVirtual
 def op_defsig(seval, args):
     '''Creates a new signal whose value is calculated by evaluating
     the body expressions. '''
-    assert len(args) > 1, 'virtual: expects at least two arguments (virtual name body+)'
+    assert len(args) > 1, 'virtual: expects at least two arguments (virtual [name bits] body+)'
     scope_name = seval.global_environment.read('CS')
     scope_sep = '.' if scope_name != '' else ''
     scope = scope_name + scope_sep
@@ -15,7 +15,15 @@ def op_defsig(seval, args):
         # groups already include the scope so reset it
         scope = ''
 
-    name = f'{scope}{group}{args[0].name}'
+    if isinstance(args[0], (WList, list)):
+        assert len(args[0]) == 2, 'defsig: name must either be a name or a (name:symbol width:int) tuple'
+        assert isinstance(args[0][0], Symbol), 'defsig: name must either be a name or a (name:symbol width:int) tuple'
+        assert isinstance(args[0][1], int), 'defsig: name must either be a name or a (name:symbol width:int) tuple'
+        name = f'{scope}{group}{args[0][0].name}'
+        width = args[0][1]
+    else:
+        name = f'{scope}{group}{args[0].name}'
+        width = 32
 
     def resolve(expr):
         if isinstance(expr, WList):
@@ -30,7 +38,7 @@ def op_defsig(seval, args):
         return expr
 
     body = WList(list(map(resolve, args[1:])))
-    seval.traces.add_virtual_signal(name, body, seval)
+    seval.traces.add_virtual_signal(name, width, body, seval)
 
 
 def op_new_trace(seval, args):

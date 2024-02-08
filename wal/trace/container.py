@@ -169,12 +169,12 @@ class TraceContainer:
                 self.traces[tid].set(index)
 
 
-    def add_virtual_signal(self, name, expr, seval):
+    def add_virtual_signal(self, name, width, expr, seval):
         '''Add a virtual signal to the trace'''
 
         if self.n_traces == 1:
             trace = list(self.traces.values())[0]
-            signal = VirtualSignal(name, expr, trace, seval)
+            signal = VirtualSignal(name, expr, trace, seval, width=width)
             return trace.add_virtual_signal(signal)
 
         if self.n_traces > 1 or Trace.SCOPE_SEPERATOR in name:
@@ -182,7 +182,7 @@ class TraceContainer:
             separator = name.index(Trace.SCOPE_SEPERATOR)
             trace_tid = name[:separator]
             assert trace_tid in self.traces, f'No trace with tid {trace_tid}'
-            signal = VirtualSignal(name, expr, self.traces[trace_tid], seval)
+            signal = VirtualSignal(name, expr, self.traces[trace_tid], seval, width=width)
             return self.traces[trace_tid].add_virtual_signal(signal)
 
         raise RuntimeError('No traces loaded')

@@ -37,6 +37,8 @@ class TraceFst(Trace):
         raw_timestamps = fst.lib.fstReaderGetTimestamps(self.fst)
         self.all_timestamps = raw_timestamps.val
         self.timestamps = self.all_timestamps
+        timescale = fst.lib.fstReaderGetTimescale(self.fst)
+        self.timescale = timescale
 
         # stores current time stamp
         self.index = 0
@@ -52,4 +54,38 @@ class TraceFst(Trace):
         super().set_sampling_points(new_indices)
 
     def signal_width(self, name):
+        '''Returns the width of a signal'''
+        if name in self.virtual_signals:
+            return self.virtual_signals[name].width
+
         return self.references_to_ids[name].length
+
+    def bisect_left(self, a, x, *, key=None):
+        '''Based on the bisect_left Python implementation'''
+        lo = 0
+        hi = self.max_index
+        while lo < hi:
+            mid = (lo + hi) // 2
+            if a[mid] < x:
+                lo = mid + 1
+            else:
+                hi = mid
+        return lo
+
+    def bisect_right(self, a, x, *, key=None):
+        '''Based on the bisect_right Python implementation'''
+        lo = 0
+        hi = self.max_index
+        while lo < hi:
+            mid = (lo + hi) // 2
+            if x < a[mid]:
+                hi = mid
+            else:
+                lo = mid + 1
+        return lo    
+
+    def ts_to_index_left(self, ts):
+        return self.bisect_left(self.timestamps, ts)
+
+    def ts_to_index_right(self, ts):
+        return self.bisect_right(self.timestamps, ts)
