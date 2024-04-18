@@ -9,7 +9,7 @@ coverage:
 	$(PYTHON) -m coverage html
 
 lint:
-	ruff .
+	ruff check .
 
 package:
 	rm -f dist/*
