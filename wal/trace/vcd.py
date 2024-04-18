@@ -102,18 +102,16 @@ class TraceVcd(Trace):
         # parse dump section
         time = 0
         n_tokens = len(tokens)
+        # fill initially with all Xs
+        self.data = {id: ['x'] for id in self.all_ids}
 
         while i < n_tokens:
             if tokens[i][0] == '#':
                 time = int(tokens[i][1:])
                 i += 1
-                # if this is not the first time copy old values
-                if len(self.index2ts) > 0:
-                    for id in self.all_ids:
-                        self.data[id].append(self.data[id][-1])
-                else:
-                    # fill initially with all Xs
-                    self.data = {id: ['x'] for id in self.all_ids}
+                # copy old values
+                for id in self.all_ids:
+                    self.data[id].append(self.data[id][-1])
 
                 self.timestamps.append(time)
                 self.index2ts.append(time)
@@ -140,6 +138,10 @@ class TraceVcd(Trace):
                 # token is most likely one of ['$dumpvars', '$dumpall', '$dumpoff', '$dumpon', '$end']
                 # we skip these commands and just read the following changes
                 i += 1                
+
+        # remove inital values
+        for id in self.all_ids:
+            self.data[id].pop(0)
 
         # modify data to be a lookup by signal name, removes the indirection via the id
         data_by_name = {signal: self.data[self.name2id[signal]] for signal in self.rawsignals}
