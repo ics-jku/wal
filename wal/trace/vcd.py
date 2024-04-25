@@ -49,9 +49,12 @@ class TraceVcd(Trace):
                 id = tokens[i + 3]
                 name = tokens[i + 4]
 
-                # Remove bit width annotations from the name
-                if name.endswith(']'):
-                    name= name.split('[')[0]
+                # Remove array indices width annotations from name([..])
+                for delim in [('[', ']'), ('(', ')')]:
+                    if name.endswith(delim[1]):
+                        split = name.split(delim[0])
+                        addr = split[-1].replace(delim[1], '>')
+                        name = ''.join(split[:-1]) + '<' + addr
 
                 # only append scope. if not in root scope
                 if scope:

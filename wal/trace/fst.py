@@ -25,9 +25,12 @@ class TraceFst(Trace):
         # get mapping from name to tid and remove trailing signal width, ' [31:0]' etc.
         self.references_to_ids = {re.sub(r' *\[\d+:\d+\]', '', k): v for
                                         k, v in self.references_to_ids.items()}
-        # rename grouped signals like reg(0), reg(1) to reg_0, reg_1
+        # rename grouped signals like reg(0), reg(1) to reg<0>, reg<1>
         self.references_to_ids = {
-            re.sub(r'\(([0-9]+)\)', r'_\1', k): v for k, v in self.references_to_ids.items()}
+            re.sub(r'\(([0-9]+)\)', r'<\1>', k): v for k, v in self.references_to_ids.items()}
+        # rename grouped signals like reg[0], reg[1] to reg<0>, reg<1>
+        self.references_to_ids = {
+            re.sub(r'\[([0-9]+)\]', r'<\1>', k): v for k, v in self.references_to_ids.items()}
 
         self.rawsignals = list(self.references_to_ids.keys())
         self.signals = set(self.rawsignals)
