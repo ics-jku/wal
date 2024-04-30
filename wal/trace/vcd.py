@@ -1,4 +1,5 @@
 '''Trace implementation for the VCD file format '''
+import re
 
 from wal.trace.trace import Trace
 
@@ -49,12 +50,11 @@ class TraceVcd(Trace):
                 id = tokens[i + 3]
                 name = tokens[i + 4]
 
-                # Remove array indices width annotations from name([..])
-                for delim in [('[', ']'), ('(', ')')]:
-                    if name.endswith(delim[1]):
-                        split = name.split(delim[0])
-                        addr = split[-1].replace(delim[1], '>')
-                        name = ''.join(split[:-1]) + '<' + addr
+                # remove slice info from names
+                name = re.sub(r'\[[0-9]+:[0-9]+\]', '', name)
+                # array signals should not clash with WAL operators
+                name = re.sub(r'\[([0-9]+)\]', r'<\1>', name)
+                name = re.sub(r'\(([0-9]+)\)', r'<\1>', name)
 
                 # only append scope. if not in root scope
                 if scope:
