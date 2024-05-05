@@ -39,6 +39,15 @@
 (defun filter [p xs]
   (fold (fn [acc x] (if (p x) (append acc x) acc)) '() xs))
 
+(defun sort [xs]
+  "Sorts lists of numbers"
+  (cond [(= xs '()) xs]
+        [(= (length xs) 1) xs]
+        [#t (let ([pivot xs[0]]
+                  [smaller (fold (fn [acc x] (if (< x pivot) (+ acc x) acc)) '() (rest xs))]
+                  [larger (fold (fn [acc x] (if (>= x pivot) (+ acc x) acc)) '() (rest xs))])
+                 (+ (sort smaller) pivot (sort larger)))]))
+
 (defmacro when args
   (let ([condition args[0]]
 	[body (rest args)])
@@ -175,3 +184,5 @@
 
 (defmacro set! [key value]
   `(set [,key ,value]))
+
+
