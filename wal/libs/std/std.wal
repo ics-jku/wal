@@ -130,7 +130,7 @@
 
 ;; trace functions
 (defun ALL-INDICES []
-  (map (fn [t] (list t (get (+ t "§INDEX")))) (loaded-traces)))
+  (map (fn [t] (list t (get (+ t "^INDEX")))) (loaded-traces)))
 
 (defmacro timeframe body
   (let ([TIMEFRAME-START (gensym)]

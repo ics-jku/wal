@@ -507,3 +507,22 @@ class EvalFunctionTest(OpTest):
         # Apply named lambda
         self.w.eval_str('(define foo (lambda (y) (* y 2)))')
         self.checkEqual('(foo 5)', 10)
+
+
+class MultipleTracesTest(unittest.TestCase):
+    '''Test multiple traces'''
+
+    def setUp(self):
+        self.w = Wal()
+        self.w.load('tests/traces/counter.fst', tid='a')
+        self.w.load('tests/traces/counter.vcd', tid='b')
+
+    def checkEqual(self, txt, res):
+        '''eval first argument and check if result matches second argument '''
+        sexpr = read_wal_sexpr(txt)
+        self.assertEqual(self.w.eval(sexpr), res)
+
+    def test_index(self):
+        self.w.eval_str('(define x 0)')
+        self.w.eval_str('(whenever (!= a^INDEX b^INDEX) (inc x))')
+        self.checkEqual('x', 0)
