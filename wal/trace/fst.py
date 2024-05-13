@@ -22,6 +22,12 @@ class TraceFst(Trace):
         (self.scopes, signals) = fst.get_scopes_signals2(self.fst)
         self.references_to_ids = signals.by_name
 
+        # rename grouped scopes
+        self.scopes = [
+            re.sub(r'\(([0-9]+)\)', r'<\1>', scope) for scope in self.scopes]
+        self.scopes = [
+            re.sub(r'\[([0-9]+)\]', r'<\1>', scope) for scope in self.scopes]
+
         # get mapping from name to tid and remove trailing signal width, ' [31:0]' etc.
         self.references_to_ids = {re.sub(r' *\[\d+:\d+\]', '', k): v for
                                         k, v in self.references_to_ids.items()}

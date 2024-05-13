@@ -41,7 +41,13 @@ class TraceVcd(Trace):
         # header section
         while (not header_done) and tokens:
             if tokens[i] == '$scope':
-                scope.append(tokens[i + 2])
+                name = tokens[i + 2]
+
+                # array entries should not clash with WAL operators
+                name = re.sub(r'\[([0-9]+)\]', r'<\1>', name)
+                name = re.sub(r'\(([0-9]+)\)', r'<\1>', name)
+
+                scope.append(name)
                 self.scopes.append('.'.join(scope))
                 i += 4
             elif tokens[i] == '$var':

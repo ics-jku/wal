@@ -59,6 +59,41 @@ class CounterEqualTest(TraceEqTest, unittest.TestCase):
     def test_overflow(self):
         self.eval_eq('(count tb.overflow')
 
+    def test_signals(self):
+        self.eval_eq('SIGNALS')
+
+    def test_scopes(self):
+        self.eval_eq('SCOPES')
+
+    def test_local_scopes(self):
+        self.eval_eq('LOCAL-SCOPES')
+        self.eval_eq("(in-scope 'tb CS)")
+        self.eval_eq("(in-scope 'tb LOCAL-SCOPES)")
+
+    def test_local_signals(self):
+        wal = "(in-scope 'tb LOCAL-SIGNALS)"
+        res = list(map(lambda t: self.wal_eval([t, wal]), self.traces))
+
+        for pair in combinations(res, 2):
+            self.assertEqual(sorted(pair[0]), sorted(pair[1]))
+
+
+class SVArrayEqualTest(TraceEqTest, unittest.TestCase):
+    '''Test counter traces for equality'''
+
+    def setUp(self):
+        self.traces = ['sv_struct_array.vcd', 'sv_struct_array.fst']
+        super().setUp()
+
+    def test_group_clk(self):
+        self.eval_eq('(groups something)')
+
+    def test_signals(self):
+        self.eval_eq('SIGNALS')
+
+    def test_scopes(self):
+        self.eval_eq('SCOPES')
+
     def test_local_scopes(self):
         self.eval_eq('LOCAL-SCOPES')
         self.eval_eq("(in-scope 'tb CS)")

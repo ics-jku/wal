@@ -431,10 +431,8 @@ def op_resolve_scope(seval, args):
     else:  # if scope is not a real scope it must be a group name, no dot required
         name = seval.global_environment.read('CS') + args[0].name
 
-    if seval.traces.contains(name):
-        return seval.traces.signal_value(name)
-
-    return None
+    assert seval.traces.contains(name), f'resolve-scope: No signal with name "{name}"'
+    return seval.traces.signal_value(name)
 
 
 def op_set_scope(seval, args):
@@ -542,10 +540,8 @@ def op_resolve_group(seval, args):
 
     name = seval.group + args[0].name
 
-    if seval.traces.contains(name):
-        return seval.traces.signal_value(name)
-
-    return None
+    assert seval.traces.contains(name), f'resolve-group: No signal with name "{name}"'
+    return seval.traces.signal_value(name)
 
 
 def op_slice(seval, args):
