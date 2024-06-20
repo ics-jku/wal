@@ -59,6 +59,7 @@ class TraceFst(Trace):
 
     def set_sampling_points(self, new_indices):
         super().set_sampling_points(new_indices)
+        self.access_signal_data.cache_clear()
 
     def signal_width(self, name):
         return self.references_to_ids[name].length

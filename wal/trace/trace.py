@@ -91,7 +91,7 @@ class Trace:
         raise NotImplementedError
 
     @property
-    def ts(self):  # pylint: disable=C0103
+    def ts(self):
         '''Converts the index to the current timestamp.'''
         return self.timestamps[self.index]
 
