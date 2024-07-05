@@ -17,11 +17,11 @@ class WalAnalysisPass:
         for pass_dir in pass_dirs:
             wal.append_walpath(pass_dir)
 
-        wal.eval_str('(require spade-definitions)')
+        wal.eval_str('(eval-file spade-definitions)')
         wal.eval_str(f'(define TEST "{self.testname}")')
         self.wal = wal
         self.config_file = wavefile.with_suffix('')
-        wal.eval_str(f'(require "{self.config_file}")')
+        wal.eval_str(f'(eval-file "{self.config_file}")')
         wal.load(str(wavefile))
         self.top = wal.eval_str('top_name')
         self.spade = Spade(self.top, 'build/state.ron')
