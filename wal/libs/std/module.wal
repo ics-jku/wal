@@ -25,5 +25,5 @@
     (for/list [spec specs]
         (cond [(symbol? spec)
               `(do (eval-file ,spec)
-                   (require ',spec))])))
+                   (require ,spec))])))
   `(do ,@exprs #f))
