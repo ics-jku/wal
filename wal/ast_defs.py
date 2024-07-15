@@ -12,6 +12,7 @@ class Operator(Enum):
     STEP = 'step'
     REPL = 'repl'
     LOADED_TRACES = 'loaded-traces'
+    IS_SIGNAL = 'signal?'
     # basic
     REQUIRE = 'require'
     EVAL_FILE = 'eval-file'

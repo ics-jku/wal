@@ -144,12 +144,19 @@ def op_require(seval, args):
                     seval.environment.define(prefix.name + name, binding)
 
 
-def op_repl(seval, args): # pylint: disable=W0613
+def op_repl(seval, args):
     '''Starts a REPL in the current context'''
     try:
         WalRepl(seval.wal, intro=WalRepl.dyn_intro).cmdloop()
     except KeyboardInterrupt:
         pass
+
+
+def op_is_signal(seval, args):
+    assert len(args) == 1, 'signal?: expects exactly one argument (signal? s:symbol|string)'
+    name = seval.eval(args[0])
+    assert isinstance(name, (Symbol, str)), 'signal?: expects exactly one argument (signal? s:symbol|string)'
+    return seval.traces.contains(name if isinstance(name, str) else name.name)
 
 
 wal_operators = {
@@ -159,4 +166,5 @@ wal_operators = {
     Operator.EVAL_FILE.value: op_eval_file,
     Operator.REQUIRE.value: op_require,
     Operator.REPL.value: op_repl,
+    Operator.IS_SIGNAL.value: op_is_signal,
 }
