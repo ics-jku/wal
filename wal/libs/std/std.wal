@@ -185,4 +185,20 @@
 (defmacro set! [key value]
   `(set [,key ,value]))
 
+;; (groups-excluding (including a b c) (excluding d))
+;; Find groups with a b c but exclude any group that also has d
+(defmacro groups-excluding xs
+  (when (!= (length xs) 2)
+        (print "groups-excluding: expects exactly two lists")
+        (exit 1))
+  (when (in #f (map (fn [x] (&& (list? x) (> (length x) 1))) xs))
+        (print "groups-excluding: expects exactly two lists")
+        (exit 1))
+  (define including (rest (first (filter (fn [x] (= (first x) 'including)) xs))))
+  (define excluding (rest (first (filter (fn [x] (= (first x) 'excluding)) xs))))
+  `(filter
+     ;; filter out all groups which contain atleast one of the excluded signals
+     (fn [g] (! (in #t (for/list [ex '(,@excluding)]
+                                 (signal? (+ g (symbol->string ex)))))))
+     (groups ,@including)))
 
