@@ -5,6 +5,7 @@ import pathlib
 from wal.ast_defs import VirtualSignal
 from wal.trace.trace import Trace
 from wal.trace.vcd import TraceVcd
+from wal.trace.csvtrace import TraceCsv
 
 class TraceContainer:
     '''Can hold multiple traces and dispatches value access to the correct trace.'''
@@ -34,7 +35,8 @@ class TraceContainer:
                 print('To get support for the "fst" filetype install "pylibfst" package')
                 print('More information on pylibfst: https://pypi.org/project/pylibfst/')
                 sys.exit(1)
-
+        elif file_extension == '.csv':
+            self.traces[tid] = TraceCsv(file, tid, self, from_string=from_string, keep_signals=keep_signals)
         else:
             print(f'File extension "{file_extension}" not supported.')
 
