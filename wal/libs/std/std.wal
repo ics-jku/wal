@@ -202,3 +202,9 @@
                                  (signal? (+ g (symbol->string ex)))))))
      (groups ,@including)))
 
+(defmacro geta/default [a default key]
+  (define array-sym (gensym))
+  `(let ([,array-sym ,a])
+        (if (in ,key ,array-sym)
+            (geta ,array-sym ,key)
+            ,default)))

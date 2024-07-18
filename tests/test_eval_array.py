@@ -40,7 +40,7 @@ class BasicaArrayTest(OpTest):
         self.checkEqual('(geta (array (1 2) (3 4)) 1)', 2)
         self.checkEqual('(geta (array (1 2) (3 4)) 3)', 4)
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(WalEvalError):
             self.checkEqual('(geta (array (1 2) (3 4)) 4)', 4)
 
         self.checkEqual("(geta (array (\"a\" 2) ('b 4)) \"a\")", 2)

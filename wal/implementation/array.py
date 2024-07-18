@@ -28,60 +28,40 @@ def to_str (sexpr):
 
 def op_seta(seval, args):
     '''Updates values depending on the tuples in args'''
-    assert len(args) >= 3, 'seta: requires at least three arguments. (seta name [key:(int, str)] value)'
-    evaluated_args = seval.eval_args(args[1:-1])
-    evaluated_val = seval.eval(args[-1])
-    assert all(map(lambda x: isinstance(x, (int, str, Symbol)),
-                   evaluated_args)), 'seta: keys must be either int, string or a symbol'
-    res = None
-    key = '-'.join(map(to_str, evaluated_args))
+    assert len(args) == 3, 'seta: requires three arguments. (seta array key:(int, str, symbol) value)'
     array = seval.eval(args[0])
-
     assert isinstance(array, dict), 'seta: must be applied on array'
-    array[key] = evaluated_val
-    res = array
-    return res
-
-
-def op_geta_default(seval, args):
-    '''Returns the value from key '-'.join(keys) from array. If key is not in array return default'''
-    assert len(args) >= 3, 'geta: requires at least three arguments. (geta array:(array, symbol) default:expr [key:(int, str, symbol])'
-    array = seval.eval(args[0])
-    assert(isinstance(array, dict)), 'geta: first argument must be either array or symbol'
-    evaluated = seval.eval_args(args[2:])
-    assert all(map(lambda x: isinstance(x, (int, str, Symbol)),
-                   evaluated)), 'geta: keys must be either int or string'
-
-    key = '-'.join(map(to_str, evaluated))
-    default = args[1]
-
-    if key in array:
-        return array[key]
-
-    if key not in array and default is None:
-        raise ValueError(f'Key {key} not found')
-
-    default = seval.eval(default)
-    return default
+    key = seval.eval(args[1])
+    assert isinstance(key, (int, str, Symbol)), 'seta: key must be either int, string or a symbol'
+    val = seval.eval(args[2])
+    key = to_str(key)
+    array[key] = val
+    return array
 
 
 def op_geta(seval, args):
-    '''Returns the value from key '-'.join(keys) from array'''
-    assert len(args) >= 2, 'geta: requires at least two arguments. (geta array:(array, symbol) [key:(int, str, symbol])'
-    return op_geta_default(seval, [args[0], None] + args[1:])
+    '''Returns the value at key from array.'''
+    assert len(args) == 2, 'geta: requires at least three arguments. (geta array:(array, symbol) key:(int, str, symbol)'
+    array = seval.eval(args[0])
+    assert(isinstance(array, dict)), 'geta: first argument must be an array'
+    key = seval.eval(args[1])
+    assert isinstance(key, (int, str, Symbol)), 'geta: key must be either int, string or a symbol'
+    key = to_str(key)
+
+    assert key in array, f'geta: key {key} not found'
+    return array[key]
 
 
 def op_dela(seval, args):
-    '''Removes the value from key '-'.join(keys) from array
+    '''Removes the value at key from array
     Returns the array without the removed value'''
-    assert len(args) >= 2, 'dela: requires at least two arguments. (dela array:(array, symbol) [key:(int, str, symbol])'
+    assert len(args) == 2, 'dela: requires at least two arguments. (dela array key)'
     array = seval.eval(args[0])
-    assert(isinstance(array, dict)), 'dela: first argument must be either array or symbol'
-    evaluated = seval.eval_args(args[1:])
-    assert all(map(lambda x: isinstance(x, (int, str, Symbol)),
-                   evaluated)), 'dela: keys must be either int or string'
-
-    key = '-'.join(map(str, evaluated))
+    assert(isinstance(array, dict)), 'dela: first argument must be an array'
+    key = seval.eval(args[1])
+    assert isinstance(key, (int, str, Symbol)), 'geta: key must be either int, string or a symbol'
+    key = to_str(key)
+    assert key in array, f'dela: key {key} not found'
     del array[key]
     return array
 
@@ -104,7 +84,6 @@ array_operators = {
     Operator.ARRAY.value: op_array,
     Operator.SETA.value: op_seta,
     Operator.GETA.value: op_geta,
-    Operator.GETA_DEFAULT.value: op_geta_default,
     Operator.DELA.value: op_dela,
     Operator.MAPA.value: op_mapa
 }

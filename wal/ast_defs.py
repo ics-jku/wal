@@ -80,7 +80,6 @@ class Operator(Enum):
     ARRAY = 'array'
     SETA = 'seta'
     GETA = 'geta'
-    GETA_DEFAULT = 'geta/default'
     DELA = 'dela'
     MAPA = 'mapa'
     ALLSCOPES = 'all-scopes'
