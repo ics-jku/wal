@@ -74,7 +74,7 @@ class BasicListTest(OpTest):
         '''test map operator'''
         l1 = "'(1 2 3 4)"
         l2 = "'(\"a\" \"b\")"
-        f = '(lambda (x) (+ x 1))'
+        f = '(fn (x) (+ x 1))'
         self.checkEqual(f'(map {f} {l1})', [2, 3, 4, 5])
         self.checkEqual(f'(map {f} {l2})', ['a1', 'b1'])
 

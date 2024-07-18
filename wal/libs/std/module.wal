@@ -2,7 +2,7 @@
   (define name body[0]) 
   (define provided-definitions
     (fold
-      (lambda [acc e]
+      (fn [acc e]
         (if (&& (list? e) (> (length e) 0) (= (first e) 'provide))
           (+ acc (rest e))
           acc))

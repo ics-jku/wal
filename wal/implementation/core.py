@@ -277,7 +277,7 @@ def op_parse(seval, args):
     return WList([Operator.DO] + sexprs)
 
 
-def op_lambda(seval, args):
+def op_fn(seval, args):
     assert len(args) >= 2, 'lambda: expects at least two arguments (lambda (symbol | (symbol*)) sexpr)'
     assert isinstance(args[0], (WList, list, Symbol)), 'lambda: first argument must be a list of symbols or a single symbol'
     if isinstance(args[0], (list, WList)):
@@ -616,12 +616,10 @@ core_operators = {
     Operator.UNQUOTE.value: op_unquote,
     Operator.EVAL.value: op_eval,
     Operator.PARSE.value: op_parse,
-    # Operator.DEFUN.value: op_defun,
     Operator.DEFMACRO.value: op_defmacro,
     Operator.MACROEXPAND.value: op_macroexpand,
     Operator.GENSYM.value: op_gensym,
-    Operator.LAMBDA.value: op_lambda,
-    Operator.FN.value: op_lambda,
+    Operator.FN.value: op_fn,
     Operator.GET.value: op_get,
     Operator.IMPORT.value: op_import,
     Operator.CALL.value: op_call,

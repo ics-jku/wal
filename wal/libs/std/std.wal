@@ -3,7 +3,7 @@
   (define name (first args))
   (define params (second args))
   (define body (rest (rest args)))
-  `(define ,name (lambda ,params ,name ,@body)))
+  `(define ,name (fn ,params ,name ,@body)))
 
 (defmacro append [xs x]
   (let ([tmp (gensym)])
@@ -14,14 +14,14 @@
 	  (let [(sym args[0][0])
 	        (body (rest args))
 		(data args[0][1])]
-	    `(map (lambda [,sym] (do ,@body)) ,data)))
+	    `(map (fn [,sym] (do ,@body)) ,data)))
 
 (defmacro for args
 	  (let [(sym args[0][0])
           (temp (gensym))
 	        (body (rest args))
 		(data args[0][1])]
-    `(let ([,temp (map (lambda [,sym] (do ,@body)) ,data)])
+    `(let ([,temp (map (fn [,sym] (do ,@body)) ,data)])
           (if ,temp (last ,temp) '()))))
 
 (defun symbol-add args
@@ -91,7 +91,7 @@
 	 (reverse args)))
        
 (defmacro defunm args
-  `(set [,(first args) (lambda ,(second args) (do ,@(rest (rest args))))]))
+  `(set [,(first args) (fn ,(second args) (do ,@(rest (rest args))))]))
 
 (defmacro car [xs]
   `(first ,xs))

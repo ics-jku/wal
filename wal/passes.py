@@ -138,22 +138,22 @@ def resolve(expr, start={}):
                 body = [resolve_vars(sub) for sub in expr[2:]]
                 scopes.pop()
                 return WList([Operator.LET, expr[1], *body], line_info=expr.line_info)
-            elif op == Operator.LAMBDA:
+            elif op == Operator.FN:
                 args = expr[1]
                 env = {}
                 scopes.append(env)
                 if isinstance(args, (WList, list)):
                     for arg in expr[1]:
-                        assert isinstance(arg, Symbol), 'lambda: parameters must be symbols'
+                        assert isinstance(arg, Symbol), 'fn: parameters must be symbols'
                         env[arg.name] = True
                 elif isinstance(args, Symbol):
                     env[args.name] = True
                 else:
-                    assert False, 'lambda: first argument must be a list or a symbol'
+                    assert False, 'fn: first argument must be a list or a symbol'
 
                 body = [resolve_vars(sub) for sub in expr[2:]]
                 scopes.pop()
-                return WList([Operator.LAMBDA, expr[1], *body])
+                return WList([Operator.FN, expr[1], *body])
             elif op == Operator.DEFMACRO:
                 scopes[-1][expr[1].name] = True
                 return expr

@@ -55,7 +55,6 @@ class Operator(Enum):
     DEFMACRO = 'defmacro'
     MACROEXPAND = 'macroexpand'
     GENSYM = 'gensym'
-    LAMBDA = 'lambda'
     FN = 'fn'
     GET = 'get'
     CALL = 'call'

@@ -73,8 +73,7 @@ def op_fold_signal(seval, args):
     until the stop condition evaluates to true. '''
     assert len(args) == 4, 'fold/signal: expects 3 arguments (fold f acc stop signal)'
     func = seval.eval(args[0])
-    assert isinstance(func, list) and \
-        (func[0] == Operator.LAMBDA or func[0] == Operator.FN), 'fold/signal: not a valid function'
+    assert isinstance(func, list) and (func[0] == Operator.FN), 'fold/signal: not a valid function'
     acc = seval.eval(args[1])
     stop = args[2]
     signal = seval.eval(args[3])
@@ -89,7 +88,7 @@ def op_fold_signal(seval, args):
         if isinstance(func, Operator):
             acc = seval.eval(WList([func, WList([Operator.QUOTE, acc]), WList([Operator.QUOTE, seval.eval(signal)])]))
         else:
-            assert func[0] == Operator.LAMBDA or func[0] == Operator.FN, 'fold/signal: first argument must be a function'
+            assert func[0] == Operator.FN, 'fold/signal: first argument must be a function'
             acc = seval.eval_lambda(func, [[Operator.QUOTE, acc], [Operator.QUOTE, seval.eval(signal)]])
 
         stopped = seval.traces.step() != []

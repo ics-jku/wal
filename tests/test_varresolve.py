@@ -56,13 +56,13 @@ class BasicResolveTest(unittest.TestCase):
         self.checkEqual('(define x x)', [Op.DEFINE, S('x'), S('x')])
 
     def test_lambda_resolution(self):
-        self.checkEqual('(lambda [x] x)', [Op.LAMBDA, [S('x')], S('x', 0)])
-        self.checkEqual('(lambda [x] y)', [Op.LAMBDA, [S('x')], S('y')])
-        self.checkEqual('(do (define y 5) (lambda [x] y))', [Op.DO, [Op.DEFINE, S('y'), 5], [Op.LAMBDA, [S('x')], S('y', 1)]])
-        self.checkEqual('(lambda [x] (lambda [y] x))', [Op.LAMBDA, [S('x')], [Op.LAMBDA, [S('y')], S('x', 1)]])
-        self.checkEqual('(lambda [x] (lambda [y] y))', [Op.LAMBDA, [S('x')], [Op.LAMBDA, [S('y')], S('y', 0)]])
-        self.checkEqual('(lambda [x y] (lambda [y] y))', [Op.LAMBDA, [S('x'), S('y')], [Op.LAMBDA, [S('y')], S('y', 0)]])
-        self.checkEqual('(lambda [x y] (lambda [z] y))', [Op.LAMBDA, [S('x'), S('y')], [Op.LAMBDA, [S('z')], S('y', 1)]])
+        self.checkEqual('(fn [x] x)', [Op.FN, [S('x')], S('x', 0)])
+        self.checkEqual('(fn [x] y)', [Op.FN, [S('x')], S('y')])
+        self.checkEqual('(do (define y 5) (fn [x] y))', [Op.DO, [Op.DEFINE, S('y'), 5], [Op.FN, [S('x')], S('y', 1)]])
+        self.checkEqual('(fn [x] (fn [y] x))', [Op.FN, [S('x')], [Op.FN, [S('y')], S('x', 1)]])
+        self.checkEqual('(fn [x] (fn [y] y))', [Op.FN, [S('x')], [Op.FN, [S('y')], S('y', 0)]])
+        self.checkEqual('(fn [x y] (fn [y] y))', [Op.FN, [S('x'), S('y')], [Op.FN, [S('y')], S('y', 0)]])
+        self.checkEqual('(fn [x y] (fn [z] y))', [Op.FN, [S('x'), S('y')], [Op.FN, [S('z')], S('y', 1)]])
 
     def test_resolution_in_set(self):
         self.checkEqual('(set [x 5])', [Op.SET, [S('x'), 5]])
@@ -118,12 +118,12 @@ class ResolveEvalTest(unittest.TestCase):
         self.checkRaises('(define x x)')
 
     def test_lambda_resolution(self):
-        self.checkEqual('((lambda [x] x) 5)', 5)
-        self.checkEqual('(do (define y 5) ((lambda [x] y) 2))', 5)
-        self.checkEqual('((lambda [x] ((lambda [y] x) 2)) 1)', 1)
-        self.checkEqual('((lambda [x] ((lambda [y] y) x)) 11)', 11)
-        self.checkEqual('((lambda [x y] ((lambda [y] y) (+ x y))) 22 33)', 55)
-        self.checkEqual('((lambda [x y] ((lambda [z] y) 0)) 22 33)', 33)
+        self.checkEqual('((fn [x] x) 5)', 5)
+        self.checkEqual('(do (define y 5) ((fn [x] y) 2))', 5)
+        self.checkEqual('((fn [x] ((fn [y] x) 2)) 1)', 1)
+        self.checkEqual('((fn [x] ((fn [y] y) x)) 11)', 11)
+        self.checkEqual('((fn [x y] ((fn [y] y) (+ x y))) 22 33)', 55)
+        self.checkEqual('((fn [x y] ((fn [z] y) 0)) 22 33)', 33)
 
     def test_resolution_in_set(self):
         self.checkRaises('(set [x 5])')

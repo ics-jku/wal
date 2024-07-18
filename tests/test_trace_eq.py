@@ -37,10 +37,10 @@ class TraceEqTest():
         self.eval_eq("(do (while (step) 0) INDEX)")
 
     def test_ts_list(self):
-        self.eval_eq("(map (lambda [x] TS@x) (range MAX-INDEX))")
+        self.eval_eq("(map (fn [x] TS@x) (range MAX-INDEX))")
 
     def test_all_signal_values(self):
-        self.eval_eq("(map (lambda [x] (map get SIGNALS)@x) (range MAX-INDEX))")
+        self.eval_eq("(map (fn [x] (map get SIGNALS)@x) (range MAX-INDEX))")
 
 
 class CounterEqualTest(TraceEqTest, unittest.TestCase):

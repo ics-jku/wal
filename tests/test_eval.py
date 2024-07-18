@@ -486,23 +486,23 @@ class EvalFunctionTest(OpTest):
     def test_lambda_args(self):
         '''Lambdas should raise errors for wrong arguments'''
         with self.assertRaises(WalEvalError):
-            self.w.eval_str('(lambda (x))')
+            self.w.eval_str('(fn (x))')
 
         with self.assertRaises(WalEvalError):
-            self.w.eval_str('(lambda (x 1) x)')
+            self.w.eval_str('(fn (x 1) x)')
 
     def test_lambda_apply(self):
         '''Lambdas should perform correct action if applied'''
 
         # Apply from inline definition
-        self.checkEqual('((lambda (x) (+ x 1)) 1)', 2)
+        self.checkEqual('((fn (x) (+ x 1)) 1)', 2)
 
         # correct number of args must be supplied
         # with self.assertRaises(WalEvalError):
         #     self.w.eval_str('(lambda (x) (+ x 1) 1 2)')
 
         # Apply named lambda
-        self.w.eval_str('(define foo (lambda (y) (* y 2)))')
+        self.w.eval_str('(define foo (fn (y) (* y 2)))')
         self.checkEqual('(foo 5)', 10)
 
 
