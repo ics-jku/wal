@@ -38,23 +38,21 @@ def expand(seval, exprs, parent=None):
                 save_env = seval.environment
                 seval.environment = macro_env
                 expanded = seval.eval(expr.expression)
+                expanded.line_info = exprs[0].line_info
                 expanded = expand(seval, expanded, parent)
-                optimized = optimize(expanded)
-                resolved = resolve(optimized, start=seval.environment.environment)
 
                 seval.environment = save_env
 
-                if isinstance(resolved, WList):
+                if isinstance(expanded, WList):
                     exprs.clear()
-                    for expr in resolved:
+                    for expr in expanded:
                         exprs.append(expr)
                 else:
                     return expanded
 
 
         line_info = exprs.line_info if isinstance(exprs, WList) else None
-        result = WList(list(map(lambda expr: expand(seval, expr, parent=parent), exprs)), line_info=line_info)
-        return recursive_set_line_info(result, line_info)
+        exprs = WList(list(map(lambda expr: expand(seval, expr, parent=parent), exprs)), line_info=line_info)
     
     return exprs
 

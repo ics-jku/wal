@@ -3,7 +3,7 @@
   (define name (first args))
   (define params (second args))
   (define body (rest (rest args)))
-  `(define ,name (lambda ,params ,@body)))
+  `(define ,name (lambda ,params ,name ,@body)))
 
 (defmacro append [xs x]
   (let ([tmp (gensym)])

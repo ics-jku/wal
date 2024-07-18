@@ -278,7 +278,7 @@ def op_parse(seval, args):
 
 
 def op_lambda(seval, args):
-    assert len(args) >= 2, 'lambda: expects exactly two arguments (lambda (symbol | (symbol*)) sexpr)'
+    assert len(args) >= 2, 'lambda: expects at least two arguments (lambda (symbol | (symbol*)) sexpr)'
     assert isinstance(args[0], (WList, list, Symbol)), 'lambda: first argument must be a list of symbols or a single symbol'
     if isinstance(args[0], (list, WList)):
         assert all(isinstance(arg, Symbol) for arg in args[0]), f'lambda: arguments must be symbols but are {wal_str(args[0])}'

@@ -10,9 +10,6 @@ from wal.ast_defs import Symbol as S
 from wal.ast_defs import Operator
 from wal.ast_defs import WalEvalError
 
-# pylint: disable=C0103
-# pylint: disable=W0201
-
 
 class OpTest(unittest.TestCase):
     '''Test built-in functions'''
@@ -24,15 +21,15 @@ class OpTest(unittest.TestCase):
         self.w.eval_context.environment.define('z', 0)
 
     @property
-    def x(self):  # pylint: disable=C0116
+    def x(self):
         return self.w.eval_context.environment.read('x')
 
     @property
-    def y(self):  # pylint: disable=C0116
+    def y(self):
         return self.w.eval_context.environment.read('y')
 
     @property
-    def z(self):  # pylint: disable=C0116
+    def z(self):
         return self.w.eval_context.environment.read('z')
 
     def checkEqual(self, txt, res):

@@ -114,9 +114,8 @@ class SEval:
                         steps -= 1
 
                     res = env.read(expr.name)
-
-                if self.traces.contains(name):  # if symbol is a signal from wavefile
-                    res = self.traces.signal_value(name, scope=self.scope) # env[symbol_id]
+                elif self.traces.contains(name):  # if symbol is a signal from wavefile
+                    res = self.traces.signal_value(name, scope=self.scope)
                 else:
                     # this symbol has not been resolved
                     res = self.environment.read(name)
