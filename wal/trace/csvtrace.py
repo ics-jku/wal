@@ -60,10 +60,10 @@ class TraceCsv(Trace):
         
         
 
-
+        pattern = re.compile(r"^(\d+)\.?(\d+)?$")
         for i in range(len(data)):
             # convert timestamp to nanoseconds
-            m = re.match("^(\d+)\.?(\d+)?$", data[i][time_idx])
+            m = pattern.match(data[i][time_idx])
             time_pre, time_post = m.groups("0")
             time_ns = int(f"{time_pre}{time_post.ljust(9, '0')}", base=10)
             
