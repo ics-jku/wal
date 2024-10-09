@@ -25,6 +25,7 @@ WAL_GRAMMAR = r"""
     sexpr_list : _BASH_LINE? (_INTER* | sexpr*)
 
     atom : string
+         | bool
          | operator
          | symbol
          | float
@@ -37,8 +38,8 @@ WAL_GRAMMAR = r"""
     hex_int : /0x[0-9a-fA-F]+/
 
     bool : true | false
-    true : "#t"
-    false : "#f"
+    true : "true"
+    false : "false"
     symbol : base_symbol | scoped_symbol | grouped_symbol | bit_symbol | sliced_symbol
     !operator: "+" | "-" | "*" | "/" | "&&" | "||" | "=" | "!=" | ">" | "<" | ">=" | "<=" | "!" | "**"
 

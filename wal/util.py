@@ -36,7 +36,7 @@ def wal_str(sexpr):
         sexpr = sexpr.replace("\"", "\\\"")
         txt = f'"{sexpr}"'
     elif isinstance(sexpr, bool):
-        txt = '#t' if sexpr else '#f'
+        txt = 'true' if sexpr else 'false'
     elif isinstance(sexpr, dict):
         content = []
         for key, value in sexpr.items():
