@@ -40,7 +40,7 @@ TOP.clk: {
       	 render_cell(instr, "#90ee90");
       } else if (!#_arbitration_isMoving) {
          render_cell(instr, "#ffbf40");
-      };
+      }
     }
   }
   print("</tr>");

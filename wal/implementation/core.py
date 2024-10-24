@@ -191,7 +191,7 @@ def op_case(seval, args):
 
 def op_do(seval, args):
     if args:
-      return seval.eval_args(args)[-1]
+        return seval.eval_args(args)[-1]
 
 
 def op_while(seval, args):
@@ -206,17 +206,15 @@ def op_while(seval, args):
 
 def op_alias(seval, args):
     assert args, 'alias: expects at least two arguments'
-    assert len(args) % 2 == 0, 'alias: expects an even number of arguments'
+    assert len(args) == 2, 'alias: expects two arguments'
 
-    def chunks(lst, n):
-        '''Yield successive n-sized chunks from lst. https://stackoverflow.com/a/312464'''
-        for i in range(0, len(lst), n):
-            yield lst[i:i + n]
+    assert isinstance(args[0], Symbol), 'alias: aliases must be symbols'
+    name = seval.eval(args[1])
+    assert isinstance(name, (str, Symbol)), 'alias: second argument must evaluate to a string or a symbol'
+    if isinstance(name, Symbol):
+        name = name.name
 
-    for pair in chunks(args, 2):
-        assert isinstance(pair[0], Symbol), 'alias: arguments to alias must be symbols'
-        assert isinstance(pair[1], Symbol), 'alias: arguments to alias must be symbols'
-        seval.aliases[pair[0].name] = pair[1].name
+    seval.aliases[args[0].name] = name
 
 
 def op_unalias(seval, args):

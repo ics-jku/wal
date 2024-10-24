@@ -1,8 +1,8 @@
 // Stmt 1: create aliases
 BEGIN: {
-  alias(fire, TOP.VexRiscv.lastStageIsFiring);
-  alias(pc, TOP.VexRiscv.lastStagePc);
-  alias(inst, TOP.VexRiscv.lastStageInstruction);
+  alias(fire, "TOP.VexRiscv.lastStageIsFiring");
+  alias(pc, "TOP.VexRiscv.lastStagePc");
+  alias(inst, "TOP.VexRiscv.lastStageInstruction");
 }
 
 // Stmt 2: initialize pc
@@ -16,7 +16,7 @@ TOP.clk, fire: {
     trans[last_pc, pc] = [last_pc, pc];
     ends[last_pc] = last_pc;
     bstart = pc;
-  };
+  }
   // save start of block
   starts[pc] = bstart;
   // save current instruction
@@ -31,10 +31,10 @@ END: {
 
   for (block, bpc in ends) {
     printf("%d [label=\"start:%8x\\nend:%8x\"];\n", starts[bpc], starts[bpc], bpc);
-  };
+  }
 
   for (key, data in trans) {
     printf("%d->%d;\n", starts[data[0]], data[1]);
-  };
+  }
   print("}");
 }

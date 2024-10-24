@@ -436,22 +436,29 @@ class EvalControlFlowTest(OpTest):
 
     def test_alias(self):
         '''Test symbol renaming using aliases'''
-        self.w.eval_str('(alias abc x)')
+        self.w.eval_str('(alias abc \'x)')
         self.checkEqual('abc', self.x)
 
-        self.w.eval_str('(alias abc x def y)')
-        self.checkEqual('def', self.y)
+        self.w.eval_str('(alias abc "y")')
+        self.checkEqual('abc', self.y)
 
-        # alias expects only an even number of arguments
+        # alias expects two arguments
         with self.assertRaises(WalEvalError):
             self.w.eval_str('(alias)')
 
         with self.assertRaises(WalEvalError):
+            self.w.eval_str('(alias a)')
+
+        with self.assertRaises(WalEvalError):
             self.w.eval_str('(alias a 1 b)')
+
+        # first argument must be a symbol
+        with self.assertRaises(WalEvalError):
+            self.w.eval_str('(alias 0 "a")')
 
     def test_unalias(self):
         '''Test deleting aliases using unalias'''
-        self.w.eval_str('(alias abc x)')
+        self.w.eval_str('(alias abc \'x)')
         self.checkEqual('abc', self.x)
 
         with self.assertRaises(WalEvalError):

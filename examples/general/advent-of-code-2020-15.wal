@@ -5,12 +5,12 @@
   (define turn 6)
   
   (while (<= turn end)
-    (set (prev now))
-    (set (now (if (in prev spoken)
+    (set! prev now)
+    (set! now (if (in prev spoken)
 	     	  (- turn (geta spoken prev))
-		  0)))
+		  0))
     (seta spoken prev turn)
-    (set (turn (+ turn 1))))
+    (set! turn (+ turn 1)))
   prev)
 
 (print "Advent of Code day 15: " (day15 2020))

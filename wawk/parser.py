@@ -139,8 +139,8 @@ class TreeToWal(Transformer):
     assign_std = lambda self, a: [Op.SET, [a[0], a[1]]]
     define = lambda self, a: [Op.DEFINE, a[0], a[1]]
     assign_arith = lambda self, a: [Op.SET, [a[0], [Op(a[1]), a[0], a[3]]]]
-    forin = lambda self, f: [Op.MAP, [Op.LAMBDA, [f[0]], f[2]], f[1]]
-    forinarray = lambda self, f: [Op.MAPA, [Op.LAMBDA, [f[0], f[1]], f[3]], f[2]]
+    forin = lambda self, f: [Op.MAP, [Op.FN, [f[0]], f[2]], f[1]]
+    forinarray = lambda self, f: [Op.MAPA, [Op.FN, [f[0], f[1]], f[3]], f[2]]
     forvar = lambda self, f: [Op.LET, [f[0][1]], [Op.WHILE, f[1], [Op.DO, f[3], f[2]]]]
 
     neg = lambda self, x: x[0]
@@ -156,8 +156,18 @@ class TreeToWal(Transformer):
     comp = lambda self, x: x[0]
 
     array_op = lambda self, a: a[0]
-    array_get = lambda self, a: [Op.GETA_DEFAULT, a[0], 0] + a[1:]
-    array_set = lambda self, a: [Op.SETA] + a
+
+    def array_get(self, a):
+        array = a[0]
+        indices = a[1:]
+        return [S('geta/default'), array, 0, [Op.ADD, *indices]]
+
+    def array_set(self, a):
+        array = a[0]
+        indices = a[1:-1]
+        value = a[-1]
+        return [Op.SETA, array, [Op.ADD, *indices], value]
+
     cond = lambda self, c: c[0]
     ifstmt = lambda self, c: [Op.IF] + c
     in_scope = lambda self, s: [Op.SCOPED, s[0], s[1]]

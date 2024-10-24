@@ -6,10 +6,10 @@
 
 // executed before the waveform is processed
 BEGIN: {
-   alias(clk, uut_rx.clk);
-   alias(ready, uut_rx.m_axis_tready);
-   alias(valid, uut_rx.m_axis_tvalid);
-   alias(data, uut_rx.m_axis_tdata);
+   alias(clk, "uut_rx.clk");
+   alias(ready, "uut_rx.m_axis_tready");
+   alias(valid, "uut_rx.m_axis_tvalid");
+   alias(data, "uut_rx.m_axis_tdata");
 
    byte_arrived = 0;
    bytes_dropped = 0;
