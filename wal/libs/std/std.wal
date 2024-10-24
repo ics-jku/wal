@@ -151,16 +151,16 @@
        ,RES)))
 
 (defmacro rising [expr]
-  `(&& (! ,expr)@-1 ,expr))
+  `(&& (= ,expr 0) (= (reval ,expr 1) 1)))
 
 (defmacro falling [expr]
-  `(&& (reval ,expr -1) (! ,expr)))
+  `(&& (= ,expr 1) (= (reval ,expr 1) 0)))
 
 (defmacro unstable [expr]
-  `(!= (reval ,expr -1) ,expr))
+  `(!= ,expr (reval ,expr 1)))
 
 (defmacro stable [expr]
-  `(= (reval ,expr -1) ,expr))
+  `(= ,expr (reval ,expr 1)))
 
 (defmacro signed [signal]
   `(bits->sint (convert/bin ,signal (signal-width ',signal))))
