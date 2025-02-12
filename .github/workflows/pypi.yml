@@ -151,7 +151,7 @@ jobs:
     needs: [linux, macos, sdist]
     permissions:
       id-token: write
-    environment: testpypi
+    environment: pypitest
     steps:
       - uses: actions/download-artifact@v4
       - name: Publish to PyPITest
