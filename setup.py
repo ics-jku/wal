@@ -1,5 +1,4 @@
 '''Setup file for the wal-lang package'''
-# pylint: disable=W0122,E0602
 import pathlib
 from setuptools import setup, find_packages
 
@@ -12,7 +11,7 @@ long_description = (here / 'README.md').read_text(encoding='utf-8')
 
 setup(
     name='wal-lang',
-    version=__version__, # noqa: F821
+    version=__version__,
     description='Wal - Wavefile Analysis Language',
     long_description=long_description,
     long_description_content_type='text/markdown',
