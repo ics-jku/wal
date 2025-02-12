@@ -9,6 +9,7 @@ from wal.util import wal_str
 from wal.ast_defs import Operator, UserOperator, Symbol, Environment, Closure, Macro, WList, WalEvalError
 from wal.implementation.types import type_operators
 from wal.implementation.math import math_operators
+from wal.implementation.bitwise import bitwise_operators
 from wal.implementation.list import list_operators
 from wal.implementation.array import array_operators
 from wal.implementation.wal import wal_operators
@@ -33,9 +34,9 @@ class SEval:
         self.group = None
         self.context = None
         self.reset()
-        self.dispatch = {**core_operators, **math_operators, **type_operators, \
-            **list_operators, **array_operators, **wal_operators, \
-            **special_operators, **virtual_operators}
+        self.dispatch = {**core_operators, **math_operators, **bitwise_operators, \
+            **type_operators, **list_operators, **array_operators, \
+            **wal_operators, **special_operators, **virtual_operators}
         self.user_dispatch = {}
         initial_walpath = ['.', os.path.expanduser('~/.wal/libs/'), str(files(wal).joinpath('libs/'))]
         self.walpath = initial_walpath + os.getenv('WALPATH', '').split(';')

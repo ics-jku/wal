@@ -26,6 +26,11 @@ class Operator(Enum):
     CEIL = 'ceil'
     ROUND = 'round'
     MOD = 'mod'
+    # bitwise
+    BOR = 'bor'
+    BAND = 'band'
+    BXOR = 'bxor'
+    BNEG = 'bneg'
     # logic
     NOT = '!'
     EQ = '='
