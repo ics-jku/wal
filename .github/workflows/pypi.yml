@@ -63,46 +63,6 @@ jobs:
           path: dist
           if-no-files-found: error
 
-  windows:
-    runs-on: ${{ matrix.platform.runner }}
-    strategy:
-      matrix:
-        platform:
-          - runner: windows-latest
-            target: x64
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-
-      - uses: actions/setup-python@v5
-        name: Install Python
-        with:
-          python-version: '3.10'
-
-      - name: Install wal
-        run: python -m pip install .
-        
-      - name: Install dependencies
-        run: python -m pip install build virtualenv
-      
-      - name: Install stdlib + modules
-        run: |
-          python -m walc wal/libs/std/std.wal
-          python -m walc wal/libs/std/module.wal
-
-      - name: Build 
-        id: build_windows
-        run: python -m build 
-
-      - name: Upload wheels
-        uses: actions/upload-artifact@v4
-        with:
-          name: wheels-windows-${{ matrix.platform.target }}
-          path: dist
-          if-no-files-found: error
-
   macos:
     runs-on: ${{ matrix.platform.runner }}
     strategy:
@@ -188,7 +148,7 @@ jobs:
     name: Test Release
     runs-on: ubuntu-latest
     if: "! startsWith(github.ref, 'refs/tags/')"
-    needs: [linux, windows, macos, sdist]
+    needs: [linux, macos, sdist]
     permissions:
       id-token: write
     environment: testpypi
@@ -205,7 +165,7 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     if: "startsWith(github.ref, 'refs/tags/')"
-    needs: [linux, windows, macos, sdist]
+    needs: [linux, macos, sdist]
     permissions:
       id-token: write
     environment: pypi
