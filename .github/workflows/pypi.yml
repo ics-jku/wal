@@ -155,7 +155,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
       - name: Publish to PyPITest
-        uses: pypa/gh-action-pypi-publish@v1
+        uses: pypa/gh-action-pypi-publish@release/v1
         with:
           attestations: false
           skip-existing: true
@@ -172,6 +172,6 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
       - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@v1
+        uses: pypa/gh-action-pypi-publish@release/v1
         with:
           attestations: false
