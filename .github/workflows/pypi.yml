@@ -30,7 +30,7 @@ jobs:
             target: s390x
           - runner: ubuntu-latest
             target: ppc64le
-     steps:
+    steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -70,7 +70,7 @@ jobs:
         platform:
           - runner: windows-latest
             target: x64
-     steps:
+    steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
