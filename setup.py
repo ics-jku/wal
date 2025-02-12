@@ -11,7 +11,7 @@ long_description = (here / 'README.md').read_text(encoding='utf-8')
 
 setup(
     name='wal-lang',
-    version=__version__,
+    version=__version__, # noqa: F821
     description='Wal - Wavefile Analysis Language',
     long_description=long_description,
     long_description_content_type='text/markdown',

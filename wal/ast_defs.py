@@ -30,7 +30,6 @@ class Operator(Enum):
     BOR = 'bor'
     BAND = 'band'
     BXOR = 'bxor'
-    BNEG = 'bneg'
     # logic
     NOT = '!'
     EQ = '='
