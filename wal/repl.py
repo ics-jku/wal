@@ -10,6 +10,8 @@ from wal.ast_defs import Operator, Symbol, WList
 from wal.trace.trace import Trace
 from wal.version import __version__
 
+completer_delims = ' \t\n`~@#()[{]}\'"'
+
 histfile = os.path.expanduser('~/.wal/.wal_history')
 histfile_size = 1000
 
@@ -50,6 +52,7 @@ Exit to calling script or terminate running evaluations with CTRL-C'''
                 print(wal_str(evaluated))
 
             if readline:
+                readline.set_completer_delims(completer_delims)
                 readline.set_history_length(histfile_size)
                 readline.write_history_file(histfile)
 
@@ -79,7 +82,7 @@ Exit to calling script or terminate running evaluations with CTRL-C'''
         return self.completenames(text)[state]
 
     def completenames(self, text, *ignored):
-        tmp = self.complete_list + self.wal.traces.signals
+        tmp = self.complete_list + self.wal.traces.signals + list(self.wal.eval_context.global_environment.environment.keys())
 
         if len(self.wal.traces.traces) == 1:
             tmp += Trace.SPECIAL_SIGNALS
@@ -92,5 +95,7 @@ Exit to calling script or terminate running evaluations with CTRL-C'''
         if not os.path.exists(histfile):
             os.makedirs(os.path.expanduser('~/.wal'), exist_ok=True)
 
-        if readline and os.path.exists(histfile):
-            readline.read_history_file(histfile)
+        if readline:
+            readline.set_completer_delims(completer_delims)
+            if os.path.exists(histfile):
+                readline.read_history_file(histfile)
