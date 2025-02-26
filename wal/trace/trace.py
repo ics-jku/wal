@@ -4,7 +4,7 @@
 class Trace:
     '''A generic class for representing waveforms'''
     SCOPE_SEPERATOR = '^'
-    SPECIAL_SIGNALS = ['SIGNALS', 'LOCAL-SIGNALS', 'INDEX', 'MAX-INDEX', 'TS', 'TRACE-NAME', 'TRACE-FILE', 'SCOPES', 'LOCAL-SCOPES']
+    SPECIAL_SIGNALS = ['SIGNALS', 'SIGNALS-NO-ALIAS', 'VIRTUAL-SIGNALS', 'LOCAL-SIGNALS', 'INDEX', 'MAX-INDEX', 'TS', 'TRACE-NAME', 'TRACE-FILE', 'SCOPES', 'LOCAL-SCOPES']
     SPECIAL_SIGNALS_SET = set(SPECIAL_SIGNALS)
 
 
@@ -43,6 +43,14 @@ class Trace:
             if name in Trace.SPECIAL_SIGNALS:
                 if name == 'SIGNALS':
                     res = self.get_all_signals()
+                    if len(self.container.traces) > 1:
+                        res = [f'{self.tid}{Trace.SCOPE_SEPERATOR}{signal}' for signal in res]
+                elif name == 'SIGNALS-NO-ALIAS':
+                    res = self.get_all_signals_by_handle()
+                    if len(self.container.traces) > 1:
+                        res = [f'{self.tid}{Trace.SCOPE_SEPERATOR}{signal}' for signal in res]
+                elif name == 'VIRTUAL-SIGNALS':
+                    res = self.get_virtual_signals()
                     if len(self.container.traces) > 1:
                         res = [f'{self.tid}{Trace.SCOPE_SEPERATOR}{signal}' for signal in res]
                 elif name == 'LOCAL-SIGNALS':
@@ -110,7 +118,13 @@ class Trace:
         self.virtual_signals[signal.name] = signal
 
     def get_all_signals(self):
-        return list(self.rawsignals) + list(self.virtual_signals.keys())
+        return list(self.rawsignals) + self.get_virtual_signals()
+    
+    def get_virtual_signals(self):
+        return list(self.virtual_signals.keys())
+
+    def get_all_signals_by_handle(self):
+        return list(self.rawsignals_by_handle)
 
     def set_max_index(self, new_max_index):
         self.max_index = min(new_max_index, self.max_index)
