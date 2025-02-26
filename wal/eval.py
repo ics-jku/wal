@@ -58,7 +58,7 @@ class SEval:
         self.virtual_signals = {}
         self.global_environment.define('CS', '')
         self.global_environment.define('CG', '')
-        self.global_environment.define('args', [])
+        self.global_environment.define('ARGS', [])
         self.global_environment.define('VIRTUAL', self.virtual_signals)
 
     def eval_args(self, args):

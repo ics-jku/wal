@@ -27,7 +27,7 @@ class Arguments:  # pylint: disable=too-few-public-methods
         parser.add_argument('-v', '--version', action='version',
                             version=f'%(prog)s {wal_version}')
         parser.add_argument('--repl-on-failure', action='store_true', help='open REPL when a failure occurs')
-        parser.add_argument('args', nargs='*',
+        parser.add_argument('ARGS', nargs='*',
                             default=None, help='runtime arguments')
 
 
@@ -54,7 +54,7 @@ def main():  # pylint: disable=R1710
     args = arg_parser.parse()
 
     wal = Wal()
-    wal.eval_context.global_environment.write('args', args.args)
+    wal.eval_context.global_environment.write('ARGS', args.ARGS)
 
     if args.load is not None:
         for i, path in enumerate(args.load):
