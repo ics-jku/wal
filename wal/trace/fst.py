@@ -39,7 +39,9 @@ class TraceFst(Trace):
             re.sub(r'\[([0-9]+)\]', r'<\1>', k): v for k, v in self.references_to_ids.items()}
 
         self.rawsignals = list(self.references_to_ids.keys())
+        self.rawsignals_by_handle = [k for k, v in self.references_to_ids.items() if v.handle in signals.by_handle]
         self.signals = set(self.rawsignals)
+        self.signals_by_handle = set(self.rawsignals_by_handle)
 
         # remove duplicate timestamps, enumerate all timestamps and create look up table
         fst.lib.fstReaderSetFacProcessMaskAll(self.fst)

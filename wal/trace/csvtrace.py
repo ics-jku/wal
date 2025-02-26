@@ -27,6 +27,8 @@ class TraceCsv(Trace):
         self.index = 0
         self.max_index = len(self.index2ts) - 1
         self.signals = set(Trace.SPECIAL_SIGNALS + self.rawsignals)
+        self.rawsignals_by_handle = [s for s in self.rawsignals]
+        self.signals_by_handle = set(self.rawsignals_by_handle)
 
     def parse(self, csvdata):
         data = csvdata.strip().split("\n")  # assume row delimiter \n

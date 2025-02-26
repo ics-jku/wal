@@ -32,6 +32,10 @@ class TraceVcd(Trace):
         self.max_index = len(self.index2ts) - 1
         self.signals = set(Trace.SPECIAL_SIGNALS + self.rawsignals)
 
+        self.id2name = {v: k for k, v in self.name2id.items()}
+        self.rawsignals_by_handle = [self.id2name[s] for s in self.all_ids]
+        self.signals_by_handle = set(self.rawsignals_by_handle)
+
     def parse(self, vcddata):
         scope = []
         tokens = vcddata.split()

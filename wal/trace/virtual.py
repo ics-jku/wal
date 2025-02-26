@@ -49,3 +49,6 @@ class TraceVirtual(Trace):
 
     def get_all_signals(self):
         return list(self.virtual_signals.keys())
+    
+    def get_all_signals_by_handle(self):
+        return self.get_all_signals()
