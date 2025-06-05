@@ -117,9 +117,24 @@ class TraceVcd(Trace):
         n_tokens = len(tokens)
         # fill initially with all Xs
         self.data = {id: ['x'] for id in self.all_ids}
+        SCALARS = ['x', 'z', 'X', 'Z']
 
         while i < n_tokens:
-            if tokens[i][0] == '#':
+            first_char = tokens[i][0]
+            if first_char == '0' or first_char == '1':
+                id = tokens[i][1:]
+                if id in self.all_ids:
+                    self.data[id][-1] = 'b' + first_char
+
+                i += 1
+            elif first_char == 'b' or first_char == 'r':
+                # n-bit vector of format b0000 id
+                id = tokens[i + 1]
+                if id in self.all_ids:
+                    self.data[id][-1] = tokens[i]
+
+                i += 2
+            elif first_char == '#':
                 time = int(tokens[i][1:])
                 i += 1
                 # copy old values
@@ -128,19 +143,12 @@ class TraceVcd(Trace):
 
                 self.timestamps.append(time)
                 self.index2ts.append(time)
-            elif tokens[i][0] == 'b':
-                # n-bit vector of format b0000 id
-                id = tokens[i + 1]
-                if id in self.all_ids:
-                    value = tokens[i][1:]
-                    self.data[id][-1] = value
-                i += 2
-            elif tokens[i][0] in ['0', '1', 'x', 'z', 'X', 'Z']:
+            elif first_char in SCALARS:
                 # scalar value change
                 id = tokens[i][1:]
                 if id in self.all_ids:
-                    value = tokens[i][0]
-                    self.data[id][-1] = value
+                    self.data[id][-1] = tokens[i][0]
+
                 i += 1
             elif tokens[i] == '$comment':
                 while tokens[i] != '$end':
@@ -172,9 +180,16 @@ class TraceVcd(Trace):
 
     def access_signal_data(self, name, index):
         if self.lookup:
-            return self.data[name][self.lookup[index]]
+            value = self.data[name][self.lookup[index]]
         else:
-            return self.data[name][index]
+            value = self.data[name][index]
+
+        if value[0] == 'b':
+            return int(value[1:], 2)
+        elif value[0] == 'r':
+            return float(value[1:])
+        else:
+            return value
     
     def signal_width(self, name):
         '''Returns the width of a signal'''

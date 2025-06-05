@@ -60,7 +60,6 @@ class TraceCsv(Trace):
                     'data': {}
                 }
         
-        
 
         pattern = re.compile(r"^(\d+)\.?(\d+)?$")
         for i in range(len(data)):
@@ -86,10 +85,19 @@ class TraceCsv(Trace):
         self.max_index = len(self.timestamps.keys()) - 1
 
     def access_signal_data(self, name, index):
+        value = None
         if self.lookup:
-            return self.data[name][self.lookup[index]]
+            value = self.data[name][self.lookup[index]]
         else:
-            return self.data[name][index]
+            value = self.data[name][index]
+
+        try:
+            return int(value, 2)
+        except ValueError:
+            try:
+                return float(value)
+            except ValueError:
+                return value
 
     def signal_width(self, name):
         '''Returns the width of a signal'''

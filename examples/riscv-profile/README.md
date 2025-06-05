@@ -6,10 +6,10 @@ The profiler program consists of a single Python script that accesses and analyz
 The main project of the script can be found [here](https://github.com/LucasKl/riscv-function-profiling).
 
 ## Profiling Waveforms
-To profile a waveform you need to have a RISC-V elf binary and a vcd waveform of a RISC-V core running the binary.
-Profiling is started py running the Python script with the elf file as the first and the vcd file as the second argument.
+To profile a waveform you need to have a RISC-V elf binary and a waveform of a RISC-V core running the binary.
+Profiling is started py running the Python script with the elf file as the first and the waveform file as the second argument.
 
-The example can be run by typing `python profile.py gcd.elf ../wawk/basic-blocks/gcd.vcd` in this directory.
+The example can be run by typing `python profile.py gcd.elf ../wawk/basic-blocks/gcd.fst` in this directory.
 
 ## How does it work?
 This program extracts information about the functions from the elf file using the "nm" command. This command prints a list of all symbols and their sizes*.

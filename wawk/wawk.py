@@ -50,7 +50,7 @@ def run():
         return os.EX_IOERR
 
     wal = Wal()
-    wal.eval_context.global_environment.write('args', args.args)
+    wal.eval_context.global_environment.define('args', args.args)
 
     if args.output:
         with open(args.output, 'w') as f:

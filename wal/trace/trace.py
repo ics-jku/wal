@@ -33,7 +33,7 @@ class Trace:
         return None
 
 
-    def signal_value(self, name, offset, scope=''): # pylint: disable=R0912
+    def signal_value(self, name, offset, scope=''):
         '''Get the value of signal name at current time + offset.'''
         rel_index = self.index + offset
 
@@ -82,11 +82,7 @@ class Trace:
             elif name in self.virtual_signals:
                 res = self.virtual_signals[name].value
             else:
-                bits = self.access_signal_data(name, rel_index)
-                try:
-                    res = int(bits, 2)
-                except ValueError:
-                    res = bits
+                res = self.access_signal_data(name, rel_index)
         elif rel_index >= self.max_index:
             res = self.access_signal_data(name, self.max_index)
         else:
