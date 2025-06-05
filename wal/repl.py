@@ -1,7 +1,10 @@
 '''Implementation of basic read-eval-print-loop'''
-# pylint: disable=W0703,C0103
 import cmd
-import readline
+try:
+    import readline
+except ModuleNotFoundError:
+    readline = None
+
 import os
 
 from wal.util import wal_str
