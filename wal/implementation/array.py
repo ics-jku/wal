@@ -9,7 +9,7 @@ def op_array(seval, args):
     for arg in args:
         assert len(arg) == 2, 'array: arguments must be (key:(int, str, Symbol) sexpr) tuples'
         key = seval.eval(arg[0])
-        assert isinstance(key, (int, str, Symbol)), 'array: keys must be either int, str, or Symbol'
+        assert isinstance(key, (int, str, float, Symbol)), 'array: keys must be either int, string, float, or Symbol'
 
         if isinstance(key, Symbol):
             key = key.name
@@ -32,7 +32,7 @@ def op_seta(seval, args):
     array = seval.eval(args[0])
     assert isinstance(array, dict), 'seta: must be applied on array'
     key = seval.eval(args[1])
-    assert isinstance(key, (int, str, Symbol)), 'seta: key must be either int, string or a symbol'
+    assert isinstance(key, (int, str, Symbol, float)), 'seta: key must be either int, string, float, or a symbol'
     val = seval.eval(args[2])
     key = to_str(key)
     array[key] = val
