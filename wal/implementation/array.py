@@ -32,7 +32,7 @@ def op_seta(seval, args):
     array = seval.eval(args[0])
     assert isinstance(array, dict), 'seta: must be applied on array'
     key = seval.eval(args[1])
-    assert isinstance(key, (int, str, Symbol, float)), 'seta: key must be either int, string, float, or a symbol'
+    assert isinstance(key, (int, str, Symbol, float)), 'seta: key must be either int, string, float, or symbol'
     val = seval.eval(args[2])
     key = to_str(key)
     array[key] = val
@@ -45,7 +45,7 @@ def op_geta(seval, args):
     array = seval.eval(args[0])
     assert(isinstance(array, dict)), 'geta: first argument must be an array'
     key = seval.eval(args[1])
-    assert isinstance(key, (int, str, Symbol)), 'geta: key must be either int, string or a symbol'
+    assert isinstance(key, (int, str, float, Symbol)), 'geta: key must be either int, string, float or symbol'
     key = to_str(key)
 
     assert key in array, f'geta: key {key} not found'
@@ -59,7 +59,7 @@ def op_dela(seval, args):
     array = seval.eval(args[0])
     assert(isinstance(array, dict)), 'dela: first argument must be an array'
     key = seval.eval(args[1])
-    assert isinstance(key, (int, str, Symbol)), 'geta: key must be either int, string or a symbol'
+    assert isinstance(key, (int, str, float, Symbol)), 'geta: key must be either int, string, float, or symbol'
     key = to_str(key)
     assert key in array, f'dela: key {key} not found'
     del array[key]
