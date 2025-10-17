@@ -62,7 +62,7 @@ def main():  # pylint: disable=R1710
 
     if args.c:
         try:
-            wal.eval(args.c)
+            wal.eval_str(args.c)
         except Exception as e: # pylint: disable=W0703
             print()
             print('>>>>> Runtime error! <<<<<')
