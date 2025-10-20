@@ -23,11 +23,8 @@ setup(
         'Development Status :: 4 - Beta',
         'Intended Audience :: Science/Research',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: MIT License',
+        'License :: OSI Approved :: BSD License',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: 3.10',
-        'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3 :: Only',
         'Operating System :: OS Independent'
     ],
@@ -36,8 +33,8 @@ setup(
     python_requires='>=3.9, <4',
     install_requires=['lark'],
     extras_require={
-        'dev': [],
-        'test': ['ruff', 'coverage'],
+        'dev': ['ruff'],
+        'test': ['coverage'],
     },
     package_data={
         'wal': ['libs/std/std.wal', 'libs/std/std.wo', 'libs/std/module.wal', 'libs/std/module.wo']
