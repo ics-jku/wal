@@ -1,5 +1,6 @@
 '''Trace implementation for the CSV file format, as exported by Logic 2 '''
 import re
+import sys
 
 from wal.trace.trace import Trace
 
@@ -20,8 +21,13 @@ class TraceCsv(Trace):
         if from_string:
             self.parse(filename)
         else:
-            with open(filename) as f:
-                self.parse(f.read())
+            try:
+                with open(filename) as f:
+                    self.parse(f.read())
+            except FileNotFoundError:
+                print(f'Error while loading {filename}. File not found.')
+                sys.exit(1)
+
 
         self.all_timestamps = self.timestamps.copy()
         self.index = 0
