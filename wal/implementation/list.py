@@ -42,10 +42,9 @@ def op_rest(seval, args):
 
 
 def op_in(seval, args):
-    '''Returns true if value is contained in list or array'''
-    assert len(args) >= 2, 'in: expects at least 2 arguments (in value [list|array])'
+    '''Returns true if value is contained in list, array, or string'''
+    assert len(args) >= 2, 'in: expects at least 2 arguments (in value* [list|array|str])'
     evaluated = seval.eval_args(args)
-    assert isinstance(evaluated[-1], (WList, list, dict)), 'in: expects list or array as last argument'
     res = True
     if isinstance(evaluated[-1], (WList, list)):
         for check in evaluated[:-1]:
@@ -55,6 +54,14 @@ def op_in(seval, args):
     elif isinstance(evaluated[-1], dict):
         key = '-'.join(map(lambda x: x.name if isinstance(x, Symbol) else str(x), evaluated[:-1]))
         res = key in evaluated[-1]
+    elif isinstance(evaluated[-1], str):
+        for check in evaluated[:-1]:
+            assert isinstance(check, str), 'in: all arguments must be strings if the last argument is string'
+            if check not in evaluated[-1]:
+                res = False
+                break
+    else:
+        assert False, 'in: expects list or array as last argument'
     return res
 
 
