@@ -2,7 +2,7 @@
 import cmd
 try:
     import readline
-except ModuleNotFoundError:
+except (ModuleNotFoundError, ImportError):
     readline = None
 
 import os
