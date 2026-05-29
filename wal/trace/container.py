@@ -30,11 +30,11 @@ class TraceContainer:
             try:
                 from wal.trace.fst import TraceFst
                 self.traces[tid] = TraceFst(file, tid, self, from_string=from_string, keep_signals=keep_signals)
-            except ModuleNotFoundError:
-                print(f'Can not open file "{file}"')
+            except ModuleNotFoundError as e:
+                print(f'Cannot open file "{file}"')
                 print('To get support for the "fst" filetype install "pylibfst" package')
                 print('More information on pylibfst: https://pypi.org/project/pylibfst/')
-                sys.exit(1)
+                raise e
         elif file_extension == '.csv':
             self.traces[tid] = TraceCsv(file, tid, self, from_string=from_string, keep_signals=keep_signals)
         else:

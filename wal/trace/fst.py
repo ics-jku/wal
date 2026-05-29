@@ -1,7 +1,6 @@
 '''Trace implementation for the FST file format '''
 
 import re
-import sys
 import pylibfst as fst
 
 from wal.trace.trace import Trace
@@ -18,8 +17,7 @@ class TraceFst(Trace):
 
         self.fst = fst.lib.fstReaderOpen(file.encode('utf-8'))
         if self.fst == fst.ffi.NULL:
-            print(f'Error while loading {file}')
-            sys.exit(1)
+            raise FileNotFoundError(f"Cannot open file '{file}'")
 
         # get scopes and signals
         (self.scopes, signals) = fst.get_scopes_signals2(self.fst)
