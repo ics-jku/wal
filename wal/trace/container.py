@@ -1,5 +1,4 @@
 '''Wrapper class for trace data'''
-import sys
 import pathlib
 
 from wal.ast_defs import VirtualSignal
