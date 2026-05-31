@@ -93,8 +93,9 @@ class SEval:
         except WalEvalError as error:
             error.add(closure.name)
             raise error
+        finally:
+            self.environment = save_env
 
-        self.environment = save_env
         return res
 
     def eval(self, expr):

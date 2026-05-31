@@ -9,7 +9,7 @@ import os
 
 from wal.util import wal_str
 from wal.reader import read_wal_sexpr, ParseError
-from wal.ast_defs import Operator, Symbol, WList
+from wal.ast_defs import Operator, Symbol, WList, WalEvalError
 from wal.trace.trace import Trace
 from wal.version import __version__
 
@@ -59,6 +59,8 @@ Exit to calling script or terminate running evaluations with CTRL-C'''
                 readline.set_history_length(histfile_size)
                 readline.write_history_file(histfile)
 
+        except WalEvalError as e:
+            e.print()
         except KeyboardInterrupt:
             print('Keyboard Interrupt')
         except Exception as e:
