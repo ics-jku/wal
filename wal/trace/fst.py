@@ -71,3 +71,6 @@ class TraceFst(Trace):
 
     def signal_width(self, name):
         return self.references_to_ids[name].length
+
+    def on_unload(self):
+        fst.lib.fstReaderClose(self.fst)

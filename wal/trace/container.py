@@ -45,6 +45,7 @@ class TraceContainer:
     def unload(self, tid='DEFAULT'):
         '''Remove the trace tid from the set of loaded traces. '''
         if tid in self.traces:
+            self.traces[tid].on_unload()
             del self.traces[tid]
             self.n_traces -= 1
 

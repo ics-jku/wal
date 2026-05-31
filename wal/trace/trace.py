@@ -125,3 +125,7 @@ class Trace:
     def set_max_index(self, new_max_index):
         self.max_index = min(new_max_index, self.max_index)
         return self.max_index
+
+    def on_unload(self):
+        '''Called before the trace is removed from WAL to allow some cleanup.'''
+        pass
