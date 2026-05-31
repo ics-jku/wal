@@ -5,7 +5,10 @@
   <img src="https://wal-lang.org/static/logo.svg?" alt="The Waveform Analysis language logo" width="200"/>
 </p>
 
-Welcome to the Waveform Analysis Language (WAL) repository. This domain-specific language aims at enabling automated and sophisticated analysis of hardware waveforms. In WAL, hardware-specific things such as signals and simulation time are treated as first-class citizens of the language.
+WAL, the Waveform Analysis Language, enables automated and fast analysis of hardware waveforms. In WAL, hardware-specific things such as signals and simulation time are treated as first-class citizens of the language.
+
+## Interactive Tutorial
+Try out WAL without installation using our [interactive tutorial](https://app.wal-lang.org/).
 
 ## Installation from PyPi
 WAL is available from [PyPi](https://pypi.org/project/wal-lang/)!
@@ -17,7 +20,7 @@ To get the latest development version of WAL you can clone this repository.
 After that, follow the instructions for your OS below inside the cloned directory.
 
 ## Installation from Source
-For Ubuntu (22.04 LTS):
+For Ubuntu:
 ```
 sudo apt install git cmake python3-cffi python3.10-venv python3-pip build-essential -y
 git clone https://github.com/ics-jku/wal.git
@@ -26,7 +29,7 @@ PYTHON=python3 make install
 echo "export PATH=\$PATH:$HOME/.local/bin" >> ~/.bashrc
 ```
 
-For Fedora (36):
+For Fedora:
 ```
 sudo dnf install git cmake g++ zlib-devel python3-devel -y
 git clone https://github.com/ics-jku/wal.git
@@ -68,10 +71,24 @@ Also, this ASCII cast [ASCII Cast](https://asciinema.org/a/I8fQknySyaZqNjXAA8Ej7
 Internally, WAWK is transpiled to WAL expressions, showcasing how new languages can be build on top of WAL.
 
 ## Publications
-The initial paper on WAL was presented at ASPDAC'22 and can be downloaded here: https://www.ics.jku.at/files/2022ASPDAC_WAL.pdf.
+The initial paper on WAL was presented at ASPDAC'22 and can be downloaded [here](https://www.ics.jku.at/files/2022ASPDAC_WAL.pdf).
 The examples from the paper can be found in the *examples* folder.
 
-If you like WAL or found it useful, you can cite our paper as follows:
+An extended open-access journal article about WAL is available [here](https://ieeexplore.ieee.org/document/10496480).
+
+If you found WAL useful for your research, please consider citing on of our papers:
+
+```
+@ARTICLE{10496480,
+  author={Klemmer, Lucas and Große, Daniel},
+  journal={IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems},
+  title={WAVING Goodbye to Manual Waveform Analysis in HDL Design With WAL},
+  year={2024},
+  volume={43},
+  number={10},
+  pages={3198-3211},
+  doi={10.1109/TCAD.2024.3387312}}
+```
 
 ```
 @InProceedings{KG:2022,
