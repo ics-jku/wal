@@ -414,6 +414,8 @@ class EvalControlFlowTest(OpTest):
         self.w.eval_str("(set (a '(1 1)))")
         self.checkEqual(case3, "a")
 
+        self.checkEqual('(case 2 [default (/ 1 0)] [2 2])', 2)
+
         with self.assertRaises(ValueError):
             self.w.eval_str('(case 1 (1 a) (2 b) (1 c))')
 

@@ -184,9 +184,10 @@ def op_case(seval, args):
             return seval.eval_args(consequents)[-1]
 
         if isinstance(key, Symbol) and key.name == 'default':
-            default = seval.eval_args(consequents)[-1]
+            default = consequents
 
-    return default
+    if default:
+        return seval.eval_args(default)[-1]
 
 
 def op_do(seval, args):
