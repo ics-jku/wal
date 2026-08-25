@@ -4,6 +4,7 @@ import pathlib
 from wal.ast_defs import VirtualSignal
 from wal.trace.trace import Trace
 from wal.trace.vcd import TraceVcd
+from wal.trace.vcd_sparse import TraceVcdSparse
 from wal.trace.csvtrace import TraceCsv
 
 class TraceContainer:
@@ -15,8 +16,16 @@ class TraceContainer:
         self.index_stack = []
 
 
-    def load(self, file, tid=None, from_string=False, keep_signals=None):
-        '''Load a trace from file and add it under trace id tid.'''
+    def load(self, file, tid=None, from_string=False, keep_signals=None, sparse=False):
+        '''Load a trace from file and add it under trace id tid.
+        
+        Args:
+            file: Path to trace file
+            tid: Trace identifier (auto-generated if None)
+            from_string: If True, treat file as VCD string content
+            keep_signals: Optional set of signal names to load (None = all)
+            sparse: If True, use memory-efficient sparse storage for VCD files
+        '''
         if tid is None:
             tid = f't{len(self.traces)}'
 
@@ -24,7 +33,10 @@ class TraceContainer:
         
         file_extension = pathlib.Path(file).suffix
         if file_extension == '.vcd':
-            self.traces[tid] = TraceVcd(file, tid, self, from_string=from_string, keep_signals=keep_signals)
+            if sparse:
+                self.traces[tid] = TraceVcdSparse(file, tid, self, from_string=from_string, keep_signals=keep_signals)
+            else:
+                self.traces[tid] = TraceVcd(file, tid, self, from_string=from_string, keep_signals=keep_signals)
         elif file_extension == '.fst':
             try:
                 from wal.trace.fst import TraceFst
