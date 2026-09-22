@@ -96,11 +96,15 @@ class Wal:
 
         return res
 
-    def run_file(self, filename):
-        '''Executes a WAL program from a file'''
-        with open(filename, 'r', encoding='utf-8') as fin:
-            return self.eval(WList([Op.DO, *read_wal_sexprs(fin.read())]))
-
+    def eval_file(self, filename):
+        '''Executes a WAL program from a file in the current context.'''
+        with open(filename, 'r', encoding='utf-8') as f:
+            try:
+                for expr in read_wal_sexprs(f.read()):
+                    self.eval(expr)
+            except ParseError as e:
+                e.show()
+                return WalEvalError()
 
     def register_operator(self, name, function):
         self.eval_context.global_environment.define(name, UserOperator(name))
