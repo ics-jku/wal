@@ -12,7 +12,7 @@ long_description = (here / 'README.md').read_text(encoding='utf-8')
 setup(
     name='wal-lang',
     version=__version__, # noqa: F821
-    description='Wal - Wavefile Analysis Language',
+    description='Waveform Analysis Language. Analyze VCD and FST waveforms.',
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://wal-lang.org',
