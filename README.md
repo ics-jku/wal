@@ -5,7 +5,17 @@
   <img src="https://wal-lang.org/static/logo.svg?" alt="The Waveform Analysis language logo" width="200"/>
 </p>
 
-WAL, the Waveform Analysis Language, enables automated and fast analysis of hardware waveforms. In WAL, hardware-specific things such as signals and simulation time are treated as first-class citizens of the language.
+WAL, the Waveform Analysis Language, enables automated and fast analysis of hardware waveforms.
+It is the most advanced Python package to read, analyze, and debug VCD, FST, or CSV waveforms.
+WAL is perfect for finding a bug at the millionth clock cycle, decoding AXI or other protocols, or calculating performance metrics such as bandwidth or latency.
+Use WAL interactively, as a standalone scripting language, or embed it in Python as the waveform analysis layer of your own tool.
+
+In WAL, hardware-specific things such as signals and simulation time are treated as first-class citizens of the language.
+This makes writing WAL scripts quick and easy. You can focus on expressing your problem, the interpreter handles the boilerplate of handling the waveforms for you.
+
+
+## Documentation
+The WAL Documentation is available on [wal-lang.org](https://wal-lang.org/documentation/core).
 
 ## Interactive Tutorial
 Try out WAL without installation using our [interactive tutorial](https://app.wal-lang.org/).
@@ -45,8 +55,8 @@ cd wal
 make install
 ```
 
-### Support for fst waveforms
-To add support for the fst filetype to WAL, install the `pylibfst` package.
+### Support for FST waveforms
+To add support for FST files, install the `pylibfst` package.
 ```
 pip install --user pylibfst
 ```
@@ -58,9 +68,6 @@ To install WAL with an alternative implementation change the *PYTHON* variable i
 
 If you are using PyPy you must also have the python-dev package installed for PyPy3.
 On Ubuntu this package can be installed with 'sudo apt install pypy3-dev'.
-
-## Documentation
-The WAL Programmer Manual is available on [wal-lang.org](https://wal-lang.org/documentation/core).
 
 ## Examples
 To get an impression of WAL you can check out [basic examples](https://github.com/ics-jku/wal/tree/main/examples/basics).
